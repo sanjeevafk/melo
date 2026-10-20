@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink-950: #0b0c0f;
+  --color-ink-900: #111319;
+  --color-ink-800: #181b22;
+  --color-paper: #f1ede3;
+  --color-amber: #e0a458;
+  --color-safe: #78b895;
+  --color-danger: #dc7771;
+  --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, serif;
+  --font-sans: "Inter", "Avenir Next", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    min-width: 320px;
+    margin: 0;
+    background:
+      radial-gradient(circle at 20% -10%, rgba(224, 164, 88, 0.08), transparent 35rem),
+      radial-gradient(circle at 100% 0%, rgba(120, 184, 149, 0.06), transparent 30rem),
+      var(--color-ink-950);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: rgba(224, 164, 88, 0.35);
+    color: var(--color-paper);
+  }
+
+  :focus-visible {
+    outline: 2px solid rgba(224, 164, 88, 0.75);
+    outline-offset: 3px;
+  }
+}
+
+@layer components {
+  .card {
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 1.5rem;
+    background:
+      linear-gradient(145deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
+      rgba(17, 19, 25, 0.72);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.04) inset,
+      0 24px 60px rgba(0, 0, 0, 0.22);
+    backdrop-filter: blur(18px);
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: rgba(255, 255, 255, 0.38);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .word-token {
+    display: inline-block;
+    vertical-align: baseline;
+    margin-right: 0.28rem;
+    padding: 0 0.15rem;
+    border-radius: 0.25rem;
+    box-sizing: border-box;
+    transition: color 120ms ease, background-color 120ms ease, box-shadow 120ms ease;
+  }
+
+  .word-token-locked {
+    display: inline-block;
+    vertical-align: baseline;
+    margin-right: 0.28rem;
+    padding: 0 0.15rem;
+    border-radius: 0.25rem;
+    box-sizing: border-box;
+    user-select: none;
+    cursor: default;
+  }
+
+  .word-token-locked::before {
+    content: attr(data-word);
+    color: transparent;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 0.25rem;
+    user-select: none;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
