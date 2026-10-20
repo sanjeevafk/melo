@@ -1,0 +1,221 @@
+{
+  "version": 1,
+  "files": {
+    "embeddinggemma-2/.cache/huggingface/.gitignore": {
+      "sha256": "684888c0ebb17f374298b65ee2807526c066094c701bcc7ebbe1c1095f494fc1"
+    },
+    "embeddinggemma-2/.cache/huggingface/CACHEDIR.TAG": {
+      "sha256": "f6572428f6d5e1575e73a1502895a8731f10757dfbb634909c6e154b849af91d"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/.gitattributes.lock": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/.gitattributes.metadata": {
+      "sha256": "87e450dd46e71ac6562fc9576c470fc4c0d86fc04913640b321a6f2d064ea686"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/1_Pooling/config.json.lock": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/1_Pooling/config.json.metadata": {
+      "sha256": "312fa84013b05ad0e6ce3280b0e07aea73eec278b49999dba12360ee166bc823"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/2_Normalize/config.json.lock": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/2_Normalize/config.json.metadata": {
+      "sha256": "9b228210217d13e02afd1999a3f1d78271e4749ded3b6765aadf7457dc7c3351"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/README.md.lock": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/README.md.metadata": {
+      "sha256": "464acf0c6d8b297bd4f8c71b6819c090bdefde2ad89ce7924db50908f2994efd"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/chat_template.jinja.lock": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/chat_template.jinja.metadata": {
+      "sha256": "9a3f61988ffbcf6225f5f9d543dc97da353922d7841f17827f63bb8e2d8335a0"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/config.json.lock": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/config.json.metadata": {
+      "sha256": "4906f8bf56e76c710c89b1595d302da02f61fe2854f06b75596465110c6414b6"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/config_sentence_transformers.json.lock": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/config_sentence_transformers.json.metadata": {
+      "sha256": "18592bb78ec7bb485f505e2ce77c3b64d4de6edf8bd3e2c3da9fa0d3dad2f9fb"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/model.safetensors.lock": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/model.safetensors.metadata": {
+      "sha256": "0e45af7a7fd5ff17c48ed47d57aa2275b6278f964683965ac0bfd7a1f1cf7873"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/modules.json.lock": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/modules.json.metadata": {
+      "sha256": "8b0473644dd7510d15697fd97ed440aadcb03b1cbd9eab51c36300ce46e007d8"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/preprocessor_config.json.lock": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/preprocessor_config.json.metadata": {
+      "sha256": "b227b96948c9adb0c439ab5357b8128b20c4617a91de95bffa105501ef523970"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/processor_config.json.lock": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/processor_config.json.metadata": {
+      "sha256": "dcff8c62ee9651b363ef5e756185431f1a84f49aa8cad73ad6992f6ea3fb5d21"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/sentence_bert_config.json.lock": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/sentence_bert_config.json.metadata": {
+      "sha256": "2a841f911f97bdafc7c3f023a97df96524474a041b092cea08a58380bb669702"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/tokenizer.json.lock": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/tokenizer.json.metadata": {
+      "sha256": "d4c0fe5a411403f8b69ed6213d194ff4eba4de8560186cd2e5a59d67cd57cd52"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/tokenizer.model.lock": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/tokenizer.model.metadata": {
+      "sha256": "fb309d54a6440ac138662d28648316e3c60cc9e75332b0279d862b4014d6e81a"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/tokenizer_config.json.lock": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "embeddinggemma-2/.cache/huggingface/download/tokenizer_config.json.metadata": {
+      "sha256": "f5c43c9fb60b6f1caec6e4f346e6c849b3ce09b69d0ee8dec064fe747e23bd94"
+    },
+    "embeddinggemma-2/.cache/huggingface/trees/914f7f89142e33e77833254d9c9b90c3cef7303b.json": {
+      "sha256": "51be445066e66ba4b2fc72e9d67bfaf55b1414b2d701f4407b1e3f5934971b56"
+    },
+    "embeddinggemma-2/.gitattributes": {
+      "sha256": "bcdccfaa66bc1240c7192dbd374cfb39b695bb1d8ff6b7ce0113aa5e9ac21a44"
+    },
+    "embeddinggemma-2/1_Pooling/config.json": {
+      "sha256": "8759bdf7c77efc7df7723f64856a593c8943b71ee38baf2a88771fbaf78438f9"
+    },
+    "embeddinggemma-2/2_Normalize/config.json": {
+      "sha256": "cdb09dfca347a56aa2d691744e38d5ad3c7cbc2834e7181272b9a15328b82524"
+    },
+    "embeddinggemma-2/README.md": {
+      "sha256": "b677a0ee2818c36f091b65fd3d9b4baea9f04d53b02b49cae916c74bf9682037"
+    },
+    "embeddinggemma-2/chat_template.jinja": {
+      "sha256": "4b852efc0b9960283e735363331e6f325b33bc74bdbaa076f595bc4e9b94d85e"
+    },
+    "embeddinggemma-2/config.json": {
+      "sha256": "b8f1e9931b57fbc054acdb445c41765d55b0074c58d145fa82839941ad1b5bb3"
+    },
+    "embeddinggemma-2/config_sentence_transformers.json": {
+      "sha256": "031e56a498d33c349ab489a21885bcfe25b4fcba841149dc99e1e90d4a7c28f5"
+    },
+    "embeddinggemma-2/model.safetensors": {
+      "sha256": "197a32965d4b1105faf060417baa899e193fb73cd401f42ec9295234d5553d79"
+    },
+    "embeddinggemma-2/modules.json": {
+      "sha256": "3d02572a0455b832de67fb8e63a54981bc7e8b46e337c95e917bd8122a533bfd"
+    },
+    "embeddinggemma-2/preprocessor_config.json": {
+      "sha256": "ea2ae257e901064abdd98dceb19f2b0da06af600bed15e0f99f5c85c37ee9d78"
+    },
+    "embeddinggemma-2/processor_config.json": {
+      "sha256": "168f6a08522f3ce5dea596d94d003af2fd691742d4f41fe1f9d8cce76bfbf69c"
+    },
+    "embeddinggemma-2/sentence_bert_config.json": {
+      "sha256": "b1bcd9f2dce3ae863b359e87d0710b5dbc3314a59ecb4e2f97c7778fc8e4b228"
+    },
+    "embeddinggemma-2/tokenizer.json": {
+      "sha256": "4d777ef5bdc1aa36227abdfb77c3e49e7b9c892d16e1b6bda41c393504828be4"
+    },
+    "embeddinggemma-2/tokenizer.model": {
+      "sha256": "e594c8a90eb08d8bda498ff4747977dc827ae0c3c56b5c0d41a605a22d02ef03"
+    },
+    "embeddinggemma-2/tokenizer_config.json": {
+      "sha256": "17bd5d6e9364ca49a534e1502076593317c298d4a663623091ed45388f004874"
+    },
+    "faster-whisper-base.en/.cache/huggingface/.gitignore": {
+      "sha256": "684888c0ebb17f374298b65ee2807526c066094c701bcc7ebbe1c1095f494fc1"
+    },
+    "faster-whisper-base.en/.cache/huggingface/CACHEDIR.TAG": {
+      "sha256": "f6572428f6d5e1575e73a1502895a8731f10757dfbb634909c6e154b849af91d"
+    },
+    "faster-whisper-base.en/.cache/huggingface/download/.gitattributes.lock": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "faster-whisper-base.en/.cache/huggingface/download/.gitattributes.metadata": {
+      "sha256": "2cd5db6ede47632fbfd86f11e358faf659377371f20b84ce0c6f30abf7038469"
+    },
+    "faster-whisper-base.en/.cache/huggingface/download/README.md.lock": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "faster-whisper-base.en/.cache/huggingface/download/README.md.metadata": {
+      "sha256": "3df35b896e9be107d28ce92682cc53821713d06de02f13e686e4c08c16a54959"
+    },
+    "faster-whisper-base.en/.cache/huggingface/download/config.json.lock": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "faster-whisper-base.en/.cache/huggingface/download/config.json.metadata": {
+      "sha256": "7e871f273093153c91ecc4a197029056f51a88feaa405a3067d751955da42bbe"
+    },
+    "faster-whisper-base.en/.cache/huggingface/download/model.bin.lock": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "faster-whisper-base.en/.cache/huggingface/download/model.bin.metadata": {
+      "sha256": "a15bbda1db3005321fba861cbfb589679295be8ed636e5251f5245821ccd6d8f"
+    },
+    "faster-whisper-base.en/.cache/huggingface/download/tokenizer.json.lock": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "faster-whisper-base.en/.cache/huggingface/download/tokenizer.json.metadata": {
+      "sha256": "323f35d249dbc5ce4e18df20dd411d9557f3b077736a3dc6c95001c42e05ae5d"
+    },
+    "faster-whisper-base.en/.cache/huggingface/download/vocabulary.txt.lock": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "faster-whisper-base.en/.cache/huggingface/download/vocabulary.txt.metadata": {
+      "sha256": "83bc48da4e7de62940558d548e1da200dc965ff364563b0727f92149eae28e7e"
+    },
+    "faster-whisper-base.en/.cache/huggingface/trees/3d3d5dee26484f91867d81cb899cfcf72b96be6c.json": {
+      "sha256": "95d5297b1407c253c02476a3e059b8a52d84b74161cb9d18fbb9a32d6f3101af"
+    },
+    "faster-whisper-base.en/.gitattributes": {
+      "sha256": "db7c0371f46f0840b8f25794c1e3321c9b5820a8cb6ba9694a46fc64b8fae5a6"
+    },
+    "faster-whisper-base.en/README.md": {
+      "sha256": "0360e1518671daf4064d44121ad1c4bbb0446dd5b0f8c724c8d3132fd33a1540"
+    },
+    "faster-whisper-base.en/config.json": {
+      "sha256": "f3bc3821e9fc76a27bae538e11ae5b677dcdd352b4600429ce7951d398569aeb"
+    },
+    "faster-whisper-base.en/model.bin": {
+      "sha256": "2a166925539a16005f14ff328359f9b9adb9dc4fb631bb3b227526862e93e2ef"
+    },
+    "faster-whisper-base.en/tokenizer.json": {
+      "sha256": "929c5252409436dce1b38a75d1abbcb5e132d170d8e324e4e04ed915fa2d22df"
+    },
+    "faster-whisper-base.en/vocabulary.txt": {
+      "sha256": "ff77588746d3a2595d32ab5b69ffd7b95ce2441ac57533cb66fc3eb575a115cf"
+    },
+    "kokoro-v1.0.int8.onnx": {
+      "sha256": "6e742170d309016e5891a994e1ce1559c702a2ccd0075e67ef7157974f6406cb"
+    },
+    "qwen2.5-1.5b-instruct-q4_k_m.gguf": {
+      "sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e"
+    },
+    "voices-v1.0.bin": {
+      "sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d"
+    }
+  }
+}

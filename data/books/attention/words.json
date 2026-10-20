@@ -1,0 +1,3247 @@
+[
+  {
+    "word": "The",
+    "start_ms": 0,
+    "end_ms": 218
+  },
+  {
+    "word": "paper",
+    "start_ms": 218,
+    "end_ms": 545
+  },
+  {
+    "word": "Attention",
+    "start_ms": 545,
+    "end_ms": 1091
+  },
+  {
+    "word": "Is",
+    "start_ms": 1091,
+    "end_ms": 1255
+  },
+  {
+    "word": "All",
+    "start_ms": 1255,
+    "end_ms": 1473
+  },
+  {
+    "word": "You",
+    "start_ms": 1473,
+    "end_ms": 1691
+  },
+  {
+    "word": "Need",
+    "start_ms": 1691,
+    "end_ms": 1964
+  },
+  {
+    "word": "introduced",
+    "start_ms": 1964,
+    "end_ms": 2564
+  },
+  {
+    "word": "the",
+    "start_ms": 2564,
+    "end_ms": 2783
+  },
+  {
+    "word": "Transformer,",
+    "start_ms": 2783,
+    "end_ms": 3492
+  },
+  {
+    "word": "an",
+    "start_ms": 3492,
+    "end_ms": 3656
+  },
+  {
+    "word": "architecture",
+    "start_ms": 3656,
+    "end_ms": 4365
+  },
+  {
+    "word": "that",
+    "start_ms": 4365,
+    "end_ms": 4638
+  },
+  {
+    "word": "replaced",
+    "start_ms": 4638,
+    "end_ms": 5129
+  },
+  {
+    "word": "recurrence",
+    "start_ms": 5129,
+    "end_ms": 5729
+  },
+  {
+    "word": "and",
+    "start_ms": 5729,
+    "end_ms": 5948
+  },
+  {
+    "word": "convolution",
+    "start_ms": 5948,
+    "end_ms": 6602
+  },
+  {
+    "word": "with",
+    "start_ms": 6602,
+    "end_ms": 6875
+  },
+  {
+    "word": "attention",
+    "start_ms": 6875,
+    "end_ms": 7421
+  },
+  {
+    "word": "as",
+    "start_ms": 7421,
+    "end_ms": 7585
+  },
+  {
+    "word": "the",
+    "start_ms": 7585,
+    "end_ms": 7803
+  },
+  {
+    "word": "main",
+    "start_ms": 7803,
+    "end_ms": 8076
+  },
+  {
+    "word": "mechanism",
+    "start_ms": 8076,
+    "end_ms": 8621
+  },
+  {
+    "word": "for",
+    "start_ms": 8621,
+    "end_ms": 8840
+  },
+  {
+    "word": "sequence",
+    "start_ms": 8840,
+    "end_ms": 9331
+  },
+  {
+    "word": "modeling.",
+    "start_ms": 9331,
+    "end_ms": 9877
+  },
+  {
+    "word": "At",
+    "start_ms": 10127,
+    "end_ms": 10290
+  },
+  {
+    "word": "the",
+    "start_ms": 10290,
+    "end_ms": 10507
+  },
+  {
+    "word": "time,",
+    "start_ms": 10507,
+    "end_ms": 10834
+  },
+  {
+    "word": "most",
+    "start_ms": 10834,
+    "end_ms": 11106
+  },
+  {
+    "word": "translation",
+    "start_ms": 11106,
+    "end_ms": 11758
+  },
+  {
+    "word": "systems",
+    "start_ms": 11758,
+    "end_ms": 12193
+  },
+  {
+    "word": "used",
+    "start_ms": 12193,
+    "end_ms": 12465
+  },
+  {
+    "word": "recurrent",
+    "start_ms": 12465,
+    "end_ms": 13009
+  },
+  {
+    "word": "neural",
+    "start_ms": 13009,
+    "end_ms": 13390
+  },
+  {
+    "word": "networks,",
+    "start_ms": 13390,
+    "end_ms": 13934
+  },
+  {
+    "word": "often",
+    "start_ms": 13934,
+    "end_ms": 14260
+  },
+  {
+    "word": "with",
+    "start_ms": 14260,
+    "end_ms": 14532
+  },
+  {
+    "word": "an",
+    "start_ms": 14532,
+    "end_ms": 14695
+  },
+  {
+    "word": "encoder",
+    "start_ms": 14695,
+    "end_ms": 15131
+  },
+  {
+    "word": "that",
+    "start_ms": 15131,
+    "end_ms": 15403
+  },
+  {
+    "word": "read",
+    "start_ms": 15403,
+    "end_ms": 15675
+  },
+  {
+    "word": "the",
+    "start_ms": 15675,
+    "end_ms": 15892
+  },
+  {
+    "word": "source",
+    "start_ms": 15892,
+    "end_ms": 16273
+  },
+  {
+    "word": "sentence",
+    "start_ms": 16273,
+    "end_ms": 16762
+  },
+  {
+    "word": "and",
+    "start_ms": 16762,
+    "end_ms": 16980
+  },
+  {
+    "word": "a",
+    "start_ms": 16980,
+    "end_ms": 17089
+  },
+  {
+    "word": "decoder",
+    "start_ms": 17089,
+    "end_ms": 17524
+  },
+  {
+    "word": "that",
+    "start_ms": 17524,
+    "end_ms": 17796
+  },
+  {
+    "word": "produced",
+    "start_ms": 17796,
+    "end_ms": 18285
+  },
+  {
+    "word": "the",
+    "start_ms": 18285,
+    "end_ms": 18503
+  },
+  {
+    "word": "target",
+    "start_ms": 18503,
+    "end_ms": 18884
+  },
+  {
+    "word": "sentence",
+    "start_ms": 18884,
+    "end_ms": 19373
+  },
+  {
+    "word": "one",
+    "start_ms": 19373,
+    "end_ms": 19591
+  },
+  {
+    "word": "token",
+    "start_ms": 19591,
+    "end_ms": 19917
+  },
+  {
+    "word": "at",
+    "start_ms": 19917,
+    "end_ms": 20080
+  },
+  {
+    "word": "a",
+    "start_ms": 20080,
+    "end_ms": 20189
+  },
+  {
+    "word": "time.",
+    "start_ms": 20189,
+    "end_ms": 20516
+  },
+  {
+    "word": "Those",
+    "start_ms": 20766,
+    "end_ms": 21092
+  },
+  {
+    "word": "models",
+    "start_ms": 21092,
+    "end_ms": 21472
+  },
+  {
+    "word": "were",
+    "start_ms": 21472,
+    "end_ms": 21744
+  },
+  {
+    "word": "powerful,",
+    "start_ms": 21744,
+    "end_ms": 22287
+  },
+  {
+    "word": "but",
+    "start_ms": 22287,
+    "end_ms": 22505
+  },
+  {
+    "word": "their",
+    "start_ms": 22505,
+    "end_ms": 22831
+  },
+  {
+    "word": "sequential",
+    "start_ms": 22831,
+    "end_ms": 23429
+  },
+  {
+    "word": "structure",
+    "start_ms": 23429,
+    "end_ms": 23973
+  },
+  {
+    "word": "made",
+    "start_ms": 23973,
+    "end_ms": 24244
+  },
+  {
+    "word": "training",
+    "start_ms": 24244,
+    "end_ms": 24734
+  },
+  {
+    "word": "difficult",
+    "start_ms": 24734,
+    "end_ms": 25277
+  },
+  {
+    "word": "to",
+    "start_ms": 25277,
+    "end_ms": 25440
+  },
+  {
+    "word": "parallelize",
+    "start_ms": 25440,
+    "end_ms": 26092
+  },
+  {
+    "word": "and",
+    "start_ms": 26092,
+    "end_ms": 26310
+  },
+  {
+    "word": "made",
+    "start_ms": 26310,
+    "end_ms": 26582
+  },
+  {
+    "word": "long-range",
+    "start_ms": 26582,
+    "end_ms": 27180
+  },
+  {
+    "word": "dependencies",
+    "start_ms": 27180,
+    "end_ms": 27886
+  },
+  {
+    "word": "hard",
+    "start_ms": 27886,
+    "end_ms": 28158
+  },
+  {
+    "word": "to",
+    "start_ms": 28158,
+    "end_ms": 28321
+  },
+  {
+    "word": "learn.",
+    "start_ms": 28321,
+    "end_ms": 28702
+  },
+  {
+    "word": "The",
+    "start_ms": 28952,
+    "end_ms": 29168
+  },
+  {
+    "word": "Transformer",
+    "start_ms": 29168,
+    "end_ms": 29819
+  },
+  {
+    "word": "keeps",
+    "start_ms": 29819,
+    "end_ms": 30144
+  },
+  {
+    "word": "the",
+    "start_ms": 30144,
+    "end_ms": 30361
+  },
+  {
+    "word": "encoder-decoder",
+    "start_ms": 30361,
+    "end_ms": 31229
+  },
+  {
+    "word": "shape",
+    "start_ms": 31229,
+    "end_ms": 31554
+  },
+  {
+    "word": "but",
+    "start_ms": 31554,
+    "end_ms": 31771
+  },
+  {
+    "word": "removes",
+    "start_ms": 31771,
+    "end_ms": 32205
+  },
+  {
+    "word": "recurrence.",
+    "start_ms": 32205,
+    "end_ms": 32856
+  },
+  {
+    "word": "Each",
+    "start_ms": 33106,
+    "end_ms": 33394
+  },
+  {
+    "word": "layer",
+    "start_ms": 33394,
+    "end_ms": 33740
+  },
+  {
+    "word": "uses",
+    "start_ms": 33740,
+    "end_ms": 34028
+  },
+  {
+    "word": "self-attention,",
+    "start_ms": 34028,
+    "end_ms": 34951
+  },
+  {
+    "word": "a",
+    "start_ms": 34951,
+    "end_ms": 35066
+  },
+  {
+    "word": "operation",
+    "start_ms": 35066,
+    "end_ms": 35643
+  },
+  {
+    "word": "that",
+    "start_ms": 35643,
+    "end_ms": 35931
+  },
+  {
+    "word": "lets",
+    "start_ms": 35931,
+    "end_ms": 36220
+  },
+  {
+    "word": "every",
+    "start_ms": 36220,
+    "end_ms": 36566
+  },
+  {
+    "word": "position",
+    "start_ms": 36566,
+    "end_ms": 37085
+  },
+  {
+    "word": "look",
+    "start_ms": 37085,
+    "end_ms": 37373
+  },
+  {
+    "word": "at",
+    "start_ms": 37373,
+    "end_ms": 37546
+  },
+  {
+    "word": "every",
+    "start_ms": 37546,
+    "end_ms": 37892
+  },
+  {
+    "word": "other",
+    "start_ms": 37892,
+    "end_ms": 38238
+  },
+  {
+    "word": "position",
+    "start_ms": 38238,
+    "end_ms": 38757
+  },
+  {
+    "word": "in",
+    "start_ms": 38757,
+    "end_ms": 38930
+  },
+  {
+    "word": "the",
+    "start_ms": 38930,
+    "end_ms": 39161
+  },
+  {
+    "word": "sequence",
+    "start_ms": 39161,
+    "end_ms": 39680
+  },
+  {
+    "word": "and",
+    "start_ms": 39680,
+    "end_ms": 39911
+  },
+  {
+    "word": "decide",
+    "start_ms": 39911,
+    "end_ms": 40314
+  },
+  {
+    "word": "which",
+    "start_ms": 40314,
+    "end_ms": 40660
+  },
+  {
+    "word": "representations",
+    "start_ms": 40660,
+    "end_ms": 41583
+  },
+  {
+    "word": "matter.",
+    "start_ms": 41583,
+    "end_ms": 42045
+  },
+  {
+    "word": "The",
+    "start_ms": 42295,
+    "end_ms": 42524
+  },
+  {
+    "word": "authors",
+    "start_ms": 42524,
+    "end_ms": 42982
+  },
+  {
+    "word": "describe",
+    "start_ms": 42982,
+    "end_ms": 43498
+  },
+  {
+    "word": "scaled",
+    "start_ms": 43498,
+    "end_ms": 43899
+  },
+  {
+    "word": "dot-product",
+    "start_ms": 43899,
+    "end_ms": 44587
+  },
+  {
+    "word": "attention.",
+    "start_ms": 44587,
+    "end_ms": 45218
+  },
+  {
+    "word": "A",
+    "start_ms": 45468,
+    "end_ms": 45580
+  },
+  {
+    "word": "query,",
+    "start_ms": 45580,
+    "end_ms": 45973
+  },
+  {
+    "word": "a",
+    "start_ms": 45973,
+    "end_ms": 46085
+  },
+  {
+    "word": "key,",
+    "start_ms": 46085,
+    "end_ms": 46366
+  },
+  {
+    "word": "and",
+    "start_ms": 46366,
+    "end_ms": 46590
+  },
+  {
+    "word": "a",
+    "start_ms": 46590,
+    "end_ms": 46703
+  },
+  {
+    "word": "value",
+    "start_ms": 46703,
+    "end_ms": 47039
+  },
+  {
+    "word": "are",
+    "start_ms": 47039,
+    "end_ms": 47264
+  },
+  {
+    "word": "produced",
+    "start_ms": 47264,
+    "end_ms": 47769
+  },
+  {
+    "word": "for",
+    "start_ms": 47769,
+    "end_ms": 47994
+  },
+  {
+    "word": "each",
+    "start_ms": 47994,
+    "end_ms": 48275
+  },
+  {
+    "word": "token.",
+    "start_ms": 48275,
+    "end_ms": 48668
+  },
+  {
+    "word": "The",
+    "start_ms": 48918,
+    "end_ms": 49128
+  },
+  {
+    "word": "dot",
+    "start_ms": 49128,
+    "end_ms": 49339
+  },
+  {
+    "word": "product",
+    "start_ms": 49339,
+    "end_ms": 49761
+  },
+  {
+    "word": "of",
+    "start_ms": 49761,
+    "end_ms": 49919
+  },
+  {
+    "word": "a",
+    "start_ms": 49919,
+    "end_ms": 50025
+  },
+  {
+    "word": "query",
+    "start_ms": 50025,
+    "end_ms": 50341
+  },
+  {
+    "word": "and",
+    "start_ms": 50341,
+    "end_ms": 50552
+  },
+  {
+    "word": "a",
+    "start_ms": 50552,
+    "end_ms": 50658
+  },
+  {
+    "word": "key",
+    "start_ms": 50658,
+    "end_ms": 50868
+  },
+  {
+    "word": "measures",
+    "start_ms": 50868,
+    "end_ms": 51343
+  },
+  {
+    "word": "relevance,",
+    "start_ms": 51343,
+    "end_ms": 51923
+  },
+  {
+    "word": "the",
+    "start_ms": 51923,
+    "end_ms": 52134
+  },
+  {
+    "word": "scores",
+    "start_ms": 52134,
+    "end_ms": 52503
+  },
+  {
+    "word": "are",
+    "start_ms": 52503,
+    "end_ms": 52714
+  },
+  {
+    "word": "scaled",
+    "start_ms": 52714,
+    "end_ms": 53083
+  },
+  {
+    "word": "by",
+    "start_ms": 53083,
+    "end_ms": 53241
+  },
+  {
+    "word": "the",
+    "start_ms": 53241,
+    "end_ms": 53452
+  },
+  {
+    "word": "square",
+    "start_ms": 53452,
+    "end_ms": 53821
+  },
+  {
+    "word": "root",
+    "start_ms": 53821,
+    "end_ms": 54085
+  },
+  {
+    "word": "of",
+    "start_ms": 54085,
+    "end_ms": 54243
+  },
+  {
+    "word": "the",
+    "start_ms": 54243,
+    "end_ms": 54454
+  },
+  {
+    "word": "key",
+    "start_ms": 54454,
+    "end_ms": 54665
+  },
+  {
+    "word": "dimension,",
+    "start_ms": 54665,
+    "end_ms": 55245
+  },
+  {
+    "word": "and",
+    "start_ms": 55245,
+    "end_ms": 55456
+  },
+  {
+    "word": "a",
+    "start_ms": 55456,
+    "end_ms": 55561
+  },
+  {
+    "word": "softmax",
+    "start_ms": 55561,
+    "end_ms": 55983
+  },
+  {
+    "word": "turns",
+    "start_ms": 55983,
+    "end_ms": 56300
+  },
+  {
+    "word": "them",
+    "start_ms": 56300,
+    "end_ms": 56563
+  },
+  {
+    "word": "into",
+    "start_ms": 56563,
+    "end_ms": 56827
+  },
+  {
+    "word": "weights.",
+    "start_ms": 56827,
+    "end_ms": 57302
+  },
+  {
+    "word": "The",
+    "start_ms": 57552,
+    "end_ms": 57784
+  },
+  {
+    "word": "output",
+    "start_ms": 57784,
+    "end_ms": 58191
+  },
+  {
+    "word": "is",
+    "start_ms": 58191,
+    "end_ms": 58365
+  },
+  {
+    "word": "a",
+    "start_ms": 58365,
+    "end_ms": 58482
+  },
+  {
+    "word": "weighted",
+    "start_ms": 58482,
+    "end_ms": 59005
+  },
+  {
+    "word": "sum",
+    "start_ms": 59005,
+    "end_ms": 59237
+  },
+  {
+    "word": "of",
+    "start_ms": 59237,
+    "end_ms": 59412
+  },
+  {
+    "word": "values.",
+    "start_ms": 59412,
+    "end_ms": 59877
+  },
+  {
+    "word": "Multi-head",
+    "start_ms": 60127,
+    "end_ms": 60786
+  },
+  {
+    "word": "attention",
+    "start_ms": 60786,
+    "end_ms": 61386
+  },
+  {
+    "word": "repeats",
+    "start_ms": 61386,
+    "end_ms": 61866
+  },
+  {
+    "word": "this",
+    "start_ms": 61866,
+    "end_ms": 62166
+  },
+  {
+    "word": "process",
+    "start_ms": 62166,
+    "end_ms": 62646
+  },
+  {
+    "word": "several",
+    "start_ms": 62646,
+    "end_ms": 63126
+  },
+  {
+    "word": "times",
+    "start_ms": 63126,
+    "end_ms": 63486
+  },
+  {
+    "word": "in",
+    "start_ms": 63486,
+    "end_ms": 63666
+  },
+  {
+    "word": "parallel.",
+    "start_ms": 63666,
+    "end_ms": 64266
+  },
+  {
+    "word": "Different",
+    "start_ms": 64516,
+    "end_ms": 65051
+  },
+  {
+    "word": "heads",
+    "start_ms": 65051,
+    "end_ms": 65372
+  },
+  {
+    "word": "can",
+    "start_ms": 65372,
+    "end_ms": 65587
+  },
+  {
+    "word": "learn",
+    "start_ms": 65587,
+    "end_ms": 65908
+  },
+  {
+    "word": "different",
+    "start_ms": 65908,
+    "end_ms": 66443
+  },
+  {
+    "word": "relationships,",
+    "start_ms": 66443,
+    "end_ms": 67247
+  },
+  {
+    "word": "such",
+    "start_ms": 67247,
+    "end_ms": 67514
+  },
+  {
+    "word": "as",
+    "start_ms": 67514,
+    "end_ms": 67675
+  },
+  {
+    "word": "local",
+    "start_ms": 67675,
+    "end_ms": 67996
+  },
+  {
+    "word": "syntax,",
+    "start_ms": 67996,
+    "end_ms": 68425
+  },
+  {
+    "word": "long-distance",
+    "start_ms": 68425,
+    "end_ms": 69175
+  },
+  {
+    "word": "agreement,",
+    "start_ms": 69175,
+    "end_ms": 69764
+  },
+  {
+    "word": "or",
+    "start_ms": 69764,
+    "end_ms": 69924
+  },
+  {
+    "word": "links",
+    "start_ms": 69924,
+    "end_ms": 70246
+  },
+  {
+    "word": "between",
+    "start_ms": 70246,
+    "end_ms": 70674
+  },
+  {
+    "word": "pronouns",
+    "start_ms": 70674,
+    "end_ms": 71156
+  },
+  {
+    "word": "and",
+    "start_ms": 71156,
+    "end_ms": 71370
+  },
+  {
+    "word": "their",
+    "start_ms": 71370,
+    "end_ms": 71691
+  },
+  {
+    "word": "referents.",
+    "start_ms": 71691,
+    "end_ms": 72281
+  },
+  {
+    "word": "The",
+    "start_ms": 72531,
+    "end_ms": 72750
+  },
+  {
+    "word": "results",
+    "start_ms": 72750,
+    "end_ms": 73188
+  },
+  {
+    "word": "are",
+    "start_ms": 73188,
+    "end_ms": 73407
+  },
+  {
+    "word": "concatenated",
+    "start_ms": 73407,
+    "end_ms": 74119
+  },
+  {
+    "word": "and",
+    "start_ms": 74119,
+    "end_ms": 74338
+  },
+  {
+    "word": "projected",
+    "start_ms": 74338,
+    "end_ms": 74886
+  },
+  {
+    "word": "back",
+    "start_ms": 74886,
+    "end_ms": 75159
+  },
+  {
+    "word": "into",
+    "start_ms": 75159,
+    "end_ms": 75433
+  },
+  {
+    "word": "the",
+    "start_ms": 75433,
+    "end_ms": 75652
+  },
+  {
+    "word": "model",
+    "start_ms": 75652,
+    "end_ms": 75981
+  },
+  {
+    "word": "dimension.",
+    "start_ms": 75981,
+    "end_ms": 76584
+  },
+  {
+    "word": "Because",
+    "start_ms": 76834,
+    "end_ms": 77289
+  },
+  {
+    "word": "all",
+    "start_ms": 77289,
+    "end_ms": 77517
+  },
+  {
+    "word": "positions",
+    "start_ms": 77517,
+    "end_ms": 78086
+  },
+  {
+    "word": "are",
+    "start_ms": 78086,
+    "end_ms": 78314
+  },
+  {
+    "word": "processed",
+    "start_ms": 78314,
+    "end_ms": 78883
+  },
+  {
+    "word": "together,",
+    "start_ms": 78883,
+    "end_ms": 79453
+  },
+  {
+    "word": "the",
+    "start_ms": 79453,
+    "end_ms": 79680
+  },
+  {
+    "word": "computation",
+    "start_ms": 79680,
+    "end_ms": 80364
+  },
+  {
+    "word": "becomes",
+    "start_ms": 80364,
+    "end_ms": 80819
+  },
+  {
+    "word": "a",
+    "start_ms": 80819,
+    "end_ms": 80933
+  },
+  {
+    "word": "set",
+    "start_ms": 80933,
+    "end_ms": 81161
+  },
+  {
+    "word": "of",
+    "start_ms": 81161,
+    "end_ms": 81332
+  },
+  {
+    "word": "large",
+    "start_ms": 81332,
+    "end_ms": 81673
+  },
+  {
+    "word": "matrix",
+    "start_ms": 81673,
+    "end_ms": 82072
+  },
+  {
+    "word": "operations",
+    "start_ms": 82072,
+    "end_ms": 82698
+  },
+  {
+    "word": "that",
+    "start_ms": 82698,
+    "end_ms": 82983
+  },
+  {
+    "word": "modern",
+    "start_ms": 82983,
+    "end_ms": 83381
+  },
+  {
+    "word": "hardware",
+    "start_ms": 83381,
+    "end_ms": 83894
+  },
+  {
+    "word": "can",
+    "start_ms": 83894,
+    "end_ms": 84122
+  },
+  {
+    "word": "run",
+    "start_ms": 84122,
+    "end_ms": 84349
+  },
+  {
+    "word": "efficiently.",
+    "start_ms": 84349,
+    "end_ms": 85090
+  },
+  {
+    "word": "The",
+    "start_ms": 85340,
+    "end_ms": 85556
+  },
+  {
+    "word": "architecture",
+    "start_ms": 85556,
+    "end_ms": 86260
+  },
+  {
+    "word": "also",
+    "start_ms": 86260,
+    "end_ms": 86530
+  },
+  {
+    "word": "needs",
+    "start_ms": 86530,
+    "end_ms": 86855
+  },
+  {
+    "word": "a",
+    "start_ms": 86855,
+    "end_ms": 86963
+  },
+  {
+    "word": "way",
+    "start_ms": 86963,
+    "end_ms": 87180
+  },
+  {
+    "word": "to",
+    "start_ms": 87180,
+    "end_ms": 87342
+  },
+  {
+    "word": "represent",
+    "start_ms": 87342,
+    "end_ms": 87884
+  },
+  {
+    "word": "order.",
+    "start_ms": 87884,
+    "end_ms": 88263
+  },
+  {
+    "word": "Since",
+    "start_ms": 88513,
+    "end_ms": 88849
+  },
+  {
+    "word": "attention",
+    "start_ms": 88849,
+    "end_ms": 89410
+  },
+  {
+    "word": "itself",
+    "start_ms": 89410,
+    "end_ms": 89802
+  },
+  {
+    "word": "has",
+    "start_ms": 89802,
+    "end_ms": 90026
+  },
+  {
+    "word": "no",
+    "start_ms": 90026,
+    "end_ms": 90194
+  },
+  {
+    "word": "notion",
+    "start_ms": 90194,
+    "end_ms": 90587
+  },
+  {
+    "word": "of",
+    "start_ms": 90587,
+    "end_ms": 90755
+  },
+  {
+    "word": "sequence",
+    "start_ms": 90755,
+    "end_ms": 91260
+  },
+  {
+    "word": "position,",
+    "start_ms": 91260,
+    "end_ms": 91820
+  },
+  {
+    "word": "the",
+    "start_ms": 91820,
+    "end_ms": 92045
+  },
+  {
+    "word": "authors",
+    "start_ms": 92045,
+    "end_ms": 92493
+  },
+  {
+    "word": "add",
+    "start_ms": 92493,
+    "end_ms": 92717
+  },
+  {
+    "word": "positional",
+    "start_ms": 92717,
+    "end_ms": 93334
+  },
+  {
+    "word": "encodings",
+    "start_ms": 93334,
+    "end_ms": 93895
+  },
+  {
+    "word": "to",
+    "start_ms": 93895,
+    "end_ms": 94063
+  },
+  {
+    "word": "the",
+    "start_ms": 94063,
+    "end_ms": 94287
+  },
+  {
+    "word": "input",
+    "start_ms": 94287,
+    "end_ms": 94624
+  },
+  {
+    "word": "embeddings.",
+    "start_ms": 94624,
+    "end_ms": 95297
+  },
+  {
+    "word": "The",
+    "start_ms": 95547,
+    "end_ms": 95781
+  },
+  {
+    "word": "original",
+    "start_ms": 95781,
+    "end_ms": 96308
+  },
+  {
+    "word": "paper",
+    "start_ms": 96308,
+    "end_ms": 96660
+  },
+  {
+    "word": "uses",
+    "start_ms": 96660,
+    "end_ms": 96953
+  },
+  {
+    "word": "fixed",
+    "start_ms": 96953,
+    "end_ms": 97305
+  },
+  {
+    "word": "sinusoidal",
+    "start_ms": 97305,
+    "end_ms": 97949
+  },
+  {
+    "word": "functions,",
+    "start_ms": 97949,
+    "end_ms": 98594
+  },
+  {
+    "word": "which",
+    "start_ms": 98594,
+    "end_ms": 98946
+  },
+  {
+    "word": "allow",
+    "start_ms": 98946,
+    "end_ms": 99297
+  },
+  {
+    "word": "the",
+    "start_ms": 99297,
+    "end_ms": 99532
+  },
+  {
+    "word": "model",
+    "start_ms": 99532,
+    "end_ms": 99883
+  },
+  {
+    "word": "to",
+    "start_ms": 99883,
+    "end_ms": 100059
+  },
+  {
+    "word": "infer",
+    "start_ms": 100059,
+    "end_ms": 100411
+  },
+  {
+    "word": "relative",
+    "start_ms": 100411,
+    "end_ms": 100938
+  },
+  {
+    "word": "positions",
+    "start_ms": 100938,
+    "end_ms": 101524
+  },
+  {
+    "word": "and",
+    "start_ms": 101524,
+    "end_ms": 101759
+  },
+  {
+    "word": "generalize",
+    "start_ms": 101759,
+    "end_ms": 102403
+  },
+  {
+    "word": "to",
+    "start_ms": 102403,
+    "end_ms": 102579
+  },
+  {
+    "word": "sequences",
+    "start_ms": 102579,
+    "end_ms": 103165
+  },
+  {
+    "word": "longer",
+    "start_ms": 103165,
+    "end_ms": 103576
+  },
+  {
+    "word": "than",
+    "start_ms": 103576,
+    "end_ms": 103869
+  },
+  {
+    "word": "those",
+    "start_ms": 103869,
+    "end_ms": 104220
+  },
+  {
+    "word": "seen",
+    "start_ms": 104220,
+    "end_ms": 104513
+  },
+  {
+    "word": "during",
+    "start_ms": 104513,
+    "end_ms": 104923
+  },
+  {
+    "word": "training.",
+    "start_ms": 104923,
+    "end_ms": 105510
+  },
+  {
+    "word": "Each",
+    "start_ms": 105760,
+    "end_ms": 106052
+  },
+  {
+    "word": "encoder",
+    "start_ms": 106052,
+    "end_ms": 106520
+  },
+  {
+    "word": "layer",
+    "start_ms": 106520,
+    "end_ms": 106871
+  },
+  {
+    "word": "combines",
+    "start_ms": 106871,
+    "end_ms": 107398
+  },
+  {
+    "word": "multi-head",
+    "start_ms": 107398,
+    "end_ms": 108041
+  },
+  {
+    "word": "self-attention",
+    "start_ms": 108041,
+    "end_ms": 108919
+  },
+  {
+    "word": "with",
+    "start_ms": 108919,
+    "end_ms": 109211
+  },
+  {
+    "word": "a",
+    "start_ms": 109211,
+    "end_ms": 109328
+  },
+  {
+    "word": "position-wise",
+    "start_ms": 109328,
+    "end_ms": 110147
+  },
+  {
+    "word": "feed-forward",
+    "start_ms": 110147,
+    "end_ms": 110908
+  },
+  {
+    "word": "network.",
+    "start_ms": 110908,
+    "end_ms": 111435
+  },
+  {
+    "word": "Each",
+    "start_ms": 111685,
+    "end_ms": 111959
+  },
+  {
+    "word": "sublayer",
+    "start_ms": 111959,
+    "end_ms": 112453
+  },
+  {
+    "word": "is",
+    "start_ms": 112453,
+    "end_ms": 112618
+  },
+  {
+    "word": "wrapped",
+    "start_ms": 112618,
+    "end_ms": 113057
+  },
+  {
+    "word": "in",
+    "start_ms": 113057,
+    "end_ms": 113222
+  },
+  {
+    "word": "a",
+    "start_ms": 113222,
+    "end_ms": 113331
+  },
+  {
+    "word": "residual",
+    "start_ms": 113331,
+    "end_ms": 113825
+  },
+  {
+    "word": "connection",
+    "start_ms": 113825,
+    "end_ms": 114429
+  },
+  {
+    "word": "and",
+    "start_ms": 114429,
+    "end_ms": 114649
+  },
+  {
+    "word": "layer",
+    "start_ms": 114649,
+    "end_ms": 114978
+  },
+  {
+    "word": "normalization.",
+    "start_ms": 114978,
+    "end_ms": 115802
+  },
+  {
+    "word": "The",
+    "start_ms": 116052,
+    "end_ms": 116283
+  },
+  {
+    "word": "decoder",
+    "start_ms": 116283,
+    "end_ms": 116746
+  },
+  {
+    "word": "adds",
+    "start_ms": 116746,
+    "end_ms": 117036
+  },
+  {
+    "word": "masked",
+    "start_ms": 117036,
+    "end_ms": 117441
+  },
+  {
+    "word": "self-attention,",
+    "start_ms": 117441,
+    "end_ms": 118368
+  },
+  {
+    "word": "so",
+    "start_ms": 118368,
+    "end_ms": 118541
+  },
+  {
+    "word": "a",
+    "start_ms": 118541,
+    "end_ms": 118657
+  },
+  {
+    "word": "position",
+    "start_ms": 118657,
+    "end_ms": 119178
+  },
+  {
+    "word": "cannot",
+    "start_ms": 119178,
+    "end_ms": 119584
+  },
+  {
+    "word": "attend",
+    "start_ms": 119584,
+    "end_ms": 119989
+  },
+  {
+    "word": "to",
+    "start_ms": 119989,
+    "end_ms": 120163
+  },
+  {
+    "word": "future",
+    "start_ms": 120163,
+    "end_ms": 120568
+  },
+  {
+    "word": "target",
+    "start_ms": 120568,
+    "end_ms": 120973
+  },
+  {
+    "word": "tokens",
+    "start_ms": 120973,
+    "end_ms": 121379
+  },
+  {
+    "word": "during",
+    "start_ms": 121379,
+    "end_ms": 121784
+  },
+  {
+    "word": "training,",
+    "start_ms": 121784,
+    "end_ms": 122363
+  },
+  {
+    "word": "and",
+    "start_ms": 122363,
+    "end_ms": 122595
+  },
+  {
+    "word": "cross-attention,",
+    "start_ms": 122595,
+    "end_ms": 123579
+  },
+  {
+    "word": "so",
+    "start_ms": 123579,
+    "end_ms": 123753
+  },
+  {
+    "word": "it",
+    "start_ms": 123753,
+    "end_ms": 123927
+  },
+  {
+    "word": "can",
+    "start_ms": 123927,
+    "end_ms": 124158
+  },
+  {
+    "word": "consult",
+    "start_ms": 124158,
+    "end_ms": 124621
+  },
+  {
+    "word": "the",
+    "start_ms": 124621,
+    "end_ms": 124853
+  },
+  {
+    "word": "encoder",
+    "start_ms": 124853,
+    "end_ms": 125316
+  },
+  {
+    "word": "output.",
+    "start_ms": 125316,
+    "end_ms": 125780
+  },
+  {
+    "word": "Masking",
+    "start_ms": 126030,
+    "end_ms": 126468
+  },
+  {
+    "word": "is",
+    "start_ms": 126468,
+    "end_ms": 126633
+  },
+  {
+    "word": "essential:",
+    "start_ms": 126633,
+    "end_ms": 127236
+  },
+  {
+    "word": "without",
+    "start_ms": 127236,
+    "end_ms": 127675
+  },
+  {
+    "word": "it,",
+    "start_ms": 127675,
+    "end_ms": 127895
+  },
+  {
+    "word": "the",
+    "start_ms": 127895,
+    "end_ms": 128114
+  },
+  {
+    "word": "model",
+    "start_ms": 128114,
+    "end_ms": 128443
+  },
+  {
+    "word": "could",
+    "start_ms": 128443,
+    "end_ms": 128772
+  },
+  {
+    "word": "simply",
+    "start_ms": 128772,
+    "end_ms": 129156
+  },
+  {
+    "word": "copy",
+    "start_ms": 129156,
+    "end_ms": 129431
+  },
+  {
+    "word": "the",
+    "start_ms": 129431,
+    "end_ms": 129650
+  },
+  {
+    "word": "answer",
+    "start_ms": 129650,
+    "end_ms": 130034
+  },
+  {
+    "word": "it",
+    "start_ms": 130034,
+    "end_ms": 130199
+  },
+  {
+    "word": "is",
+    "start_ms": 130199,
+    "end_ms": 130363
+  },
+  {
+    "word": "trying",
+    "start_ms": 130363,
+    "end_ms": 130747
+  },
+  {
+    "word": "to",
+    "start_ms": 130747,
+    "end_ms": 130912
+  },
+  {
+    "word": "predict.",
+    "start_ms": 130912,
+    "end_ms": 131406
+  },
+  {
+    "word": "The",
+    "start_ms": 131656,
+    "end_ms": 131873
+  },
+  {
+    "word": "feed-forward",
+    "start_ms": 131873,
+    "end_ms": 132578
+  },
+  {
+    "word": "network",
+    "start_ms": 132578,
+    "end_ms": 133012
+  },
+  {
+    "word": "is",
+    "start_ms": 133012,
+    "end_ms": 133175
+  },
+  {
+    "word": "applied",
+    "start_ms": 133175,
+    "end_ms": 133610
+  },
+  {
+    "word": "independently",
+    "start_ms": 133610,
+    "end_ms": 134369
+  },
+  {
+    "word": "to",
+    "start_ms": 134369,
+    "end_ms": 134532
+  },
+  {
+    "word": "each",
+    "start_ms": 134532,
+    "end_ms": 134804
+  },
+  {
+    "word": "position.",
+    "start_ms": 134804,
+    "end_ms": 135347
+  },
+  {
+    "word": "It",
+    "start_ms": 135597,
+    "end_ms": 135773
+  },
+  {
+    "word": "consists",
+    "start_ms": 135773,
+    "end_ms": 136301
+  },
+  {
+    "word": "of",
+    "start_ms": 136301,
+    "end_ms": 136478
+  },
+  {
+    "word": "two",
+    "start_ms": 136478,
+    "end_ms": 136713
+  },
+  {
+    "word": "linear",
+    "start_ms": 136713,
+    "end_ms": 137124
+  },
+  {
+    "word": "transformations",
+    "start_ms": 137124,
+    "end_ms": 138064
+  },
+  {
+    "word": "with",
+    "start_ms": 138064,
+    "end_ms": 138357
+  },
+  {
+    "word": "a",
+    "start_ms": 138357,
+    "end_ms": 138475
+  },
+  {
+    "word": "ReLU",
+    "start_ms": 138475,
+    "end_ms": 138768
+  },
+  {
+    "word": "activation",
+    "start_ms": 138768,
+    "end_ms": 139415
+  },
+  {
+    "word": "in",
+    "start_ms": 139415,
+    "end_ms": 139591
+  },
+  {
+    "word": "between.",
+    "start_ms": 139591,
+    "end_ms": 140120
+  },
+  {
+    "word": "The",
+    "start_ms": 140370,
+    "end_ms": 140599
+  },
+  {
+    "word": "paper",
+    "start_ms": 140599,
+    "end_ms": 140944
+  },
+  {
+    "word": "uses",
+    "start_ms": 140944,
+    "end_ms": 141232
+  },
+  {
+    "word": "a",
+    "start_ms": 141232,
+    "end_ms": 141347
+  },
+  {
+    "word": "wider",
+    "start_ms": 141347,
+    "end_ms": 141691
+  },
+  {
+    "word": "inner",
+    "start_ms": 141691,
+    "end_ms": 142036
+  },
+  {
+    "word": "dimension",
+    "start_ms": 142036,
+    "end_ms": 142611
+  },
+  {
+    "word": "than",
+    "start_ms": 142611,
+    "end_ms": 142898
+  },
+  {
+    "word": "the",
+    "start_ms": 142898,
+    "end_ms": 143128
+  },
+  {
+    "word": "model",
+    "start_ms": 143128,
+    "end_ms": 143473
+  },
+  {
+    "word": "dimension,",
+    "start_ms": 143473,
+    "end_ms": 144105
+  },
+  {
+    "word": "giving",
+    "start_ms": 144105,
+    "end_ms": 144508
+  },
+  {
+    "word": "the",
+    "start_ms": 144508,
+    "end_ms": 144738
+  },
+  {
+    "word": "network",
+    "start_ms": 144738,
+    "end_ms": 145198
+  },
+  {
+    "word": "capacity",
+    "start_ms": 145198,
+    "end_ms": 145715
+  },
+  {
+    "word": "to",
+    "start_ms": 145715,
+    "end_ms": 145887
+  },
+  {
+    "word": "transform",
+    "start_ms": 145887,
+    "end_ms": 146462
+  },
+  {
+    "word": "each",
+    "start_ms": 146462,
+    "end_ms": 146749
+  },
+  {
+    "word": "token",
+    "start_ms": 146749,
+    "end_ms": 147094
+  },
+  {
+    "word": "representation",
+    "start_ms": 147094,
+    "end_ms": 147956
+  },
+  {
+    "word": "after",
+    "start_ms": 147956,
+    "end_ms": 148301
+  },
+  {
+    "word": "attention",
+    "start_ms": 148301,
+    "end_ms": 148876
+  },
+  {
+    "word": "has",
+    "start_ms": 148876,
+    "end_ms": 149106
+  },
+  {
+    "word": "gathered",
+    "start_ms": 149106,
+    "end_ms": 149623
+  },
+  {
+    "word": "context.",
+    "start_ms": 149623,
+    "end_ms": 150141
+  },
+  {
+    "word": "Residual",
+    "start_ms": 150391,
+    "end_ms": 150898
+  },
+  {
+    "word": "connections",
+    "start_ms": 150898,
+    "end_ms": 151575
+  },
+  {
+    "word": "help",
+    "start_ms": 151575,
+    "end_ms": 151857
+  },
+  {
+    "word": "gradients",
+    "start_ms": 151857,
+    "end_ms": 152422
+  },
+  {
+    "word": "flow",
+    "start_ms": 152422,
+    "end_ms": 152704
+  },
+  {
+    "word": "through",
+    "start_ms": 152704,
+    "end_ms": 153155
+  },
+  {
+    "word": "deep",
+    "start_ms": 153155,
+    "end_ms": 153437
+  },
+  {
+    "word": "stacks,",
+    "start_ms": 153437,
+    "end_ms": 153889
+  },
+  {
+    "word": "and",
+    "start_ms": 153889,
+    "end_ms": 154114
+  },
+  {
+    "word": "layer",
+    "start_ms": 154114,
+    "end_ms": 154453
+  },
+  {
+    "word": "normalization",
+    "start_ms": 154453,
+    "end_ms": 155243
+  },
+  {
+    "word": "stabilizes",
+    "start_ms": 155243,
+    "end_ms": 155863
+  },
+  {
+    "word": "training.",
+    "start_ms": 155863,
+    "end_ms": 156428
+  },
+  {
+    "word": "The",
+    "start_ms": 156678,
+    "end_ms": 156910
+  },
+  {
+    "word": "authors",
+    "start_ms": 156910,
+    "end_ms": 157374
+  },
+  {
+    "word": "train",
+    "start_ms": 157374,
+    "end_ms": 157722
+  },
+  {
+    "word": "the",
+    "start_ms": 157722,
+    "end_ms": 157954
+  },
+  {
+    "word": "model",
+    "start_ms": 157954,
+    "end_ms": 158302
+  },
+  {
+    "word": "on",
+    "start_ms": 158302,
+    "end_ms": 158476
+  },
+  {
+    "word": "large",
+    "start_ms": 158476,
+    "end_ms": 158824
+  },
+  {
+    "word": "translation",
+    "start_ms": 158824,
+    "end_ms": 159520
+  },
+  {
+    "word": "datasets",
+    "start_ms": 159520,
+    "end_ms": 160042
+  },
+  {
+    "word": "and",
+    "start_ms": 160042,
+    "end_ms": 160274
+  },
+  {
+    "word": "report",
+    "start_ms": 160274,
+    "end_ms": 160680
+  },
+  {
+    "word": "strong",
+    "start_ms": 160680,
+    "end_ms": 161086
+  },
+  {
+    "word": "results",
+    "start_ms": 161086,
+    "end_ms": 161550
+  },
+  {
+    "word": "while",
+    "start_ms": 161550,
+    "end_ms": 161898
+  },
+  {
+    "word": "using",
+    "start_ms": 161898,
+    "end_ms": 162246
+  },
+  {
+    "word": "substantially",
+    "start_ms": 162246,
+    "end_ms": 163058
+  },
+  {
+    "word": "less",
+    "start_ms": 163058,
+    "end_ms": 163348
+  },
+  {
+    "word": "computation",
+    "start_ms": 163348,
+    "end_ms": 164044
+  },
+  {
+    "word": "than",
+    "start_ms": 164044,
+    "end_ms": 164334
+  },
+  {
+    "word": "recurrent",
+    "start_ms": 164334,
+    "end_ms": 164914
+  },
+  {
+    "word": "baselines.",
+    "start_ms": 164914,
+    "end_ms": 165553
+  },
+  {
+    "word": "The",
+    "start_ms": 165803,
+    "end_ms": 166022
+  },
+  {
+    "word": "big",
+    "start_ms": 166022,
+    "end_ms": 166242
+  },
+  {
+    "word": "attention",
+    "start_ms": 166242,
+    "end_ms": 166792
+  },
+  {
+    "word": "model",
+    "start_ms": 166792,
+    "end_ms": 167121
+  },
+  {
+    "word": "achieved",
+    "start_ms": 167121,
+    "end_ms": 167616
+  },
+  {
+    "word": "state-of-the-art",
+    "start_ms": 167616,
+    "end_ms": 168550
+  },
+  {
+    "word": "translation",
+    "start_ms": 168550,
+    "end_ms": 169210
+  },
+  {
+    "word": "quality",
+    "start_ms": 169210,
+    "end_ms": 169649
+  },
+  {
+    "word": "on",
+    "start_ms": 169649,
+    "end_ms": 169814
+  },
+  {
+    "word": "English-to-German",
+    "start_ms": 169814,
+    "end_ms": 170803
+  },
+  {
+    "word": "and",
+    "start_ms": 170803,
+    "end_ms": 171023
+  },
+  {
+    "word": "English-to-French",
+    "start_ms": 171023,
+    "end_ms": 172012
+  },
+  {
+    "word": "benchmarks.",
+    "start_ms": 172012,
+    "end_ms": 172672
+  },
+  {
+    "word": "The",
+    "start_ms": 172922,
+    "end_ms": 173146
+  },
+  {
+    "word": "paper",
+    "start_ms": 173146,
+    "end_ms": 173482
+  },
+  {
+    "word": "also",
+    "start_ms": 173482,
+    "end_ms": 173762
+  },
+  {
+    "word": "shows",
+    "start_ms": 173762,
+    "end_ms": 174098
+  },
+  {
+    "word": "that",
+    "start_ms": 174098,
+    "end_ms": 174378
+  },
+  {
+    "word": "the",
+    "start_ms": 174378,
+    "end_ms": 174602
+  },
+  {
+    "word": "architecture",
+    "start_ms": 174602,
+    "end_ms": 175330
+  },
+  {
+    "word": "transfers",
+    "start_ms": 175330,
+    "end_ms": 175890
+  },
+  {
+    "word": "to",
+    "start_ms": 175890,
+    "end_ms": 176058
+  },
+  {
+    "word": "English",
+    "start_ms": 176058,
+    "end_ms": 176506
+  },
+  {
+    "word": "constituency",
+    "start_ms": 176506,
+    "end_ms": 177234
+  },
+  {
+    "word": "parsing,",
+    "start_ms": 177234,
+    "end_ms": 177738
+  },
+  {
+    "word": "suggesting",
+    "start_ms": 177738,
+    "end_ms": 178354
+  },
+  {
+    "word": "that",
+    "start_ms": 178354,
+    "end_ms": 178634
+  },
+  {
+    "word": "the",
+    "start_ms": 178634,
+    "end_ms": 178858
+  },
+  {
+    "word": "design",
+    "start_ms": 178858,
+    "end_ms": 179250
+  },
+  {
+    "word": "is",
+    "start_ms": 179250,
+    "end_ms": 179418
+  },
+  {
+    "word": "not",
+    "start_ms": 179418,
+    "end_ms": 179642
+  },
+  {
+    "word": "limited",
+    "start_ms": 179642,
+    "end_ms": 180090
+  },
+  {
+    "word": "to",
+    "start_ms": 180090,
+    "end_ms": 180258
+  },
+  {
+    "word": "translation.",
+    "start_ms": 180258,
+    "end_ms": 180986
+  },
+  {
+    "word": "Several",
+    "start_ms": 181236,
+    "end_ms": 181720
+  },
+  {
+    "word": "design",
+    "start_ms": 181720,
+    "end_ms": 182144
+  },
+  {
+    "word": "choices",
+    "start_ms": 182144,
+    "end_ms": 182628
+  },
+  {
+    "word": "matter.",
+    "start_ms": 182628,
+    "end_ms": 183113
+  },
+  {
+    "word": "Scaled",
+    "start_ms": 183363,
+    "end_ms": 183786
+  },
+  {
+    "word": "dot-product",
+    "start_ms": 183786,
+    "end_ms": 184512
+  },
+  {
+    "word": "attention",
+    "start_ms": 184512,
+    "end_ms": 185117
+  },
+  {
+    "word": "is",
+    "start_ms": 185117,
+    "end_ms": 185299
+  },
+  {
+    "word": "faster",
+    "start_ms": 185299,
+    "end_ms": 185722
+  },
+  {
+    "word": "than",
+    "start_ms": 185722,
+    "end_ms": 186025
+  },
+  {
+    "word": "additive",
+    "start_ms": 186025,
+    "end_ms": 186569
+  },
+  {
+    "word": "attention",
+    "start_ms": 186569,
+    "end_ms": 187174
+  },
+  {
+    "word": "in",
+    "start_ms": 187174,
+    "end_ms": 187356
+  },
+  {
+    "word": "practice",
+    "start_ms": 187356,
+    "end_ms": 187900
+  },
+  {
+    "word": "because",
+    "start_ms": 187900,
+    "end_ms": 188384
+  },
+  {
+    "word": "it",
+    "start_ms": 188384,
+    "end_ms": 188566
+  },
+  {
+    "word": "can",
+    "start_ms": 188566,
+    "end_ms": 188808
+  },
+  {
+    "word": "use",
+    "start_ms": 188808,
+    "end_ms": 189050
+  },
+  {
+    "word": "highly",
+    "start_ms": 189050,
+    "end_ms": 189473
+  },
+  {
+    "word": "optimized",
+    "start_ms": 189473,
+    "end_ms": 190078
+  },
+  {
+    "word": "matrix",
+    "start_ms": 190078,
+    "end_ms": 190502
+  },
+  {
+    "word": "multiplication.",
+    "start_ms": 190502,
+    "end_ms": 191470
+  },
+  {
+    "word": "Multi-head",
+    "start_ms": 191720,
+    "end_ms": 192422
+  },
+  {
+    "word": "attention",
+    "start_ms": 192422,
+    "end_ms": 193061
+  },
+  {
+    "word": "increases",
+    "start_ms": 193061,
+    "end_ms": 193699
+  },
+  {
+    "word": "representational",
+    "start_ms": 193699,
+    "end_ms": 194785
+  },
+  {
+    "word": "capacity",
+    "start_ms": 194785,
+    "end_ms": 195359
+  },
+  {
+    "word": "without",
+    "start_ms": 195359,
+    "end_ms": 195870
+  },
+  {
+    "word": "increasing",
+    "start_ms": 195870,
+    "end_ms": 196573
+  },
+  {
+    "word": "the",
+    "start_ms": 196573,
+    "end_ms": 196828
+  },
+  {
+    "word": "total",
+    "start_ms": 196828,
+    "end_ms": 197211
+  },
+  {
+    "word": "computational",
+    "start_ms": 197211,
+    "end_ms": 198105
+  },
+  {
+    "word": "cost",
+    "start_ms": 198105,
+    "end_ms": 198425
+  },
+  {
+    "word": "as",
+    "start_ms": 198425,
+    "end_ms": 198616
+  },
+  {
+    "word": "much",
+    "start_ms": 198616,
+    "end_ms": 198935
+  },
+  {
+    "word": "as",
+    "start_ms": 198935,
+    "end_ms": 199127
+  },
+  {
+    "word": "a",
+    "start_ms": 199127,
+    "end_ms": 199255
+  },
+  {
+    "word": "single",
+    "start_ms": 199255,
+    "end_ms": 199702
+  },
+  {
+    "word": "very",
+    "start_ms": 199702,
+    "end_ms": 200021
+  },
+  {
+    "word": "wide",
+    "start_ms": 200021,
+    "end_ms": 200340
+  },
+  {
+    "word": "head",
+    "start_ms": 200340,
+    "end_ms": 200660
+  },
+  {
+    "word": "would.",
+    "start_ms": 200660,
+    "end_ms": 201107
+  },
+  {
+    "word": "The",
+    "start_ms": 201357,
+    "end_ms": 201578
+  },
+  {
+    "word": "sinusoidal",
+    "start_ms": 201578,
+    "end_ms": 202186
+  },
+  {
+    "word": "encoding",
+    "start_ms": 202186,
+    "end_ms": 202684
+  },
+  {
+    "word": "needs",
+    "start_ms": 202684,
+    "end_ms": 203016
+  },
+  {
+    "word": "no",
+    "start_ms": 203016,
+    "end_ms": 203182
+  },
+  {
+    "word": "learned",
+    "start_ms": 203182,
+    "end_ms": 203624
+  },
+  {
+    "word": "parameters",
+    "start_ms": 203624,
+    "end_ms": 204232
+  },
+  {
+    "word": "and",
+    "start_ms": 204232,
+    "end_ms": 204454
+  },
+  {
+    "word": "gives",
+    "start_ms": 204454,
+    "end_ms": 204785
+  },
+  {
+    "word": "the",
+    "start_ms": 204785,
+    "end_ms": 205007
+  },
+  {
+    "word": "model",
+    "start_ms": 205007,
+    "end_ms": 205339
+  },
+  {
+    "word": "a",
+    "start_ms": 205339,
+    "end_ms": 205449
+  },
+  {
+    "word": "consistent",
+    "start_ms": 205449,
+    "end_ms": 206057
+  },
+  {
+    "word": "signal",
+    "start_ms": 206057,
+    "end_ms": 206445
+  },
+  {
+    "word": "about",
+    "start_ms": 206445,
+    "end_ms": 206776
+  },
+  {
+    "word": "position.",
+    "start_ms": 206776,
+    "end_ms": 207330
+  },
+  {
+    "word": "The",
+    "start_ms": 207580,
+    "end_ms": 207805
+  },
+  {
+    "word": "Transformer's",
+    "start_ms": 207805,
+    "end_ms": 208596
+  },
+  {
+    "word": "influence",
+    "start_ms": 208596,
+    "end_ms": 209161
+  },
+  {
+    "word": "extends",
+    "start_ms": 209161,
+    "end_ms": 209612
+  },
+  {
+    "word": "far",
+    "start_ms": 209612,
+    "end_ms": 209838
+  },
+  {
+    "word": "beyond",
+    "start_ms": 209838,
+    "end_ms": 210234
+  },
+  {
+    "word": "machine",
+    "start_ms": 210234,
+    "end_ms": 210685
+  },
+  {
+    "word": "translation.",
+    "start_ms": 210685,
+    "end_ms": 211420
+  },
+  {
+    "word": "Its",
+    "start_ms": 211670,
+    "end_ms": 211907
+  },
+  {
+    "word": "ability",
+    "start_ms": 211907,
+    "end_ms": 212382
+  },
+  {
+    "word": "to",
+    "start_ms": 212382,
+    "end_ms": 212560
+  },
+  {
+    "word": "process",
+    "start_ms": 212560,
+    "end_ms": 213036
+  },
+  {
+    "word": "sequences",
+    "start_ms": 213036,
+    "end_ms": 213630
+  },
+  {
+    "word": "in",
+    "start_ms": 213630,
+    "end_ms": 213808
+  },
+  {
+    "word": "parallel",
+    "start_ms": 213808,
+    "end_ms": 214342
+  },
+  {
+    "word": "made",
+    "start_ms": 214342,
+    "end_ms": 214639
+  },
+  {
+    "word": "it",
+    "start_ms": 214639,
+    "end_ms": 214818
+  },
+  {
+    "word": "a",
+    "start_ms": 214818,
+    "end_ms": 214936
+  },
+  {
+    "word": "foundation",
+    "start_ms": 214936,
+    "end_ms": 215590
+  },
+  {
+    "word": "for",
+    "start_ms": 215590,
+    "end_ms": 215827
+  },
+  {
+    "word": "large",
+    "start_ms": 215827,
+    "end_ms": 216184
+  },
+  {
+    "word": "language",
+    "start_ms": 216184,
+    "end_ms": 216718
+  },
+  {
+    "word": "models,",
+    "start_ms": 216718,
+    "end_ms": 217194
+  },
+  {
+    "word": "vision",
+    "start_ms": 217194,
+    "end_ms": 217609
+  },
+  {
+    "word": "transformers,",
+    "start_ms": 217609,
+    "end_ms": 218441
+  },
+  {
+    "word": "speech",
+    "start_ms": 218441,
+    "end_ms": 218857
+  },
+  {
+    "word": "models,",
+    "start_ms": 218857,
+    "end_ms": 219332
+  },
+  {
+    "word": "and",
+    "start_ms": 219332,
+    "end_ms": 219570
+  },
+  {
+    "word": "multimodal",
+    "start_ms": 219570,
+    "end_ms": 220223
+  },
+  {
+    "word": "systems.",
+    "start_ms": 220223,
+    "end_ms": 220758
+  },
+  {
+    "word": "The",
+    "start_ms": 221008,
+    "end_ms": 221245
+  },
+  {
+    "word": "paper's",
+    "start_ms": 221245,
+    "end_ms": 221721
+  },
+  {
+    "word": "central",
+    "start_ms": 221721,
+    "end_ms": 222196
+  },
+  {
+    "word": "claim",
+    "start_ms": 222196,
+    "end_ms": 222552
+  },
+  {
+    "word": "is",
+    "start_ms": 222552,
+    "end_ms": 222731
+  },
+  {
+    "word": "simple:",
+    "start_ms": 222731,
+    "end_ms": 223206
+  },
+  {
+    "word": "attention",
+    "start_ms": 223206,
+    "end_ms": 223800
+  },
+  {
+    "word": "alone,",
+    "start_ms": 223800,
+    "end_ms": 224216
+  },
+  {
+    "word": "combined",
+    "start_ms": 224216,
+    "end_ms": 224751
+  },
+  {
+    "word": "with",
+    "start_ms": 224751,
+    "end_ms": 225048
+  },
+  {
+    "word": "feed-forward",
+    "start_ms": 225048,
+    "end_ms": 225820
+  },
+  {
+    "word": "layers,",
+    "start_ms": 225820,
+    "end_ms": 226296
+  },
+  {
+    "word": "residual",
+    "start_ms": 226296,
+    "end_ms": 226830
+  },
+  {
+    "word": "connections,",
+    "start_ms": 226830,
+    "end_ms": 227603
+  },
+  {
+    "word": "and",
+    "start_ms": 227603,
+    "end_ms": 227840
+  },
+  {
+    "word": "normalization,",
+    "start_ms": 227840,
+    "end_ms": 228732
+  },
+  {
+    "word": "can",
+    "start_ms": 228732,
+    "end_ms": 228969
+  },
+  {
+    "word": "model",
+    "start_ms": 228969,
+    "end_ms": 229326
+  },
+  {
+    "word": "sequences",
+    "start_ms": 229326,
+    "end_ms": 229920
+  },
+  {
+    "word": "effectively.",
+    "start_ms": 229920,
+    "end_ms": 230693
+  },
+  {
+    "word": "That",
+    "start_ms": 230943,
+    "end_ms": 231183
+  },
+  {
+    "word": "claim",
+    "start_ms": 231183,
+    "end_ms": 231472
+  },
+  {
+    "word": "changed",
+    "start_ms": 231472,
+    "end_ms": 231856
+  },
+  {
+    "word": "the",
+    "start_ms": 231856,
+    "end_ms": 232049
+  },
+  {
+    "word": "direction",
+    "start_ms": 232049,
+    "end_ms": 232530
+  },
+  {
+    "word": "of",
+    "start_ms": 232530,
+    "end_ms": 232674
+  },
+  {
+    "word": "deep",
+    "start_ms": 232674,
+    "end_ms": 232915
+  },
+  {
+    "word": "learning.",
+    "start_ms": 232915,
+    "end_ms": 233396
+  },
+  {
+    "word": "For",
+    "start_ms": 233646,
+    "end_ms": 233891
+  },
+  {
+    "word": "EchoRead,",
+    "start_ms": 233891,
+    "end_ms": 234504
+  },
+  {
+    "word": "the",
+    "start_ms": 234504,
+    "end_ms": 234749
+  },
+  {
+    "word": "paper",
+    "start_ms": 234749,
+    "end_ms": 235117
+  },
+  {
+    "word": "is",
+    "start_ms": 235117,
+    "end_ms": 235300
+  },
+  {
+    "word": "a",
+    "start_ms": 235300,
+    "end_ms": 235423
+  },
+  {
+    "word": "useful",
+    "start_ms": 235423,
+    "end_ms": 235852
+  },
+  {
+    "word": "study",
+    "start_ms": 235852,
+    "end_ms": 236220
+  },
+  {
+    "word": "example",
+    "start_ms": 236220,
+    "end_ms": 236710
+  },
+  {
+    "word": "because",
+    "start_ms": 236710,
+    "end_ms": 237201
+  },
+  {
+    "word": "it",
+    "start_ms": 237201,
+    "end_ms": 237385
+  },
+  {
+    "word": "contains",
+    "start_ms": 237385,
+    "end_ms": 237936
+  },
+  {
+    "word": "definitions,",
+    "start_ms": 237936,
+    "end_ms": 238733
+  },
+  {
+    "word": "design",
+    "start_ms": 238733,
+    "end_ms": 239162
+  },
+  {
+    "word": "motivations,",
+    "start_ms": 239162,
+    "end_ms": 239959
+  },
+  {
+    "word": "experimental",
+    "start_ms": 239959,
+    "end_ms": 240756
+  },
+  {
+    "word": "results,",
+    "start_ms": 240756,
+    "end_ms": 241307
+  },
+  {
+    "word": "and",
+    "start_ms": 241307,
+    "end_ms": 241553
+  },
+  {
+    "word": "limitations.",
+    "start_ms": 241553,
+    "end_ms": 242350
+  },
+  {
+    "word": "A",
+    "start_ms": 242600,
+    "end_ms": 242714
+  },
+  {
+    "word": "listener",
+    "start_ms": 242714,
+    "end_ms": 243227
+  },
+  {
+    "word": "may",
+    "start_ms": 243227,
+    "end_ms": 243455
+  },
+  {
+    "word": "ask",
+    "start_ms": 243455,
+    "end_ms": 243683
+  },
+  {
+    "word": "what",
+    "start_ms": 243683,
+    "end_ms": 243968
+  },
+  {
+    "word": "a",
+    "start_ms": 243968,
+    "end_ms": 244082
+  },
+  {
+    "word": "query",
+    "start_ms": 244082,
+    "end_ms": 244424
+  },
+  {
+    "word": "is,",
+    "start_ms": 244424,
+    "end_ms": 244652
+  },
+  {
+    "word": "why",
+    "start_ms": 244652,
+    "end_ms": 244880
+  },
+  {
+    "word": "masking",
+    "start_ms": 244880,
+    "end_ms": 245336
+  },
+  {
+    "word": "matters,",
+    "start_ms": 245336,
+    "end_ms": 245850
+  },
+  {
+    "word": "or",
+    "start_ms": 245850,
+    "end_ms": 246021
+  },
+  {
+    "word": "how",
+    "start_ms": 246021,
+    "end_ms": 246249
+  },
+  {
+    "word": "multi-head",
+    "start_ms": 246249,
+    "end_ms": 246876
+  },
+  {
+    "word": "attention",
+    "start_ms": 246876,
+    "end_ms": 247446
+  },
+  {
+    "word": "differs",
+    "start_ms": 247446,
+    "end_ms": 247902
+  },
+  {
+    "word": "from",
+    "start_ms": 247902,
+    "end_ms": 248187
+  },
+  {
+    "word": "a",
+    "start_ms": 248187,
+    "end_ms": 248301
+  },
+  {
+    "word": "single",
+    "start_ms": 248301,
+    "end_ms": 248700
+  },
+  {
+    "word": "head.",
+    "start_ms": 248700,
+    "end_ms": 249043
+  },
+  {
+    "word": "Study",
+    "start_ms": 249293,
+    "end_ms": 249614
+  },
+  {
+    "word": "mode",
+    "start_ms": 249614,
+    "end_ms": 249882
+  },
+  {
+    "word": "can",
+    "start_ms": 249882,
+    "end_ms": 250096
+  },
+  {
+    "word": "connect",
+    "start_ms": 250096,
+    "end_ms": 250525
+  },
+  {
+    "word": "those",
+    "start_ms": 250525,
+    "end_ms": 250846
+  },
+  {
+    "word": "questions",
+    "start_ms": 250846,
+    "end_ms": 251382
+  },
+  {
+    "word": "to",
+    "start_ms": 251382,
+    "end_ms": 251543
+  },
+  {
+    "word": "the",
+    "start_ms": 251543,
+    "end_ms": 251757
+  },
+  {
+    "word": "document",
+    "start_ms": 251757,
+    "end_ms": 252239
+  },
+  {
+    "word": "while",
+    "start_ms": 252239,
+    "end_ms": 252560
+  },
+  {
+    "word": "still",
+    "start_ms": 252560,
+    "end_ms": 252882
+  },
+  {
+    "word": "using",
+    "start_ms": 252882,
+    "end_ms": 253203
+  },
+  {
+    "word": "general",
+    "start_ms": 253203,
+    "end_ms": 253632
+  },
+  {
+    "word": "background",
+    "start_ms": 253632,
+    "end_ms": 254221
+  },
+  {
+    "word": "knowledge",
+    "start_ms": 254221,
+    "end_ms": 254757
+  },
+  {
+    "word": "for",
+    "start_ms": 254757,
+    "end_ms": 254971
+  },
+  {
+    "word": "definitions",
+    "start_ms": 254971,
+    "end_ms": 255614
+  },
+  {
+    "word": "and",
+    "start_ms": 255614,
+    "end_ms": 255828
+  },
+  {
+    "word": "analogies.",
+    "start_ms": 255828,
+    "end_ms": 256418
+  },
+  {
+    "word": "The",
+    "start_ms": 256668,
+    "end_ms": 256884
+  },
+  {
+    "word": "key",
+    "start_ms": 256884,
+    "end_ms": 257100
+  },
+  {
+    "word": "is",
+    "start_ms": 257100,
+    "end_ms": 257262
+  },
+  {
+    "word": "to",
+    "start_ms": 257262,
+    "end_ms": 257424
+  },
+  {
+    "word": "keep",
+    "start_ms": 257424,
+    "end_ms": 257694
+  },
+  {
+    "word": "the",
+    "start_ms": 257694,
+    "end_ms": 257910
+  },
+  {
+    "word": "answer",
+    "start_ms": 257910,
+    "end_ms": 258288
+  },
+  {
+    "word": "tied",
+    "start_ms": 258288,
+    "end_ms": 258559
+  },
+  {
+    "word": "to",
+    "start_ms": 258559,
+    "end_ms": 258721
+  },
+  {
+    "word": "the",
+    "start_ms": 258721,
+    "end_ms": 258937
+  },
+  {
+    "word": "source",
+    "start_ms": 258937,
+    "end_ms": 259315
+  },
+  {
+    "word": "and",
+    "start_ms": 259315,
+    "end_ms": 259531
+  },
+  {
+    "word": "to",
+    "start_ms": 259531,
+    "end_ms": 259693
+  },
+  {
+    "word": "label",
+    "start_ms": 259693,
+    "end_ms": 260018
+  },
+  {
+    "word": "anything",
+    "start_ms": 260018,
+    "end_ms": 260504
+  },
+  {
+    "word": "that",
+    "start_ms": 260504,
+    "end_ms": 260774
+  },
+  {
+    "word": "goes",
+    "start_ms": 260774,
+    "end_ms": 261044
+  },
+  {
+    "word": "beyond",
+    "start_ms": 261044,
+    "end_ms": 261422
+  },
+  {
+    "word": "it.",
+    "start_ms": 261422,
+    "end_ms": 261639
+  }
+]

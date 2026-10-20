@@ -1,0 +1,77 @@
+The paper Attention Is All You Need introduced the Transformer, an architecture that replaced recurrence and convolution with attention as the main mechanism for sequence modeling.
+
+At the time, most translation systems used recurrent neural networks, often with an encoder that read the source sentence and a decoder that produced the target sentence one token at a time.
+
+Those models were powerful, but their sequential structure made training difficult to parallelize and made long-range dependencies hard to learn.
+
+The Transformer keeps the encoder-decoder shape but removes recurrence.
+
+Each layer uses self-attention, a operation that lets every position look at every other position in the sequence and decide which representations matter.
+
+The authors describe scaled dot-product attention.
+
+A query, a key, and a value are produced for each token.
+
+The dot product of a query and a key measures relevance, the scores are scaled by the square root of the key dimension, and a softmax turns them into weights.
+
+The output is a weighted sum of values.
+
+Multi-head attention repeats this process several times in parallel.
+
+Different heads can learn different relationships, such as local syntax, long-distance agreement, or links between pronouns and their referents.
+
+The results are concatenated and projected back into the model dimension.
+
+Because all positions are processed together, the computation becomes a set of large matrix operations that modern hardware can run efficiently.
+
+The architecture also needs a way to represent order.
+
+Since attention itself has no notion of sequence position, the authors add positional encodings to the input embeddings.
+
+The original paper uses fixed sinusoidal functions, which allow the model to infer relative positions and generalize to sequences longer than those seen during training.
+
+Each encoder layer combines multi-head self-attention with a position-wise feed-forward network.
+
+Each sublayer is wrapped in a residual connection and layer normalization.
+
+The decoder adds masked self-attention, so a position cannot attend to future target tokens during training, and cross-attention, so it can consult the encoder output.
+
+Masking is essential: without it, the model could simply copy the answer it is trying to predict.
+
+The feed-forward network is applied independently to each position.
+
+It consists of two linear transformations with a ReLU activation in between.
+
+The paper uses a wider inner dimension than the model dimension, giving the network capacity to transform each token representation after attention has gathered context.
+
+Residual connections help gradients flow through deep stacks, and layer normalization stabilizes training.
+
+The authors train the model on large translation datasets and report strong results while using substantially less computation than recurrent baselines.
+
+The big attention model achieved state-of-the-art translation quality on English-to-German and English-to-French benchmarks.
+
+The paper also shows that the architecture transfers to English constituency parsing, suggesting that the design is not limited to translation.
+
+Several design choices matter.
+
+Scaled dot-product attention is faster than additive attention in practice because it can use highly optimized matrix multiplication.
+
+Multi-head attention increases representational capacity without increasing the total computational cost as much as a single very wide head would.
+
+The sinusoidal encoding needs no learned parameters and gives the model a consistent signal about position.
+
+The Transformer's influence extends far beyond machine translation.
+
+Its ability to process sequences in parallel made it a foundation for large language models, vision transformers, speech models, and multimodal systems.
+
+The paper's central claim is simple: attention alone, combined with feed-forward layers, residual connections, and normalization, can model sequences effectively.
+
+That claim changed the direction of deep learning.
+
+For EchoRead, the paper is a useful study example because it contains definitions, design motivations, experimental results, and limitations.
+
+A listener may ask what a query is, why masking matters, or how multi-head attention differs from a single head.
+
+Study mode can connect those questions to the document while still using general background knowledge for definitions and analogies.
+
+The key is to keep the answer tied to the source and to label anything that goes beyond it.
