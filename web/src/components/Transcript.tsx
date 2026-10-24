@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
-import { LockKeyhole } from "lucide-react";
+import { LockKeyhole, Unlock } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 
 import type { Mode, WordTiming } from "../api/types";
 
@@ -51,32 +52,50 @@ export function Transcript({ words, currentMs, mode, onSeek }: TranscriptProps) 
     return words.filter((w) => w.start_ms > currentMs).length;
   }, [words, currentMs, mode]);
 
+  const readFraction = words.length > 0 ? Math.max(0, activeIndex + 1) / words.length : 0;
+
   return (
     <section className="card p-5 lg:p-6" aria-labelledby="transcript-heading">
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="eyebrow">Synchronized transcript</p>
-          <h2 id="transcript-heading" className="mt-2 font-display text-xl tracking-[-0.02em] text-paper">
+          <h2 id="transcript-heading" className="mt-2 font-display text-xl font-medium tracking-[-0.02em] text-paper">
             Follow the spoken word
           </h2>
         </div>
-        <span
-          className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] ${
-            mode === "story"
-              ? "border-safe/30 bg-safe/10 text-safe"
-              : "border-amber/30 bg-amber/10 text-amber"
-          }`}
-        >
-          {mode === "story" ? <LockKeyhole size={11} aria-hidden="true" /> : null}
-          {mode === "story" ? "Future locked" : "Full text"}
-        </span>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.span
+            key={mode}
+            initial={{ opacity: 0, scale: 0.85, y: 4 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.85, y: -4 }}
+            transition={{ duration: 0.2 }}
+            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] ${
+              mode === "story"
+                ? "border-safe/30 bg-safe/10 text-safe"
+                : "border-amber/30 bg-amber/10 text-amber"
+            }`}
+          >
+            {mode === "story" ? <LockKeyhole size={11} aria-hidden="true" /> : <Unlock size={11} aria-hidden="true" />}
+            {mode === "story" ? "Future locked" : "Full text"}
+          </motion.span>
+        </AnimatePresence>
+      </div>
+
+      <div className="mt-4 h-[3px] w-full overflow-hidden rounded-full bg-white/[0.06]" aria-hidden="true">
+        <motion.div
+          className="h-full rounded-full bg-gradient-to-r from-safe via-amber to-ember"
+          animate={{ width: `${readFraction * 100}%` }}
+          transition={{ type: "tween", ease: "linear", duration: 0.25 }}
+        />
       </div>
 
       {words.length === 0 ? (
         <div className="mt-6 space-y-3" aria-hidden="true">
-          <div className="h-4 w-11/12 animate-pulse rounded-full bg-white/10" />
-          <div className="h-4 w-4/5 animate-pulse rounded-full bg-white/[0.07]" />
-          <div className="h-4 w-2/3 animate-pulse rounded-full bg-white/[0.05]" />
+          <div className="skeleton h-4 w-11/12 rounded-full" />
+          <div className="skeleton h-4 w-4/5 rounded-full" />
+          <div className="skeleton h-4 w-2/3 rounded-full" />
+          <div className="skeleton h-4 w-3/4 rounded-full" />
         </div>
       ) : (
         <div
@@ -87,7 +106,7 @@ export function Transcript({ words, currentMs, mode, onSeek }: TranscriptProps) 
           onTouchMove={() => {
             manualScrollAtRef.current = Date.now();
           }}
-          className="relative mt-5 min-h-[14rem] max-h-[24rem] overflow-y-auto pr-3 font-display text-[17px] leading-[2.2] tracking-[0.01em] text-paper/90 lg:max-h-[28rem]"
+          className="fade-mask-y relative mt-3 min-h-[14rem] max-h-[24rem] overflow-y-auto py-6 pr-3 font-display text-[18px] leading-[2.2] tracking-[0.005em] text-paper/90 lg:max-h-[28rem]"
         >
           {words.map((word, index) => {
             const isLocked = mode === "story" && word.start_ms > currentMs;
@@ -110,11 +129,7 @@ export function Transcript({ words, currentMs, mode, onSeek }: TranscriptProps) 
                 key={`${word.chunk_id}-${index}`}
                 ref={active ? activeRef : undefined}
                 onClick={() => onSeek(word.start_ms)}
-                className={`word-token cursor-pointer ${
-                  active
-                    ? "bg-amber/25 text-amber ring-1 ring-amber/40 shadow-[0_0_8px_rgba(224,164,88,0.25)]"
-                    : "text-paper/85 hover:bg-white/10 hover:text-white"
-                }`}
+                className={`word-token cursor-pointer ${active ? "word-token-active" : "word-token-past"}`}
               >
                 {word.word}
               </span>
@@ -123,7 +138,7 @@ export function Transcript({ words, currentMs, mode, onSeek }: TranscriptProps) 
         </div>
       )}
 
-      <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-4 text-xs leading-5 text-white/35">
+      <div className="mt-4 flex items-center justify-between border-t border-white/[0.07] pt-4 text-xs leading-5 text-white/35">
         <p>
           {mode === "story"
             ? "Words unlock seamlessly with zero layout shift as spoken. Click any revealed word to seek."

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import { fetchContext } from "../api/client";
 import type { ContextPreview, Mode } from "../api/types";
+import { getDemoContext } from "../lib/demoData";
 
 export function useContextPreview(
   bookId: string | null,
@@ -33,6 +34,7 @@ export function useContextPreview(
             !(cause instanceof Error && cause.name === "AbortError")
           ) {
             setError(cause instanceof Error ? cause.message : "Context unavailable");
+            setContext(getDemoContext(bookId, second * 1000, mode));
           }
         });
     }, 250);

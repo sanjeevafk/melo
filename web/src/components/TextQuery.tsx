@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { CornerDownLeft, LoaderCircle, MessageSquareText, TriangleAlert } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 
 import { postQuery } from "../api/client";
 import type { Mode, QueryResponse } from "../api/types";
+import { revealText, spring } from "../lib/motion";
 import { formatDuration } from "../lib/time";
 
 interface TextQueryProps {
@@ -61,17 +63,17 @@ export function TextQuery({ bookId, tMs, mode, showTimings, onAnswered }: TextQu
             <MessageSquareText size={13} aria-hidden="true" />
             Type instead
           </p>
-          <h2 id="text-query-heading" className="mt-2 font-display text-lg tracking-[-0.02em] text-paper">
+          <h2 id="text-query-heading" className="mt-2 font-display text-lg font-medium tracking-[-0.02em] text-paper">
             Ask the same spoiler-safe question
           </h2>
         </div>
-        <span className="rounded-full border border-white/10 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-white/30">
+        <span className="rounded-full border border-white/10 bg-white/[0.03] px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-white/35">
           {mode}
         </span>
       </div>
 
       <form
-        className="mt-4 flex items-center gap-2"
+        className="group mt-4 flex items-center gap-2 rounded-2xl border border-white/10 bg-black/25 p-1.5 transition-all duration-300 focus-within:border-amber/50 focus-within:shadow-[0_0_0_4px_rgba(232,173,98,0.08),0_10px_40px_-10px_rgba(232,173,98,0.35)]"
         onSubmit={(event) => {
           event.preventDefault();
           void ask();
@@ -86,42 +88,83 @@ export function TextQuery({ bookId, tMs, mode, showTimings, onAnswered }: TextQu
           onChange={(event) => setQuestion(event.target.value)}
           disabled={!bookId || busy}
           placeholder="Who is at the door?"
-          className="h-10 min-w-0 flex-1 rounded-xl border border-white/10 bg-black/20 px-3 text-sm text-white/80 outline-none transition placeholder:text-white/25 focus:border-amber/50 disabled:opacity-40"
+          className="h-10 min-w-0 flex-1 bg-transparent px-3 text-sm text-white/85 outline-none placeholder:text-white/25 disabled:opacity-40"
         />
-        <button
+        <motion.button
           type="submit"
           disabled={!bookId || busy || !question.trim()}
           aria-label="Ask question"
-          className="grid size-10 shrink-0 place-items-center rounded-xl bg-paper text-ink-950 transition enabled:hover:bg-white disabled:cursor-not-allowed disabled:opacity-35"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.9 }}
+          transition={spring}
+          className="btn-primary grid size-10 shrink-0 place-items-center rounded-xl disabled:cursor-not-allowed disabled:opacity-35"
         >
           {busy ? (
             <LoaderCircle size={16} className="animate-spin" aria-hidden="true" />
           ) : (
             <CornerDownLeft size={16} aria-hidden="true" />
           )}
-        </button>
+        </motion.button>
       </form>
 
-      {error ? (
-        <p className="mt-3 flex items-center gap-2 text-xs text-danger">
-          <TriangleAlert size={13} aria-hidden="true" />
-          {error}
-        </p>
-      ) : null}
+      <AnimatePresence>
+        {error ? (
+          <motion.p
+            key="error"
+            variants={revealText}
+            initial="hidden"
+            animate="show"
+            exit="exit"
+            className="mt-3 flex items-center gap-2 text-xs text-danger"
+          >
+            <TriangleAlert size={13} aria-hidden="true" />
+            {error}
+          </motion.p>
+        ) : null}
+      </AnimatePresence>
 
-      {result ? (
-        <div className="mt-4 rounded-2xl border border-amber/15 bg-amber/[0.045] p-3">
-          <p aria-live="polite" className="text-sm leading-6 text-paper/90">
-            {result.answer}
-          </p>
-          <div className="mt-2 flex flex-wrap gap-2 font-mono text-[10px] uppercase tracking-[0.08em] text-white/30">
-            <span>cutoff {formatDuration(result.context.cutoff_ms)}</span>
-            <span>{result.context.retrieved.length} retrieved</span>
-            <span>{result.context.blocked_chunks} locked</span>
-            {showTimings ? <span>{result.timings.total_ms} ms</span> : null}
-          </div>
-        </div>
-      ) : null}
+      <AnimatePresence mode="wait">
+        {busy ? (
+          <motion.div
+            key="loading"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="mt-4 space-y-2 rounded-2xl border border-white/[0.07] bg-white/[0.02] p-3.5"
+            aria-hidden="true"
+          >
+            <div className="skeleton h-3 w-11/12 rounded-full" />
+            <div className="skeleton h-3 w-3/4 rounded-full" />
+            <div className="skeleton h-3 w-1/2 rounded-full" />
+          </motion.div>
+        ) : result ? (
+          <motion.div
+            key={result.answer}
+            variants={revealText}
+            initial="hidden"
+            animate="show"
+            exit="exit"
+            className="relative mt-4 overflow-hidden rounded-2xl border border-amber/20 bg-gradient-to-br from-amber/[0.09] to-amber/[0.02] p-3.5"
+          >
+            <motion.span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+              initial={{ x: "-100%" }}
+              animate={{ x: "100%" }}
+              transition={{ duration: 1.1, ease: "easeOut" }}
+            />
+            <p aria-live="polite" className="relative font-display text-[15px] leading-7 text-paper/95">
+              {result.answer}
+            </p>
+            <div className="relative mt-2 flex flex-wrap gap-2 font-mono text-[10px] uppercase tracking-[0.08em] text-white/35">
+              <span>cutoff {formatDuration(result.context.cutoff_ms)}</span>
+              <span>{result.context.retrieved.length} retrieved</span>
+              <span>{result.context.blocked_chunks} locked</span>
+              {showTimings ? <span>{result.timings.total_ms} ms</span> : null}
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </section>
   );
 }

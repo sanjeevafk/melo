@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import App from "../App";
@@ -102,7 +102,9 @@ describe("App", () => {
     expect(
       await screen.findByRole("heading", { name: "The Mysterious Affair at Styles" }),
     ).toBeInTheDocument();
-    expect(await screen.findByText("Once")).toBeInTheDocument();
+    const transcript = await screen.findByRole("region", { name: "Follow the spoken word" });
+    expect(await within(transcript).findByText("Once")).toBeInTheDocument();
+    // No unrevealed word may exist anywhere in the document — transcript or book.
     expect(screen.queryByText("upon")).not.toBeInTheDocument();
     expect(screen.getByText("Spoiler shield armed")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Hold to ask a question" })).toBeEnabled();
@@ -110,16 +112,17 @@ describe("App", () => {
 
   it("reveals the full transcript in study mode", async () => {
     render(<App />);
-    await screen.findByText("Once");
+    const transcript = await screen.findByRole("region", { name: "Follow the spoken word" });
+    expect(await within(transcript).findByText("Once")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Study" }));
-    expect(await screen.findByText("upon")).toBeInTheDocument();
+    expect(await within(transcript).findByText("upon")).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "Study" })).toHaveAttribute(
         "aria-pressed",
         "true",
       );
     });
-    expect(screen.getByText("Study mode: full document")).toBeInTheDocument();
+    expect(await screen.findByText("Study mode: full document")).toBeInTheDocument();
   });
 
   it("opens and closes the lore log drawer", async () => {
@@ -130,6 +133,8 @@ describe("App", () => {
     expect(await screen.findByRole("heading", { name: "Lore Log" })).toBeInTheDocument();
     expect(screen.getByText("No questions recorded yet")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /close lore log/i }));
-    expect(screen.queryByRole("heading", { name: "Lore Log" })).not.toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.queryByRole("heading", { name: "Lore Log" })).not.toBeInTheDocument(),
+    );
   });
 });

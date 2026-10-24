@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { AudioLines, TriangleAlert } from "lucide-react";
+import { AnimatePresence, MotionConfig, motion } from "motion/react";
 
 import type { BookManifest, BookSummary, Mode } from "./api/types";
 import { ContextPanel } from "./components/ContextPanel";
@@ -10,11 +11,14 @@ import { TextQuery } from "./components/TextQuery";
 import { Transcript } from "./components/Transcript";
 import { UploadDialog } from "./components/UploadDialog";
 import { VoiceDock } from "./components/VoiceDock";
+import { AmbientBackground } from "./components/ui/AmbientBackground";
+import { revealText, riseIn, staggerContainer } from "./lib/motion";
 import { useAudioPlayer } from "./hooks/useAudioPlayer";
 import { useBookManifest } from "./hooks/useBookManifest";
 import { useBooks } from "./hooks/useBooks";
 import { useContextPreview } from "./hooks/useContextPreview";
 import { useHealth } from "./hooks/useHealth";
+import { useDemoNarrator } from "./hooks/useDemoNarrator";
 import { useLoreLog } from "./hooks/useLoreLog";
 import { useMediaSession } from "./hooks/useMediaSession";
 
@@ -35,6 +39,7 @@ export default function App() {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [showTimings, setShowTimings] = useState(false);
   const [loreOpen, setLoreOpen] = useState(false);
+  const [voiceOn, setVoiceOn] = useState(true);
 
   useEffect(() => {
     if (books.length === 0) {
@@ -54,6 +59,15 @@ export default function App() {
   const player = useAudioPlayer(manifest?.audio_url ?? null, selectedBook?.duration_ms ?? 0);
   const { context, error: contextError } = useContextPreview(selectedBookId, player.currentMs, mode);
   const lore = useLoreLog(selectedBookId);
+
+  const narrator = useDemoNarrator({
+    enabled: voiceOn && player.simulated,
+    playing: player.playing,
+    rate: player.rate,
+    words: manifest?.words ?? [],
+    currentMs: player.currentMs,
+    bookId: selectedBookId,
+  });
 
   useMediaSession({
     title: manifest?.title,
@@ -91,8 +105,15 @@ export default function App() {
   const serviceError = booksError ?? manifestError;
 
   return (
-    <div className="min-h-screen bg-ink-950 text-white/80">
-      <div className="mx-auto flex min-h-screen max-w-7xl flex-col px-5 py-6 lg:px-8">
+    <MotionConfig reducedMotion="user">
+    <div className="relative min-h-screen overflow-x-hidden bg-ink-950 text-white/80">
+      <AmbientBackground />
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="show"
+        className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col px-5 py-6 lg:px-8"
+      >
         <Header
           health={health}
           healthError={healthError}
@@ -108,8 +129,9 @@ export default function App() {
           onOpenLore={() => setLoreOpen(true)}
         />
 
-        <main className="grid flex-1 gap-5 py-6 lg:grid-cols-[1.35fr_0.9fr]">
-          <div className="grid content-start gap-5">
+        <main className="grid flex-1 gap-6 py-8 lg:grid-cols-[1.35fr_0.9fr]">
+          <motion.div variants={staggerContainer} className="grid content-start gap-6">
+            <motion.div variants={riseIn}>
             <Player
               book={manifest}
               currentMs={player.currentMs}
@@ -118,21 +140,36 @@ export default function App() {
               rate={player.rate}
               error={player.error}
               context={context}
+              mode={mode}
+              voiceAvailable={narrator.supported && player.simulated}
+              voiceOn={voiceOn}
+              onToggleVoice={() => setVoiceOn((current) => !current)}
               onToggle={player.toggle}
               onSeek={player.seek}
               onRateChange={player.setRate}
             />
+            </motion.div>
+            <motion.div variants={riseIn}>
             <Transcript
               words={manifest?.words ?? []}
               currentMs={player.currentMs}
               mode={mode}
               onSeek={player.seek}
             />
-          </div>
+            </motion.div>
+          </motion.div>
 
-          <div className="grid content-start gap-5">
+          <motion.div variants={staggerContainer} className="grid content-start gap-6">
+            <AnimatePresence mode="popLayout">
             {serviceError ? (
-              <div className="card border-danger/25 bg-danger/[0.06] p-5 text-sm text-danger">
+              <motion.div
+                key="service-error"
+                variants={revealText}
+                initial="hidden"
+                animate="show"
+                exit="exit"
+                className="card border-danger/25 bg-danger/[0.06] p-5 text-sm text-danger"
+              >
                 <p className="flex items-center gap-2 font-medium">
                   <TriangleAlert size={15} aria-hidden="true" />
                   Backend not reachable
@@ -141,33 +178,35 @@ export default function App() {
                   Start it with <code className="font-mono text-[11px]">make dev</code> and reload.
                   {serviceError ? ` ${serviceError}` : ""}
                 </p>
-              </div>
+              </motion.div>
             ) : missingModels.length > 0 ? (
-              <div className="card border-amber/20 bg-amber/[0.05] p-5 text-sm text-white/60">
+              <motion.div
+                key="models-missing"
+                variants={revealText}
+                initial="hidden"
+                animate="show"
+                exit="exit"
+                className="card border-amber/20 bg-amber/[0.05] p-5 text-sm text-white/60"
+              >
                 <p className="flex items-center gap-2 font-medium text-amber">
                   <AudioLines size={15} aria-hidden="true" />
                   Local models are not ready
                 </p>
                 <p className="mt-2">Fetch them with `make setup && make models`, then reload.</p>
-              </div>
+              </motion.div>
             ) : null}
+            </AnimatePresence>
 
+            <motion.div variants={riseIn}>
             <ContextPanel
               mode={mode}
               context={context}
               error={contextError}
               durationMs={player.durationMs}
             />
+            </motion.div>
 
-            <TextQuery
-              key={`${selectedBookId ?? "no-book"}-${mode}`}
-              bookId={selectedBookId}
-              tMs={player.currentMs}
-              mode={mode}
-              showTimings={showTimings}
-              onAnswered={lore.refresh}
-            />
-
+            <motion.div variants={riseIn}>
             <VoiceDock
               key={selectedBookId ?? "no-book"}
               book={manifest}
@@ -182,14 +221,35 @@ export default function App() {
               }}
               onAnswered={lore.refresh}
             />
-          </div>
+            </motion.div>
+
+            <motion.div variants={riseIn}>
+            <TextQuery
+              key={`${selectedBookId ?? "no-book"}-${mode}`}
+              bookId={selectedBookId}
+              tMs={player.currentMs}
+              mode={mode}
+              showTimings={showTimings}
+              onAnswered={lore.refresh}
+            />
+            </motion.div>
+          </motion.div>
         </main>
 
-        <footer className="flex flex-col gap-2 border-t border-white/10 py-4 text-[11px] text-white/30 sm:flex-row sm:items-center sm:justify-between">
-          <span>Audio, transcripts, and answers stay on this machine.</span>
+        <motion.footer
+          variants={riseIn}
+          className="flex flex-col gap-2 border-t border-white/[0.07] py-5 text-[11px] text-white/30 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <span className="inline-flex items-center gap-2">
+            <span className="relative flex size-1.5">
+              <span className="absolute inline-flex size-full animate-ping rounded-full bg-safe/60" />
+              <span className="relative inline-flex size-1.5 rounded-full bg-safe" />
+            </span>
+            Audio, transcripts, and answers stay on this machine.
+          </span>
           <span className="font-mono uppercase tracking-[0.14em]">Local temporal RAG · No telemetry</span>
-        </footer>
-      </div>
+        </motion.footer>
+      </motion.div>
 
       <UploadDialog
         open={uploadOpen}
@@ -208,5 +268,6 @@ export default function App() {
         onClearAll={lore.clearAll}
       />
     </div>
+    </MotionConfig>
   );
 }

@@ -1,8 +1,13 @@
-import { useMemo } from "react";
-import { Clock3, Headphones, Pause, Play, ShieldCheck, Sparkles } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import type { MouseEvent, PointerEvent } from "react";
+import { Clock3, Headphones, Pause, Play, ShieldCheck, Sparkles, ChevronLeft, ChevronRight, Volume2, VolumeX } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 
-import type { BookManifest, ContextPreview } from "../api/types";
+import type { BookManifest, ContextPreview, Mode } from "../api/types";
+import { spring } from "../lib/motion";
 import { formatDuration } from "../lib/time";
+import { AnimatedBook } from "./book/AnimatedBook";
+import { AnimatedNumber } from "./ui/AnimatedNumber";
 
 interface PlayerProps {
   book: BookManifest | null;
@@ -12,6 +17,11 @@ interface PlayerProps {
   rate: number;
   error: string | null;
   context: ContextPreview | null;
+  mode: Mode;
+  /** Demo narration voice is offered (browser speech + no real audio). */
+  voiceAvailable?: boolean;
+  voiceOn?: boolean;
+  onToggleVoice?: () => void;
   onToggle: () => void;
   onSeek: (ms: number) => void;
   onRateChange: (rate: number) => void;
@@ -25,7 +35,7 @@ function barHeight(index: number): number {
   const envelope = Math.sin(t * Math.PI);
   const wave = Math.sin(index * 0.42) * 0.35 + Math.cos(index * 0.78) * 0.25 + 0.55;
   const raw = envelope * wave;
-  return Math.max(25, Math.min(95, Math.round(raw * 85 + 20)));
+  return Math.max(22, Math.min(95, Math.round(raw * 85 + 20)));
 }
 
 export function Player({
@@ -36,174 +46,409 @@ export function Player({
   rate,
   error,
   context,
+  mode,
+  voiceAvailable = false,
+  voiceOn = true,
+  onToggleVoice,
   onToggle,
   onSeek,
   onRateChange,
 }: PlayerProps) {
   const progress = durationMs > 0 ? Math.min(1, currentMs / durationMs) : 0;
   const bars = useMemo(() => Array.from({ length: BAR_COUNT }, (_, index) => barHeight(index)), []);
-  const currentChapter = useMemo(() => {
-    if (!book?.chapters || book.chapters.length === 0) {
-      return null;
-    }
-    return (
-      book.chapters.find((ch) => currentMs >= ch.start_ms && currentMs < ch.end_ms) ??
-      book.chapters[0]
-    );
-  }, [book, currentMs]);
+  const [hoverFraction, setHoverFraction] = useState<number | null>(null);
+  const draggingRef = useRef(false);
+
+  const chapters = useMemo(() => book?.chapters ?? [], [book?.chapters]);
+  const currentChapterIndex = useMemo(() => {
+    if (chapters.length === 0) return -1;
+    return chapters.findIndex((ch) => currentMs >= ch.start_ms && currentMs < ch.end_ms);
+  }, [chapters, currentMs]);
+
+  const currentChapter = currentChapterIndex >= 0 ? chapters[currentChapterIndex] : chapters[0] ?? null;
+
+  const handlePrevChapter = () => {
+    if (chapters.length === 0) return;
+    const targetIdx = Math.max(0, currentChapterIndex - 1);
+    onSeek(chapters[targetIdx].start_ms);
+  };
+
+  const handleNextChapter = () => {
+    if (chapters.length === 0) return;
+    const targetIdx = Math.min(chapters.length - 1, currentChapterIndex + 1);
+    onSeek(chapters[targetIdx].start_ms);
+  };
+
+  const fractionFromEvent = (event: PointerEvent<HTMLElement>) => {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    return Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width));
+  };
+
+  const canSeek = Boolean(book) && durationMs > 0;
+
+  const scrubHandlers = {
+    onPointerDown: (event: PointerEvent<HTMLDivElement>) => {
+      if (!canSeek) return;
+      draggingRef.current = true;
+      event.currentTarget.setPointerCapture?.(event.pointerId);
+      onSeek(fractionFromEvent(event) * durationMs);
+    },
+    onPointerMove: (event: PointerEvent<HTMLDivElement>) => {
+      const fraction = fractionFromEvent(event);
+      setHoverFraction(fraction);
+      if (draggingRef.current && canSeek) {
+        onSeek(fraction * durationMs);
+      }
+    },
+    onPointerUp: () => {
+      draggingRef.current = false;
+    },
+    onPointerLeave: () => {
+      setHoverFraction(null);
+    },
+    onClick: (event: MouseEvent<HTMLDivElement>) => {
+      if (!canSeek) return;
+      const bounds = event.currentTarget.getBoundingClientRect();
+      const fraction = Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width));
+      onSeek(fraction * durationMs);
+    },
+  };
 
   return (
-    <section className="card relative overflow-hidden p-6 lg:p-8" aria-labelledby="player-heading">
-      <div className="absolute -right-24 -top-28 size-72 rounded-full bg-amber/10 blur-3xl" />
-      <div className="relative flex items-start justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <p className="eyebrow">
-              <Headphones size={13} aria-hidden="true" />
-              Now listening
-            </p>
-            {currentChapter ? (
-              <span className="rounded-md border border-white/10 bg-white/[0.04] px-2 py-0.5 font-mono text-[11px] text-amber">
-                {currentChapter.title}
-              </span>
-            ) : null}
-          </div>
-          <h2
-            id="player-heading"
-            className="mt-3 max-w-xl font-display text-3xl leading-[1.05] tracking-[-0.04em] text-paper lg:text-4xl"
-          >
-            {book?.title ?? "Your next listening session"}
-          </h2>
-          <p className="mt-2 text-sm text-white/45">
-            {book?.author ? `${book.author} · ${formatDuration(book.duration_ms)}` : "Demo audio, indexed locally."}
-          </p>
-        </div>
-        <div className="hidden rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-right sm:block">
-          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/35">Position</p>
-          <p className="mt-1 font-mono text-sm text-paper">{formatDuration(currentMs)}</p>
-        </div>
-      </div>
+    <section
+      className="card relative overflow-hidden border border-white/[0.08] bg-[#0e1014]/85 p-6 lg:p-8"
+      aria-labelledby="player-heading"
+    >
+      {/* Subtle warm studio backdrop glow */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-20 -top-24 size-96 rounded-full bg-[#cba36e]/[0.07] blur-3xl"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-24 -left-20 size-80 rounded-full bg-[#7ea38f]/[0.05] blur-3xl"
+      />
 
-      <div className="relative mt-8 rounded-2xl border border-white/10 bg-black/25 p-5">
-        <div
-          className="group relative flex h-16 cursor-pointer items-end justify-between gap-[3px] select-none"
-          role="slider"
-          aria-label="Audio position"
-          aria-valuemin={0}
-          aria-valuemax={durationMs}
-          aria-valuenow={currentMs}
-          onClick={(event) => {
-            if (!book || durationMs <= 0) return;
-            const bounds = event.currentTarget.getBoundingClientRect();
-            const fraction = Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width));
-            onSeek(fraction * durationMs);
-          }}
-        >
-          {bars.map((height, index) => {
-            const barFraction = index / bars.length;
-            const played = barFraction <= progress;
-            const isNearPlayhead = Math.abs(barFraction - progress) < 1.2 / bars.length;
-
-            return (
-              <span
-                key={`${height}-${index}`}
-                className={`flex-1 rounded-full transition-colors duration-150 ${
-                  isNearPlayhead
-                    ? "bg-paper shadow-[0_0_8px_rgba(241,237,227,0.9)]"
-                    : played
-                      ? "bg-amber shadow-[0_0_6px_rgba(224,164,88,0.3)]"
-                      : "bg-white/15 group-hover:bg-white/25"
-                }`}
-                style={{ height: `${height}%` }}
-              />
-            );
-          })}
-        </div>
-
-        {/* Progress track */}
-        <div
-          className="relative mt-3 h-1.5 w-full cursor-pointer overflow-hidden rounded-full bg-white/10"
-          onClick={(event) => {
-            if (!book || durationMs <= 0) return;
-            const bounds = event.currentTarget.getBoundingClientRect();
-            const fraction = Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width));
-            onSeek(fraction * durationMs);
-          }}
-        >
-          <div
-            className="h-full rounded-full bg-amber transition-[width] duration-150"
-            style={{ width: `${Math.min(100, progress * 100)}%` }}
+      <div className="relative grid gap-8 lg:grid-cols-[280px_1fr] lg:items-center">
+        {/* Self-reading hardcover book showcase */}
+        <div className="relative mx-auto flex h-[340px] w-full max-w-[280px] items-center justify-center">
+          <AnimatedBook
+            className="h-full w-full"
+            title={book?.title ?? "The Mysterious Affair at Styles"}
+            author={book?.author ?? "Agatha Christie"}
+            bookId={book?.id ?? "styles-ch2"}
+            playing={playing}
+            words={book?.words ?? []}
+            currentMs={currentMs}
+            mode={mode}
           />
         </div>
 
-        <div className="mt-2.5 flex items-center justify-between font-mono text-xs text-white/40">
-          <span className="font-medium text-paper/85">{formatDuration(currentMs)}</span>
-          <span>{formatDuration(durationMs)}</span>
-        </div>
-      </div>
+        {/* Literary Details & Player Controls */}
+        <div className="flex flex-col justify-between">
+          <div>
+            {/* Header / Chapter pill */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <p className="eyebrow text-[#cba36e]/90">
+                  <Headphones size={13} aria-hidden="true" />
+                  Now listening
+                </p>
+                <AnimatePresence mode="wait">
+                  {currentChapter ? (
+                    <motion.span
+                      key={currentChapter.title}
+                      initial={{ opacity: 0, x: -6 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 6 }}
+                      className="rounded-md border border-[#cba36e]/25 bg-[#cba36e]/[0.08] px-2.5 py-0.5 font-mono text-[11px] text-[#cba36e]"
+                    >
+                      {currentChapter.title}
+                    </motion.span>
+                  ) : null}
+                </AnimatePresence>
+              </div>
 
-      <div className="relative mt-6 flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          onClick={onToggle}
-          disabled={!book}
-          className="grid size-12 place-items-center rounded-full bg-paper text-ink-950 transition enabled:hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
-          aria-label={playing ? "Pause narration" : "Play narration"}
-        >
-          {playing ? (
-            <Pause size={20} fill="currentColor" aria-hidden="true" />
-          ) : (
-            <Play className="translate-x-0.5" size={20} fill="currentColor" aria-hidden="true" />
-          )}
-        </button>
+              {/* Chapter Seek Navigation Buttons */}
+              {chapters.length > 1 && (
+                <div className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.02] p-0.5">
+                  <button
+                    type="button"
+                    onClick={handlePrevChapter}
+                    disabled={currentChapterIndex <= 0}
+                    className="rounded-full p-1 text-white/40 hover:text-white disabled:opacity-20"
+                    title="Previous chapter"
+                    aria-label="Previous chapter"
+                  >
+                    <ChevronLeft size={14} />
+                  </button>
+                  <span className="px-1 font-mono text-[10px] text-white/50">
+                    {currentChapterIndex + 1}/{chapters.length}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleNextChapter}
+                    disabled={currentChapterIndex >= chapters.length - 1}
+                    className="rounded-full p-1 text-white/40 hover:text-white disabled:opacity-20"
+                    title="Next chapter"
+                    aria-label="Next chapter"
+                  >
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
+              )}
+            </div>
 
-        <div className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.03] p-1">
-          {RATES.map((speed) => (
-            <button
-              key={speed}
-              type="button"
-              onClick={() => onRateChange(speed)}
-              aria-pressed={rate === speed}
-              className={`rounded-full px-2.5 py-1 font-mono text-[11px] transition ${
-                rate === speed ? "bg-white/10 text-white/80" : "text-white/35 hover:text-white/65"
-              }`}
+            {/* Book Title */}
+            <AnimatePresence mode="wait">
+              <motion.h2
+                key={book?.id ?? "empty"}
+                id="player-heading"
+                initial={{ opacity: 0, y: 12, filter: "blur(6px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -8, filter: "blur(4px)" }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                className="mt-3.5 font-display text-2xl font-medium tracking-tight text-[#f5f0e6] lg:text-[2.25rem] lg:leading-[1.12]"
+              >
+                {book?.title ?? "The Mysterious Affair at Styles"}
+              </motion.h2>
+            </AnimatePresence>
+
+            {/* Author & metadata */}
+            <p className="mt-2 text-sm text-white/50">
+              <span className="font-display italic text-[#cba36e]/90">
+                {book?.author ?? "Agatha Christie"}
+              </span>
+              <span className="mx-2 text-white/20">·</span>
+              <span className="font-mono text-xs text-white/40">
+                {formatDuration(book?.duration_ms ?? durationMs)}
+              </span>
+              {book?.provenance?.source && (
+                <>
+                  <span className="mx-2 text-white/20">·</span>
+                  <span className="text-xs text-white/35">{book.provenance.source}</span>
+                </>
+              )}
+            </p>
+          </div>
+
+          {/* Restrained Waveform & Scrubbing Bar */}
+          <div className="relative mt-6 rounded-2xl border border-white/[0.07] bg-black/35 p-4 shadow-inner">
+            <div
+              className="group relative flex h-14 cursor-pointer touch-none items-center justify-between gap-[3px] select-none"
+              role="slider"
+              aria-label="Audio position"
+              aria-valuemin={0}
+              aria-valuemax={durationMs}
+              aria-valuenow={currentMs}
+              {...scrubHandlers}
             >
-              {speed}x
-            </button>
-          ))}
-        </div>
+              {bars.map((height, index) => {
+                const barFraction = index / bars.length;
+                const played = barFraction <= progress;
+                const isNearPlayhead = Math.abs(barFraction - progress) < 1.4 / bars.length;
+                const hovered = hoverFraction !== null && barFraction <= hoverFraction && !played;
 
-        <div className="ml-auto flex items-center gap-2 text-xs text-white/35">
-          <Clock3 size={14} aria-hidden="true" />
-          {error ?? "Space holds the microphone; the player pauses for you."}
+                return (
+                  <span
+                    key={index}
+                    className={`wave-bar flex-1 rounded-full transition-colors duration-150 ${
+                      isNearPlayhead
+                        ? "bg-[#f5f0e6] shadow-[0_0_10px_rgba(245,240,230,0.85)]"
+                        : played
+                          ? "bg-gradient-to-t from-[#cba36e] to-[#e5dec9]"
+                          : hovered
+                            ? "bg-white/30"
+                            : "bg-white/[0.12]"
+                    }`}
+                    style={{
+                      height: `${height}%`,
+                      animationDelay: `${(index % 10) * -0.12}s`,
+                      animationPlayState: playing ? "running" : "paused",
+                    }}
+                  />
+                );
+              })}
+
+              {/* Playhead Marker */}
+              <motion.span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-y-[-4px] w-[2px] rounded-full bg-[#f5f0e6] shadow-[0_0_12px_rgba(245,240,230,0.8)]"
+                animate={{ left: `${progress * 100}%` }}
+                transition={{ type: "tween", ease: "linear", duration: 0.2 }}
+              />
+
+              {/* Scrubbing Hover Tooltip */}
+              <AnimatePresence>
+                {hoverFraction !== null && canSeek ? (
+                  <motion.span
+                    aria-hidden="true"
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 4 }}
+                    className="pointer-events-none absolute -top-8 -translate-x-1/2 rounded border border-white/10 bg-[#16181e] px-2 py-0.5 font-mono text-[10px] text-[#f5f0e6] shadow-xl"
+                    style={{ left: `${hoverFraction * 100}%` }}
+                  >
+                    {formatDuration(hoverFraction * durationMs)}
+                  </motion.span>
+                ) : null}
+              </AnimatePresence>
+            </div>
+
+            {/* Micro Progress Track */}
+            <div
+              className="relative mt-2.5 h-1 w-full cursor-pointer overflow-hidden rounded-full bg-white/[0.08]"
+              onClick={scrubHandlers.onClick}
+            >
+              <motion.div
+                className="h-full rounded-full bg-gradient-to-r from-[#cba36e] to-[#f5f0e6]"
+                animate={{ width: `${Math.min(100, progress * 100)}%` }}
+                transition={{ type: "tween", ease: "linear", duration: 0.2 }}
+              />
+            </div>
+
+            {/* Time Indicators */}
+            <div className="mt-2 flex items-center justify-between font-mono text-[11px] tabular-nums text-white/45">
+              <span className="font-medium text-[#f5f0e6]">{formatDuration(currentMs)}</span>
+              <span>-{formatDuration(Math.max(0, durationMs - currentMs))}</span>
+            </div>
+          </div>
+
+          {/* Action Row */}
+          <div className="mt-5 flex flex-wrap items-center gap-4">
+            {/* Play/Pause Button */}
+            <motion.button
+              type="button"
+              onClick={onToggle}
+              disabled={!book}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.94 }}
+              transition={spring}
+              className="relative grid size-12 place-items-center rounded-full bg-[#f5f0e6] text-[#0e1014] shadow-[0_4px_20px_rgba(203,163,110,0.35)] transition-colors hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label={playing ? "Pause narration" : "Play narration"}
+            >
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={playing ? "pause" : "play"}
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.5, opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="grid place-items-center"
+                >
+                  {playing ? (
+                    <Pause size={19} fill="currentColor" aria-hidden="true" />
+                  ) : (
+                    <Play className="translate-x-0.5" size={19} fill="currentColor" aria-hidden="true" />
+                  )}
+                </motion.span>
+              </AnimatePresence>
+            </motion.button>
+
+            {/* Playback Speed Controls */}
+            <div className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.03] p-1">
+              {RATES.map((speed) => {
+                const active = rate === speed;
+                return (
+                  <button
+                    key={speed}
+                    type="button"
+                    onClick={() => onRateChange(speed)}
+                    aria-pressed={active}
+                    className={`relative rounded-full px-2.5 py-0.5 font-mono text-[11px] transition-colors ${
+                      active ? "text-[#0e1014]" : "text-white/40 hover:text-white/70"
+                    }`}
+                  >
+                    {active && (
+                      <motion.span
+                        layoutId="rate-pill"
+                        transition={spring}
+                        className="absolute inset-0 rounded-full bg-[#cba36e]"
+                        aria-hidden="true"
+                      />
+                    )}
+                    <span className="relative">{speed}x</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Demo narration voice toggle (offline demo, no real audio) */}
+            {voiceAvailable && (
+              <button
+                type="button"
+                onClick={onToggleVoice}
+                aria-pressed={voiceOn}
+                title={voiceOn ? "Mute demo narration voice" : "Unmute demo narration voice"}
+                className="btn-ghost"
+              >
+                {voiceOn ? (
+                  <Volume2 size={13} aria-hidden="true" />
+                ) : (
+                  <VolumeX size={13} aria-hidden="true" />
+                )}
+                Voice
+              </button>
+            )}
+
+            {/* Hint & error note */}
+            <div className="ml-auto flex items-center gap-2 text-xs text-white/40">
+              <Clock3 size={13} aria-hidden="true" />
+              {error ?? (
+                <span>
+                  Hold{" "}
+                  <kbd className="rounded border border-white/15 bg-white/[0.06] px-1.5 py-0.5 font-mono text-[10px] text-white/60">
+                    Space
+                  </kbd>{" "}
+                  to query companion.
+                </span>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="relative mt-8 grid gap-3 border-t border-white/10 pt-6 sm:grid-cols-3">
-        <div>
-          <p className="eyebrow">
-            <ShieldCheck size={12} aria-hidden="true" />
-            Context window
-          </p>
-          <p className="mt-2 text-sm text-white/70">
-            {context ? `From ${formatDuration(context.buffer_start_ms)} to ${formatDuration(context.t_ms)}` : "Last 90 seconds, verbatim"}
-          </p>
-        </div>
-        <div>
-          <p className="eyebrow">
-            <Sparkles size={12} aria-hidden="true" />
-            Retrieved
-          </p>
-          <p className="mt-2 text-sm text-white/70">
-            {context ? `${context.retrieved.length} past passages` : "Past text only"}
-          </p>
-        </div>
-        <div>
-          <p className="eyebrow">Shield</p>
-          <p className="mt-2 text-sm text-white/70">
-            {context ? `${context.blocked_chunks} chunks locked ahead` : "Spoiler-safe by default"}
-          </p>
-        </div>
+      {/* Grounded Stats Bar */}
+      <div className="relative mt-8 grid gap-3 border-t border-white/[0.07] pt-5 sm:grid-cols-3">
+        {[
+          {
+            icon: <ShieldCheck size={12} aria-hidden="true" />,
+            label: "Context window",
+            value: context
+              ? `${formatDuration(context.buffer_start_ms)} → ${formatDuration(context.t_ms)}`
+              : "Last 90s verbatim",
+          },
+          {
+            icon: <Sparkles size={12} aria-hidden="true" />,
+            label: "Retrieved past",
+            value: context ? (
+              <>
+                <AnimatedNumber value={context.retrieved.length} /> passages
+              </>
+            ) : (
+              "Safe evidence"
+            ),
+          },
+          {
+            icon: null,
+            label: "Temporal shield",
+            value: context ? (
+              <>
+                <AnimatedNumber value={context.blocked_chunks} /> chunks locked
+              </>
+            ) : (
+              "Spoiler-safe"
+            ),
+          },
+        ].map((stat) => (
+          <div key={stat.label} className="rounded-xl p-2.5">
+            <p className="eyebrow text-[#cba36e]/80">
+              {stat.icon}
+              {stat.label}
+            </p>
+            <p className="mt-1.5 font-mono text-sm tabular-nums text-white/75">{stat.value}</p>
+          </div>
+        ))}
       </div>
     </section>
   );
