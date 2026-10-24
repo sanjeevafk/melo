@@ -190,9 +190,6 @@ The GPU profile expects the small English Whisper model, Qwen2.5-3B, and a CUDA-
 
 ## Documentation
 
-- [Implementation plan](local-docs/IMPLEMENTATION-PLAN.md)
-- [Product requirements](local-docs/PRD.md)
-- [Architecture and state machines](local-docs/DIAGRAMS-AND-FSM.md)
 - [Benchmark method and results](local-docs/BENCHMARKS.md)
 - [Spoiler evaluation method and results](local-docs/EVALS.md)
 
