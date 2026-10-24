@@ -1,10 +1,9 @@
 import { useMemo, useRef, useState } from "react";
 import type { MouseEvent, PointerEvent } from "react";
-import { Clock3, Headphones, Pause, Play, ShieldCheck, Sparkles, ChevronLeft, ChevronRight, Volume2, VolumeX } from "lucide-react";
+import { Headphones, ShieldCheck, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 
 import type { BookManifest, ContextPreview, Mode } from "../api/types";
-import { spring } from "../lib/motion";
 import { formatDuration } from "../lib/time";
 import { AnimatedBook } from "./book/AnimatedBook";
 import { AnimatedNumber } from "./ui/AnimatedNumber";
@@ -14,21 +13,12 @@ interface PlayerProps {
   currentMs: number;
   durationMs: number;
   playing: boolean;
-  rate: number;
-  error: string | null;
   context: ContextPreview | null;
   mode: Mode;
-  /** Demo narration voice is offered (browser speech + no real audio). */
-  voiceAvailable?: boolean;
-  voiceOn?: boolean;
-  onToggleVoice?: () => void;
-  onToggle: () => void;
   onSeek: (ms: number) => void;
-  onRateChange: (rate: number) => void;
 }
 
 const BAR_COUNT = 64;
-const RATES = [1, 1.2, 1.5];
 
 function barHeight(index: number): number {
   const t = index / BAR_COUNT;
@@ -43,16 +33,9 @@ export function Player({
   currentMs,
   durationMs,
   playing,
-  rate,
-  error,
   context,
   mode,
-  voiceAvailable = false,
-  voiceOn = true,
-  onToggleVoice,
-  onToggle,
   onSeek,
-  onRateChange,
 }: PlayerProps) {
   const progress = durationMs > 0 ? Math.min(1, currentMs / durationMs) : 0;
   const bars = useMemo(() => Array.from({ length: BAR_COUNT }, (_, index) => barHeight(index)), []);
@@ -154,19 +137,16 @@ export function Player({
                   <Headphones size={13} aria-hidden="true" />
                   Now listening
                 </p>
-                <AnimatePresence mode="wait">
-                  {currentChapter ? (
-                    <motion.span
-                      key={currentChapter.title}
-                      initial={{ opacity: 0, x: -6 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 6 }}
-                      className="rounded-md border border-[#cba36e]/25 bg-[#cba36e]/[0.08] px-2.5 py-0.5 font-mono text-[11px] text-[#cba36e]"
-                    >
-                      {currentChapter.title}
-                    </motion.span>
-                  ) : null}
-                </AnimatePresence>
+                {currentChapter ? (
+                  <motion.span
+                    key={currentChapter.title}
+                    initial={{ opacity: 0, x: -6 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="rounded-md border border-[#cba36e]/25 bg-[#cba36e]/[0.08] px-2.5 py-0.5 font-mono text-[11px] text-[#cba36e]"
+                  >
+                    {currentChapter.title}
+                  </motion.span>
+                ) : null}
               </div>
 
               {/* Chapter Seek Navigation Buttons */}
@@ -199,20 +179,19 @@ export function Player({
               )}
             </div>
 
-            {/* Book Title */}
-            <AnimatePresence mode="wait">
-              <motion.h2
-                key={book?.id ?? "empty"}
-                id="player-heading"
-                initial={{ opacity: 0, y: 12, filter: "blur(6px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                exit={{ opacity: 0, y: -8, filter: "blur(4px)" }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                className="mt-3.5 font-display text-2xl font-medium tracking-tight text-[#f5f0e6] lg:text-[2.25rem] lg:leading-[1.12]"
-              >
-                {book?.title ?? "The Mysterious Affair at Styles"}
-              </motion.h2>
-            </AnimatePresence>
+            {/* Book Title — keyed remount swaps instantly on book change
+                (AnimatePresence mode="wait" could hang on its exit and show
+                the previous book's title indefinitely) */}
+            <motion.h2
+              key={book?.id ?? "empty"}
+              id="player-heading"
+              initial={{ opacity: 0, y: 12, filter: "blur(6px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              className="mt-3.5 font-display text-2xl font-medium tracking-tight text-[#f5f0e6] lg:text-[2.25rem] lg:leading-[1.12]"
+            >
+              {book?.title ?? "The Mysterious Affair at Styles"}
+            </motion.h2>
 
             {/* Author & metadata */}
             <p className="mt-2 text-sm text-white/50">
@@ -311,98 +290,6 @@ export function Player({
             <div className="mt-2 flex items-center justify-between font-mono text-[11px] tabular-nums text-white/45">
               <span className="font-medium text-[#f5f0e6]">{formatDuration(currentMs)}</span>
               <span>-{formatDuration(Math.max(0, durationMs - currentMs))}</span>
-            </div>
-          </div>
-
-          {/* Action Row */}
-          <div className="mt-5 flex flex-wrap items-center gap-4">
-            {/* Play/Pause Button */}
-            <motion.button
-              type="button"
-              onClick={onToggle}
-              disabled={!book}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.94 }}
-              transition={spring}
-              className="relative grid size-12 place-items-center rounded-full bg-[#f5f0e6] text-[#0e1014] shadow-[0_4px_20px_rgba(203,163,110,0.35)] transition-colors hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
-              aria-label={playing ? "Pause narration" : "Play narration"}
-            >
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.span
-                  key={playing ? "pause" : "play"}
-                  initial={{ scale: 0.5, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.5, opacity: 0 }}
-                  transition={{ duration: 0.15 }}
-                  className="grid place-items-center"
-                >
-                  {playing ? (
-                    <Pause size={19} fill="currentColor" aria-hidden="true" />
-                  ) : (
-                    <Play className="translate-x-0.5" size={19} fill="currentColor" aria-hidden="true" />
-                  )}
-                </motion.span>
-              </AnimatePresence>
-            </motion.button>
-
-            {/* Playback Speed Controls */}
-            <div className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.03] p-1">
-              {RATES.map((speed) => {
-                const active = rate === speed;
-                return (
-                  <button
-                    key={speed}
-                    type="button"
-                    onClick={() => onRateChange(speed)}
-                    aria-pressed={active}
-                    className={`relative rounded-full px-2.5 py-0.5 font-mono text-[11px] transition-colors ${
-                      active ? "text-[#0e1014]" : "text-white/40 hover:text-white/70"
-                    }`}
-                  >
-                    {active && (
-                      <motion.span
-                        layoutId="rate-pill"
-                        transition={spring}
-                        className="absolute inset-0 rounded-full bg-[#cba36e]"
-                        aria-hidden="true"
-                      />
-                    )}
-                    <span className="relative">{speed}x</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Demo narration voice toggle (offline demo, no real audio) */}
-            {voiceAvailable && (
-              <button
-                type="button"
-                onClick={onToggleVoice}
-                aria-pressed={voiceOn}
-                title={voiceOn ? "Mute demo narration voice" : "Unmute demo narration voice"}
-                className="btn-ghost"
-              >
-                {voiceOn ? (
-                  <Volume2 size={13} aria-hidden="true" />
-                ) : (
-                  <VolumeX size={13} aria-hidden="true" />
-                )}
-                Voice
-              </button>
-            )}
-
-            {/* Hint & error note */}
-            <div className="ml-auto flex items-center gap-2 text-xs text-white/40">
-              <Clock3 size={13} aria-hidden="true" />
-              {error ?? (
-                <span>
-                  Hold{" "}
-                  <kbd className="rounded border border-white/15 bg-white/[0.06] px-1.5 py-0.5 font-mono text-[10px] text-white/60">
-                    Space
-                  </kbd>{" "}
-                  to query companion.
-                </span>
-              )}
             </div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 import type { WordTiming } from "../api/types";
 import { activeWordIndex, splitSentences } from "../components/book/bookPagination";
@@ -9,6 +9,8 @@ interface DemoNarratorOptions {
   rate: number;
   words: WordTiming[];
   currentMs: number;
+  /** 0–1; applied to the next spoken sentence (speech cannot change live). */
+  volume?: number;
   bookId?: string | null;
 }
 
@@ -37,11 +39,15 @@ export function useDemoNarrator({
   rate,
   words,
   currentMs,
+  volume = 1,
   bookId = null,
 }: DemoNarratorOptions) {
   const supported =
     typeof window !== "undefined" && typeof window.speechSynthesis !== "undefined";
   const synth = supported ? window.speechSynthesis : null;
+  // Kept in a ref so moving the volume slider never restarts the sentence.
+  const volumeRef = useRef(volume);
+  volumeRef.current = volume;
   const sentences = useMemo(() => splitSentences(words), [words]);
   const activeIdx = useMemo(() => activeWordIndex(words, currentMs), [words, currentMs]);
 
@@ -89,7 +95,7 @@ export function useDemoNarrator({
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = Math.min(2, Math.max(0.5, rate));
     utterance.pitch = 1;
-    utterance.volume = 1;
+    utterance.volume = Math.min(1, Math.max(0, volumeRef.current));
     const voice = pickVoice();
     if (voice) {
       utterance.voice = voice;

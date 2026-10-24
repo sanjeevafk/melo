@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { LockKeyhole, Unlock } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 
 import type { Mode, WordTiming } from "../api/types";
+import { formatDuration } from "../lib/time";
 
 interface TranscriptProps {
   words: WordTiming[];
@@ -31,7 +32,14 @@ export function Transcript({ words, currentMs, mode, onSeek }: TranscriptProps) 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const activeRef = useRef<HTMLSpanElement | null>(null);
   const manualScrollAtRef = useRef(0);
+  const [awayFromPlayhead, setAwayFromPlayhead] = useState(false);
   const activeIndex = useMemo(() => activeWordIndex(words, currentMs), [currentMs, words]);
+
+  const activeChunkId = activeIndex >= 0 ? words[activeIndex]?.chunk_id ?? null : null;
+  const firstLockedIdx = useMemo(
+    () => (mode === "story" ? words.findIndex((w) => w.start_ms > currentMs) : -1),
+    [words, currentMs, mode],
+  );
 
   useEffect(() => {
     const container = containerRef.current;
@@ -46,6 +54,29 @@ export function Transcript({ words, currentMs, mode, onSeek }: TranscriptProps) 
       container.scrollTop = target;
     }
   }, [activeIndex]);
+
+  const handleScroll = () => {
+    const container = containerRef.current;
+    const active = activeRef.current;
+    if (!container || !active) {
+      setAwayFromPlayhead(false);
+      return;
+    }
+    const target = Math.max(0, active.offsetTop - container.clientHeight / 2);
+    setAwayFromPlayhead(Math.abs(container.scrollTop - target) > container.clientHeight * 0.6);
+  };
+
+  const jumpToNow = () => {
+    const container = containerRef.current;
+    const active = activeRef.current;
+    if (!container || !active) {
+      return;
+    }
+    manualScrollAtRef.current = 0;
+    const target = Math.max(0, active.offsetTop - container.clientHeight / 2);
+    container.scrollTo({ top: target, behavior: "smooth" });
+    setAwayFromPlayhead(false);
+  };
 
   const lockedCount = useMemo(() => {
     if (mode !== "story") return 0;
@@ -72,8 +103,8 @@ export function Transcript({ words, currentMs, mode, onSeek }: TranscriptProps) 
             transition={{ duration: 0.2 }}
             className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] ${
               mode === "story"
-                ? "border-safe/30 bg-safe/10 text-safe"
-                : "border-amber/30 bg-amber/10 text-amber"
+                ? "border-amber/30 bg-amber/10 text-amber"
+                : "border-[#6FB7C9]/30 bg-[#6FB7C9]/10 text-[#6FB7C9]"
             }`}
           >
             {mode === "story" ? <LockKeyhole size={11} aria-hidden="true" /> : <Unlock size={11} aria-hidden="true" />}
@@ -98,43 +129,73 @@ export function Transcript({ words, currentMs, mode, onSeek }: TranscriptProps) 
           <div className="skeleton h-4 w-3/4 rounded-full" />
         </div>
       ) : (
-        <div
-          ref={containerRef}
-          onWheel={() => {
-            manualScrollAtRef.current = Date.now();
-          }}
-          onTouchMove={() => {
-            manualScrollAtRef.current = Date.now();
-          }}
-          className="fade-mask-y relative mt-3 min-h-[14rem] max-h-[24rem] overflow-y-auto py-6 pr-3 font-display text-[18px] leading-[2.2] tracking-[0.005em] text-paper/90 lg:max-h-[28rem]"
-        >
-          {words.map((word, index) => {
-            const isLocked = mode === "story" && word.start_ms > currentMs;
-            const active = index === activeIndex;
+        <div className="relative">
+          <div
+            ref={containerRef}
+            onWheel={() => {
+              manualScrollAtRef.current = Date.now();
+            }}
+            onTouchMove={() => {
+              manualScrollAtRef.current = Date.now();
+            }}
+            onScroll={handleScroll}
+            className="fade-mask-y relative mt-3 min-h-[14rem] max-h-[24rem] overflow-y-auto py-6 pr-3 font-display text-[20px] leading-[1.7] text-paper/90 lg:max-h-[28rem]"
+          >
+            {words.map((word, index) => {
+              const isLocked = mode === "story" && word.start_ms > currentMs;
+              const active = index === activeIndex;
+              const live = activeChunkId !== null && word.chunk_id === activeChunkId;
 
-            if (isLocked) {
+              if (isLocked) {
+                return (
+                  <span
+                    key={`${word.chunk_id}-${index}`}
+                    data-word={word.word}
+                    aria-hidden="true"
+                    title="Hidden until you listen to it"
+                    className="word-token-locked"
+                  >
+                    {index === firstLockedIdx ? (
+                      <LockKeyhole
+                        size={13}
+                        aria-hidden="true"
+                        className="mr-1 inline-block align-[-2px] text-white/40"
+                      />
+                    ) : null}
+                  </span>
+                );
+              }
+
               return (
                 <span
                   key={`${word.chunk_id}-${index}`}
-                  data-word={word.word}
-                  aria-hidden="true"
-                  title="Revealed as narration reaches this point"
-                  className="word-token-locked"
-                />
+                  ref={active ? activeRef : undefined}
+                  data-time={formatDuration(word.start_ms)}
+                  onClick={() => onSeek(word.start_ms)}
+                  className={`word-token cursor-pointer ${active ? "word-token-active" : `word-token-past ${live ? "word-token-live" : ""}`}`}
+                >
+                  {word.word}
+                </span>
               );
-            }
+            })}
+          </div>
 
-            return (
-              <span
-                key={`${word.chunk_id}-${index}`}
-                ref={active ? activeRef : undefined}
-                onClick={() => onSeek(word.start_ms)}
-                className={`word-token cursor-pointer ${active ? "word-token-active" : "word-token-past"}`}
+          <AnimatePresence>
+            {awayFromPlayhead && (
+              <motion.button
+                key="jump"
+                type="button"
+                onClick={jumpToNow}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 8 }}
+                transition={{ duration: 0.2 }}
+                className="tr-jump"
               >
-                {word.word}
-              </span>
-            );
-          })}
+                Jump to now
+              </motion.button>
+            )}
+          </AnimatePresence>
         </div>
       )}
 

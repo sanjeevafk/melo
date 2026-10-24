@@ -294,3 +294,19 @@ export const COMIC_TALE_MANIFEST: BookManifest = {
 export function getDemoManifest(bookId: string | null): BookManifest {
   return bookId === COMIC_TALE_ID ? COMIC_TALE_MANIFEST : DEMO_MANIFEST;
 }
+
+/**
+ * Per-book accent colors. Each book tints the ambient room light, the dock
+ * glow, and the library chips — "every book has its own colour".
+ */
+export const BOOK_ACCENTS: Record<string, string> = {
+  "styles-ch2": "#E8A33D", // warm lamplight amber — the cream Christie
+  "sentinel-tale": "#D4694F", // ember crimson — the comic issue
+  attention: "#6FB7C9", // cool slate teal — the paper
+};
+
+export const DEFAULT_ACCENT = "#E8A33D";
+
+export function getBookAccent(bookId: string | null): string {
+  return (bookId && BOOK_ACCENTS[bookId]) || DEFAULT_ACCENT;
+}

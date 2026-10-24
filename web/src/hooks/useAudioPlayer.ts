@@ -16,12 +16,14 @@ export function useAudioPlayer(src: string | null, fallbackDurationMs = 0) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const graphRef = useRef<AudioGraph | null>(null);
   const simulatedRef = useRef(false);
+  const volumeRef = useRef(1);
   const [currentMs, setCurrentMs] = useState(0);
   const [durationMs, setDurationMs] = useState(fallbackDurationMs);
   const [playing, setPlaying] = useState(false);
   const [rate, setRate] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const [simulated, setSimulated] = useState(false);
+  const [volume, setVolumeState] = useState(1);
 
   useEffect(() => {
     setCurrentMs(0);
@@ -149,7 +151,13 @@ export function useAudioPlayer(src: string | null, fallbackDurationMs = 0) {
     }
 
     try {
-      const graph = await ensureGraph();
+      // AudioContext.resume() can stay pending indefinitely without user
+      // activation; never let it block playback — fall through to the audio
+      // element (and the simulated fallback on 404) instead.
+      const graph = await Promise.race([
+        ensureGraph(),
+        new Promise<null>((resolve) => window.setTimeout(() => resolve(null), 250)),
+      ]);
       if (graph) {
         const now = graph.context.currentTime;
         graph.gain.gain.cancelScheduledValues(now);
@@ -158,7 +166,7 @@ export function useAudioPlayer(src: string | null, fallbackDurationMs = 0) {
       await audio.play();
       if (graph) {
         const now = graph.context.currentTime;
-        graph.gain.gain.linearRampToValueAtTime(1, now + 0.3);
+        graph.gain.gain.linearRampToValueAtTime(volumeRef.current, now + 0.3);
       }
     } catch {
       // If audio file 404s or browser blocks, gracefully simulate playback so UI is completely functional
@@ -203,6 +211,35 @@ export function useAudioPlayer(src: string | null, fallbackDurationMs = 0) {
     setCurrentMs(clamped);
   }, [durationMs]);
 
+  const setVolume = useCallback((next: number) => {
+    const clamped = Math.min(1, Math.max(0, next));
+    volumeRef.current = clamped;
+    setVolumeState(clamped);
+    const audio = audioRef.current;
+    if (audio) {
+      audio.volume = clamped;
+    }
+    const graph = graphRef.current;
+    if (graph) {
+      const now = graph.context.currentTime;
+      graph.gain.gain.cancelScheduledValues(now);
+      graph.gain.gain.setValueAtTime(clamped, now);
+    }
+  }, []);
+
+  const skip = useCallback(
+    (deltaMs: number) => {
+      const audio = audioRef.current;
+      const next = currentMs + deltaMs;
+      const clamped = Math.max(0, durationMs > 0 ? Math.min(durationMs, next) : next);
+      if (audio && Number.isFinite(audio.duration) && audio.duration > 0) {
+        audio.currentTime = clamped / 1000;
+      }
+      setCurrentMs(clamped);
+    },
+    [currentMs, durationMs],
+  );
+
   const fadeOutAndPause = useCallback(async (fadeMs = 120) => {
     const audio = audioRef.current;
     if (!audio || audio.paused) {
@@ -245,11 +282,14 @@ export function useAudioPlayer(src: string | null, fallbackDurationMs = 0) {
     rate,
     error,
     simulated,
+    volume,
     play,
     pause,
     toggle,
     seek,
+    skip,
     setRate,
+    setVolume,
     fadeOutAndPause,
   };
 }

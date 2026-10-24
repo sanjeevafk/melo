@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import type { CSSProperties } from "react";
 import { AudioLines, TriangleAlert } from "lucide-react";
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
 
 import type { BookManifest, BookSummary, Mode } from "./api/types";
 import { ContextPanel } from "./components/ContextPanel";
+import { Dock } from "./components/Dock";
 import { Header } from "./components/Header";
 import { LoreLogDrawer } from "./components/LoreLogDrawer";
 import { Player } from "./components/Player";
@@ -13,6 +15,7 @@ import { UploadDialog } from "./components/UploadDialog";
 import { VoiceDock } from "./components/VoiceDock";
 import { AmbientBackground } from "./components/ui/AmbientBackground";
 import { revealText, riseIn, staggerContainer } from "./lib/motion";
+import { getBookAccent } from "./lib/demoData";
 import { useAudioPlayer } from "./hooks/useAudioPlayer";
 import { useBookManifest } from "./hooks/useBookManifest";
 import { useBooks } from "./hooks/useBooks";
@@ -40,6 +43,7 @@ export default function App() {
   const [showTimings, setShowTimings] = useState(false);
   const [loreOpen, setLoreOpen] = useState(false);
   const [voiceOn, setVoiceOn] = useState(true);
+  const [volume, setVolume] = useState(1);
 
   useEffect(() => {
     if (books.length === 0) {
@@ -67,7 +71,9 @@ export default function App() {
     words: manifest?.words ?? [],
     currentMs: player.currentMs,
     bookId: selectedBookId,
+    volume,
   });
+  const accent = getBookAccent(selectedBookId);
 
   useMediaSession({
     title: manifest?.title,
@@ -106,8 +112,11 @@ export default function App() {
 
   return (
     <MotionConfig reducedMotion="user">
-    <div className="relative min-h-screen overflow-x-hidden bg-ink-950 text-white/80">
-      <AmbientBackground />
+    <div
+      className="relative min-h-screen overflow-x-hidden bg-ink-950 text-white/80"
+      style={{ "--book-accent": accent } as CSSProperties}
+    >
+      <AmbientBackground accent={accent} />
       <motion.div
         variants={staggerContainer}
         initial="hidden"
@@ -129,7 +138,7 @@ export default function App() {
           onOpenLore={() => setLoreOpen(true)}
         />
 
-        <main className="grid flex-1 gap-6 py-8 lg:grid-cols-[1.35fr_0.9fr]">
+        <main className="grid flex-1 gap-6 pb-40 pt-8 lg:grid-cols-[1.35fr_0.9fr]">
           <motion.div variants={staggerContainer} className="grid content-start gap-6">
             <motion.div variants={riseIn}>
             <Player
@@ -137,16 +146,9 @@ export default function App() {
               currentMs={player.currentMs}
               durationMs={player.durationMs}
               playing={player.playing}
-              rate={player.rate}
-              error={player.error}
               context={context}
               mode={mode}
-              voiceAvailable={narrator.supported && player.simulated}
-              voiceOn={voiceOn}
-              onToggleVoice={() => setVoiceOn((current) => !current)}
-              onToggle={player.toggle}
               onSeek={player.seek}
-              onRateChange={player.setRate}
             />
             </motion.div>
             <motion.div variants={riseIn}>
@@ -220,6 +222,7 @@ export default function App() {
                 void player.play();
               }}
               onAnswered={lore.refresh}
+              onSwitchMode={setMode}
             />
             </motion.div>
 
@@ -266,6 +269,23 @@ export default function App() {
         onSeek={player.seek}
         onDeleteEntry={lore.removeEntry}
         onClearAll={lore.clearAll}
+      />
+
+      <Dock
+        book={manifest}
+        currentMs={player.currentMs}
+        durationMs={player.durationMs}
+        playing={player.playing}
+        rate={player.rate}
+        volume={volume}
+        voiceAvailable={narrator.supported && player.simulated}
+        voiceOn={voiceOn}
+        onToggleVoice={() => setVoiceOn((current) => !current)}
+        onToggle={player.toggle}
+        onSeek={player.seek}
+        onSkip={player.skip}
+        onRateChange={player.setRate}
+        onVolumeChange={setVolume}
       />
     </div>
     </MotionConfig>

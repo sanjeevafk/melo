@@ -1,5 +1,6 @@
-import { useRef } from "react";
-import { AudioLines, Mic, Square, TriangleAlert } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { AudioLines, Mic, Quote, ShieldCheck, Square, TriangleAlert } from "lucide-react";
+
 import { AnimatePresence, motion } from "motion/react";
 
 import type { BookManifest, Mode } from "../api/types";
@@ -17,7 +18,11 @@ interface VoiceDockProps {
   onPause: () => Promise<boolean>;
   onResumeAt: (tMs: number) => void;
   onAnswered?: () => void;
+  onSwitchMode?: (mode: Mode) => void;
 }
+
+const REFUSAL_SENTENCE = "I can't answer that from what you've heard so far.";
+const BEYOND_MARKER = "Beyond the document:";
 
 type VoiceStatus = ReturnType<typeof useVoiceAnswer>["state"]["status"];
 
@@ -68,6 +73,7 @@ export function VoiceDock({
   onPause,
   onResumeAt,
   onAnswered,
+  onSwitchMode,
 }: VoiceDockProps) {
   const voice = useVoiceAnswer();
   const wasPlayingRef = useRef(false);
@@ -107,6 +113,44 @@ export function VoiceDock({
   const phase = orbPhase(recording, voice.state.status);
   const label = ready ? statusLabel(recording, voice.state.status) : "Loading models…";
   const busy = phase === "working";
+
+  // The floating dock's mic forwards hold-to-talk here via window events.
+  const startRef = useRef(start);
+  startRef.current = start;
+  const stopRef = useRef(stop);
+  stopRef.current = stop;
+  const micDisabledRef = useRef(!book || !ready);
+  micDisabledRef.current = !book || !ready;
+  useEffect(() => {
+    const handleStart = () => {
+      if (!micDisabledRef.current) {
+        void startRef.current();
+      }
+    };
+    const handleStop = () => stopRef.current();
+    window.addEventListener("echoread:voice-start", handleStart);
+    window.addEventListener("echoread:voice-stop", handleStop);
+    return () => {
+      window.removeEventListener("echoread:voice-start", handleStart);
+      window.removeEventListener("echoread:voice-stop", handleStop);
+    };
+  }, []);
+
+  // Mirror the voice phase onto <html> so the dock mic can restyle itself.
+  useEffect(() => {
+    document.documentElement.dataset.voicePhase = phase;
+    return () => {
+      delete document.documentElement.dataset.voicePhase;
+    };
+  }, [phase]);
+
+  // Answer-panel states from the streamed answer text.
+  const answer = voice.state.answer;
+  const beyondIdx = answer ? answer.indexOf(BEYOND_MARKER) : -1;
+  const groundedAnswer =
+    answer === null ? null : beyondIdx >= 0 ? answer.slice(0, beyondIdx).trim() : answer;
+  const beyondAnswer = answer && beyondIdx >= 0 ? answer.slice(beyondIdx + BEYOND_MARKER.length).trim() : null;
+  const isRefusal = Boolean(answer && answer.startsWith(REFUSAL_SENTENCE));
 
   return (
     <section className="card p-5 lg:p-6" aria-labelledby="voice-heading">
@@ -272,17 +316,66 @@ export function VoiceDock({
       </AnimatePresence>
 
       <AnimatePresence>
-        {voice.state.answer ? (
+        {answer ? (
           <motion.div key="answer" variants={revealText} initial="hidden" animate="show" exit="exit" className="mt-3.5">
-            <p className="eyebrow text-[#cba36e]">Answer</p>
-            <div className="relative mt-1 select-text rounded-xl border border-[#cba36e]/20 bg-[#cba36e]/[0.04] p-3.5">
-              <p aria-live="polite" className="font-display text-[14px] leading-relaxed text-[#f5f0e6]">
-                {voice.state.answer}
-                {phase === "speaking" ? (
-                  <span aria-hidden="true" className="ml-1 inline-block h-3.5 w-[2px] translate-y-0.5 animate-caret bg-[#cba36e]" />
-                ) : null}
-              </p>
+            {/* Header: mode badge + listener position stamp */}
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="eyebrow text-[#cba36e]">Answer</p>
+              <span
+                className={`rounded-full border px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] ${
+                  mode === "story"
+                    ? "border-amber/40 bg-amber/10 text-amber"
+                    : "border-[#6FB7C9]/40 bg-[#6FB7C9]/10 text-[#6FB7C9]"
+                }`}
+              >
+                {mode}
+              </span>
+              <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-white/35">
+                Answered as of {formatDuration(capturedTMsRef.current)}
+              </span>
             </div>
+
+            {isRefusal ? (
+              /* Refusal state — calm, never styled as an error */
+              <div className="mt-2 rounded-xl border border-amber/40 bg-amber/[0.06] p-4">
+                <p className="flex items-center gap-2 font-display text-sm text-amber">
+                  <ShieldCheck size={16} aria-hidden="true" />
+                  {REFUSAL_SENTENCE}
+                </p>
+                <p className="mt-1.5 text-xs text-white/50">Keep listening, or switch to Study mode.</p>
+                {onSwitchMode && (
+                  <button
+                    type="button"
+                    onClick={() => onSwitchMode("study")}
+                    className="btn-ghost mt-2.5"
+                  >
+                    Switch to Study mode
+                  </button>
+                )}
+              </div>
+            ) : (
+              <>
+                <div className="relative mt-1 select-text rounded-xl border border-[#cba36e]/20 bg-[#cba36e]/[0.04] p-3.5">
+                  <p aria-live="polite" className="font-display text-[14px] leading-relaxed text-[#f5f0e6]">
+                    {groundedAnswer}
+                    {phase === "speaking" ? (
+                      <span aria-hidden="true" className="ml-1 inline-block h-3.5 w-[2px] translate-y-0.5 animate-caret bg-[#cba36e]" />
+                    ) : null}
+                  </p>
+                </div>
+                {beyondAnswer ? (
+                  /* Study mode only: clearly separated background knowledge */
+                  <div className="mt-2 rounded-xl border border-[#6FB7C9]/25 border-l-4 border-l-[#6FB7C9] bg-[#6FB7C9]/[0.05] p-3.5">
+                    <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-[#6FB7C9]">
+                      {BEYOND_MARKER}
+                    </p>
+                    <p className="mt-1 select-text font-display text-[13px] leading-relaxed text-white/75">
+                      {beyondAnswer}
+                    </p>
+                  </div>
+                ) : null}
+              </>
+            )}
           </motion.div>
         ) : null}
       </AnimatePresence>
@@ -294,20 +387,51 @@ export function VoiceDock({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="mt-3 flex flex-wrap items-center gap-1.5 text-[10px] text-white/40"
+            className="mt-3"
           >
-            {[
-              `cutoff ${formatDuration(voice.state.context.cutoff_ms)}`,
-              `${voice.state.context.blocked_chunks} locked`,
-              `${voice.state.context.retrieved.length} retrieved`,
-            ].map((chip) => (
-              <span
-                key={chip}
-                className="rounded-full border border-white/10 bg-white/[0.02] px-2 py-0.5 font-mono"
-              >
-                {chip}
-              </span>
-            ))}
+            <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-white/40">
+              {[
+                `cutoff ${formatDuration(voice.state.context.cutoff_ms)}`,
+                `${voice.state.context.blocked_chunks} locked`,
+                `${voice.state.context.retrieved.length} retrieved`,
+              ].map((chip) => (
+                <span
+                  key={chip}
+                  className="rounded-full border border-white/10 bg-white/[0.02] px-2 py-0.5 font-mono"
+                >
+                  {chip}
+                </span>
+              ))}
+            </div>
+
+            {/* "Heard so far" source chips — past moments only; click to seek */}
+            {voice.state.context.retrieved.length > 0 ? (
+              <div className="mt-2">
+                <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-white/35">
+                  Heard so far
+                </p>
+                <div className="mt-1.5 flex flex-col gap-1.5">
+                  {voice.state.context.retrieved.slice(0, 3).map((excerpt) => (
+                    <button
+                      key={excerpt.chunk_id}
+                      type="button"
+                      onClick={() => onResumeAt(excerpt.start_ms)}
+                      className="group flex items-start gap-2 rounded-lg border border-white/10 bg-white/[0.02] p-2 text-left transition-colors hover:border-[#cba36e]/40 hover:bg-[#cba36e]/[0.05]"
+                    >
+                      <Quote size={11} aria-hidden="true" className="mt-0.5 shrink-0 text-[#cba36e]/70" />
+                      <span className="min-w-0">
+                        <span className="block truncate text-[11px] text-white/60 group-hover:text-white/80">
+                          {excerpt.text.length > 90 ? `${excerpt.text.slice(0, 90)}…` : excerpt.text}
+                        </span>
+                        <span className="mt-0.5 block font-mono text-[9px] text-white/35">
+                          {formatDuration(excerpt.start_ms)}–{formatDuration(excerpt.end_ms)}
+                        </span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </motion.div>
         ) : null}
       </AnimatePresence>
