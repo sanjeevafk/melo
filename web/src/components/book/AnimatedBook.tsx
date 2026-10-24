@@ -180,7 +180,7 @@ export function AnimatedBook({
       >
         <div
           className="ab-page ab-page--right"
-          style={{ position: "relative", width: 128, height: 294, inset: "auto" }}
+          style={{ position: "relative", width: 220, height: 340, inset: "auto" }}
         >
           <div className="ab-page-inner">
             <div className="ab-running-head">{title}</div>

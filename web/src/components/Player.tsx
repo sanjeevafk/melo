@@ -6,7 +6,6 @@ import { AnimatePresence, motion } from "motion/react";
 import type { BookManifest, ContextPreview, Mode } from "../api/types";
 import { formatDuration } from "../lib/time";
 import { generateWaveformBars } from "../lib/waveform";
-import { AnimatedBook } from "./book/AnimatedBook";
 import { AnimatedNumber } from "./ui/AnimatedNumber";
 
 interface PlayerProps {
@@ -105,25 +104,10 @@ export function Player({
         className="pointer-events-none absolute -bottom-24 -left-20 size-80 rounded-full bg-[#7ea38f]/[0.05] blur-3xl"
       />
 
-      <div className="relative grid gap-8 lg:grid-cols-[280px_1fr] lg:items-center">
-        {/* Self-reading hardcover book showcase */}
-        <div className="relative mx-auto flex h-[340px] w-full max-w-[280px] items-center justify-center">
-          <AnimatedBook
-            className="h-full w-full"
-            title={book?.title ?? "The Mysterious Affair at Styles"}
-            author={book?.author ?? "Agatha Christie"}
-            bookId={book?.id ?? "styles-ch2"}
-            playing={playing}
-            words={book?.words ?? []}
-            currentMs={currentMs}
-            mode={mode}
-          />
-        </div>
-
-        {/* Literary Details & Player Controls */}
-        <div className="flex flex-col justify-between">
-          <div>
-            {/* Header / Chapter pill */}
+      {/* Literary Details & Player Controls */}
+      <div className="relative flex flex-col justify-between">
+        <div>
+          {/* Header / Chapter pill */}
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <p className="eyebrow text-[#cba36e]/90">
@@ -306,7 +290,6 @@ export function Player({
             </div>
           </div>
         </div>
-      </div>
 
       {/* Grounded Stats Bar */}
       <div className="relative mt-8 grid gap-3 border-t border-white/[0.07] pt-5 sm:grid-cols-3">

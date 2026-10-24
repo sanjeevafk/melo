@@ -9,8 +9,8 @@ import {
 } from "./bookPagination";
 
 // Must mirror .ab-page-body typography in styles.css.
-const BODY_FONT_PX = 10.5;
-const BODY_LINE_HEIGHT = 1.58;
+const BODY_FONT_PX = 11.5;
+const BODY_LINE_HEIGHT = 1.62;
 const BODY_FONT_FAMILY = '"Fraunces", "Iowan Old Style", serif';
 const SENTENCE_MARGIN_EM = 0.42; // .ab-sentence margin-bottom
 const SENTENCE_PADDING_PX = 1; // .ab-sentence vertical padding (0.5px x2)

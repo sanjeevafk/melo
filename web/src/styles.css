@@ -289,9 +289,9 @@
   }
 
   .ab-book {
-    --page-w: 128px;
-    --page-h: 294px;
-    --book-shift: calc(var(--page-w) / 2);
+    --page-w: 220px;
+    --page-h: 340px;
+    --book-shift: calc(var(--page-w) / -2);
     position: relative;
     width: calc(var(--page-w) * 2);
     height: var(--page-h);
@@ -304,9 +304,15 @@
     --book-shift: 0px;
   }
 
-  @media (max-width: 330px) {
+  @media (max-width: 540px) {
     .ab-book {
-      scale: 0.92;
+      scale: 0.8;
+    }
+  }
+
+  @media (max-width: 400px) {
+    .ab-book {
+      scale: 0.68;
     }
   }
 
@@ -481,21 +487,21 @@
   }
 
   .ab-page--left .ab-page-inner {
-    inset: 9px 12px 14px 8px;
+    inset: 14px 18px 18px 12px;
   }
 
   .ab-page--right .ab-page-inner {
-    inset: 9px 8px 14px 12px;
+    inset: 14px 12px 18px 18px;
   }
 
   .ab-running-head {
     flex: none;
     overflow: hidden;
-    padding-bottom: 3px;
-    margin-bottom: 6px;
+    padding-bottom: 4px;
+    margin-bottom: 8px;
     border-bottom: 1px solid rgba(122, 98, 62, 0.28);
     font-family: var(--font-display);
-    font-size: 6.5px;
+    font-size: 8px;
     font-variant-caps: all-small-caps;
     letter-spacing: 0.22em;
     color: rgba(122, 98, 62, 0.65);
@@ -509,9 +515,9 @@
     min-height: 0;
     overflow: hidden;
     font-family: var(--font-display);
-    font-size: 10.5px;
-    line-height: 1.58;
-    color: rgba(64, 52, 34, 0.86);
+    font-size: 11.5px;
+    line-height: 1.62;
+    color: rgba(64, 52, 34, 0.88);
     text-align: justify;
     hyphens: auto;
     -webkit-hyphens: auto;
@@ -519,9 +525,9 @@
 
   .ab-page-number {
     flex: none;
-    margin-top: 5px;
+    margin-top: 6px;
     font-family: var(--font-display);
-    font-size: 8px;
+    font-size: 8.5px;
     font-variant-numeric: tabular-nums;
     color: rgba(122, 98, 62, 0.62);
     text-align: center;
@@ -664,18 +670,18 @@
 
   .ab-cover-content {
     position: absolute;
-    inset: 20px 16px;
+    inset: 28px 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 9px;
+    gap: 12px;
     text-align: center;
   }
 
   .ab-cover-edition {
     font-family: var(--font-mono);
-    font-size: 6px;
+    font-size: 7.5px;
     letter-spacing: 0.26em;
     text-transform: uppercase;
     color: rgba(203, 163, 110, 0.8);
@@ -683,8 +689,8 @@
 
   .ab-cover-emblem {
     position: relative;
-    width: 26px;
-    height: 26px;
+    width: 32px;
+    height: 32px;
   }
 
   .ab-cover-emblem-ring {
@@ -706,8 +712,8 @@
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 6px;
-    height: 6px;
+    width: 7px;
+    height: 7px;
     transform: translate(-50%, -50%) rotate(45deg);
     background: rgba(203, 163, 110, 0.85);
     box-shadow: 0 0 8px rgba(203, 163, 110, 0.5);
@@ -718,7 +724,7 @@
     font-family: var(--font-display);
     font-style: italic;
     font-weight: 500;
-    font-size: 14px;
+    font-size: 17px;
     line-height: 1.28;
     color: #f5f0e6;
     text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
@@ -726,7 +732,7 @@
 
   .ab-cover-divider {
     position: relative;
-    width: 64px;
+    width: 80px;
     height: 1px;
     background: linear-gradient(to right, transparent, rgba(203, 163, 110, 0.55), transparent);
   }
@@ -745,7 +751,7 @@
   .ab-cover-author {
     margin: 0;
     font-family: var(--font-display);
-    font-size: 7.5px;
+    font-size: 9px;
     letter-spacing: 0.3em;
     text-transform: uppercase;
     color: rgba(203, 163, 110, 0.9);
@@ -753,11 +759,11 @@
 
   .ab-cover-foot {
     position: absolute;
-    bottom: 13px;
+    bottom: 16px;
     left: 0;
     right: 0;
     font-family: var(--font-mono);
-    font-size: 5px;
+    font-size: 6.5px;
     letter-spacing: 0.24em;
     text-transform: uppercase;
     color: rgba(245, 240, 230, 0.28);

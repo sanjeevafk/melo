@@ -9,6 +9,7 @@ import { Dock } from "./components/Dock";
 import { Header } from "./components/Header";
 import { LoreLogDrawer } from "./components/LoreLogDrawer";
 import { Player } from "./components/Player";
+import { BookShowcase } from "./components/book/BookShowcase";
 import { TextQuery } from "./components/TextQuery";
 import { Transcript } from "./components/Transcript";
 import { UploadDialog } from "./components/UploadDialog";
@@ -145,15 +146,23 @@ export default function App() {
         <main className="grid flex-1 gap-6 pb-40 pt-8 lg:grid-cols-[1.35fr_0.9fr]">
           <motion.div variants={staggerContainer} className="grid content-start gap-6">
             <motion.div variants={riseIn}>
-            <Player
-              book={manifest}
-              currentMs={player.currentMs}
-              durationMs={player.durationMs}
-              playing={player.playing}
-              context={context}
-              mode={mode}
-              onSeek={player.seek}
-            />
+              <BookShowcase
+                book={manifest}
+                playing={player.playing}
+                currentMs={player.currentMs}
+                mode={mode}
+              />
+            </motion.div>
+            <motion.div variants={riseIn}>
+              <Player
+                book={manifest}
+                currentMs={player.currentMs}
+                durationMs={player.durationMs}
+                playing={player.playing}
+                context={context}
+                mode={mode}
+                onSeek={player.seek}
+              />
             </motion.div>
             <motion.div variants={riseIn}>
             <Transcript
