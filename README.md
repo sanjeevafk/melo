@@ -143,7 +143,7 @@ Retrieval uses the immediate transcript plus hybrid search: NumPy cosine similar
 EchoRead supports bring-your-own audiobooks and documents without request timeout bottlenecks:
 - **Asynchronous Ingestion Queue:** Uploads return an ingest job ID immediately. The frontend polls `/api/jobs/{id}` showing live stage transitions and percentage progress bars.
 - **Multi-Chapter `.m4b` Audio:** Extracts chapter marks via `ffprobe`, indexes chunks into chapter segments, and stores chapter metadata in SQLite.
-- **Document Ingestion (EPUB, PDF & TXT):** Parses EPUB metadata and chapters (via standard library `zipfile` and `xml.etree.ElementTree`), PDFs via [anydoc](https://github.com/firecrawl/anydoc) (fully local; scanned PDFs that would need OCR are rejected with a clear error, never sent to a hosted service), or text chapters, synthesizes audio offline with Kokoro TTS, and directly derives word-level timestamps.
+- **Document Ingestion (EPUB, PDF & TXT):** Parses EPUB metadata and chapters (via standard library `zipfile` and `xml.etree.ElementTree`), PDFs via [anydoc](https://github.com/firecrawl/anydoc), with scanned pages OCR'd locally by [indra-ocr](https://pypi.org/project/indra-ocr/) (CPU ONNX, Apache-2.0) — everything on-machine, never a hosted service, or text chapters, synthesizes audio offline with Kokoro TTS, and directly derives word-level timestamps.
 
 ## Privacy
 
@@ -153,7 +153,7 @@ If you configure `LLM_PROVIDER=ollama` (or `openai`), the transcribed question, 
 
 No analytics, telemetry, or accounts are used in either mode.
 
-The Phonon STT model (~156 MB, when selected) is fetched from Hugging Face into `~/.cache/fermion` on first use — `make models` prefetches it; recorded audio itself never leaves the machine.
+The Phonon STT (~156 MB) and indra-ocr models are fetched from Hugging Face into their local caches on first use — `make models` prefetches them; audio, documents, and transcripts never leave the machine.
 
 ## Configuration
 

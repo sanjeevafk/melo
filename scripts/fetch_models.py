@@ -69,8 +69,7 @@ def write_hashes(files: list[Path]) -> None:
     payload = {
         "version": 1,
         "files": {
-            str(relative): {"sha256": sha256(settings.models_dir / relative)}
-            for relative in files
+            str(relative): {"sha256": sha256(settings.models_dir / relative)} for relative in files
         },
     }
     HASHES_PATH.write_text(json.dumps(payload, indent=2) + "\n")
@@ -169,6 +168,17 @@ def download_phonon() -> None:
     ensure(repo, key, pin, quiet=True)
 
 
+def download_indra_ocr() -> None:
+    """Prefetch the indra-ocr detection/recognition models (HF-cached)."""
+    try:
+        import indra_ocr
+    except ImportError:
+        print("indra-ocr is not installed; skipping OCR model prefetch")
+        return
+    print("Ensuring indra-ocr models")
+    indra_ocr.model_dir()
+
+
 def required_files(profile: str) -> list[Path]:
     required = [
         settings.models_dir / "faster-whisper-base.en/model.bin",
@@ -228,14 +238,14 @@ def main() -> int:
         )
         download_kokoro(args.force)
         download_phonon()
+        download_indra_ocr()
 
     if settings.stt_provider == "phonon":
         from backend.app.services.stt import phonon_profile_installed
 
         if not phonon_profile_installed():
             print(
-                "Missing: Phonon profile is not cached "
-                "(run without --verify to prefetch it)",
+                "Missing: Phonon profile is not cached (run without --verify to prefetch it)",
                 file=sys.stderr,
             )
             return 1

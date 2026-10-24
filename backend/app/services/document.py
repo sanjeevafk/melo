@@ -248,21 +248,48 @@ def _split_markdown_chapters(markdown: str, fallback_title: str) -> list[ParsedC
     return chapters or [ParsedChapter(title=fallback_title, text=_markdown_to_spoken(markdown))]
 
 
-def parse_pdf(path: Path, fallback_title: str | None = None) -> ParsedDocument:
-    """Parse a (text-based) PDF via anydoc, fully locally.
+def _ocr_markdown(path: Path) -> str:
+    """OCR a scanned PDF locally with indra-ocr.
 
-    Scanned PDFs raise NeedsOcrError; we surface that instead of opting into
-    hosted OCR, which would send the document to a third party.
+    mode="auto" reads the PDF text layer where it is sound and OCRs the
+    rest, so mixed digital/scanned documents come through whole. Models are
+    downloaded from Hugging Face on first use and cached.
+    """
+    try:
+        import indra_ocr
+    except ImportError as exc:
+        raise ValueError(
+            "This PDF looks scanned or image-only, and indra-ocr is not installed. "
+            "Run 'uv sync' to install it, then upload the PDF again."
+        ) from exc
+    try:
+        converter = indra_ocr.load(mode="auto")
+        pages = list(converter.convert(path))
+    except Exception as exc:
+        raise ValueError(f"Could not OCR this PDF: {exc}") from exc
+    parts = [
+        page.markdown
+        for _, page in pages
+        if page.source != "error" and page.markdown and page.markdown.strip()
+    ]
+    markdown = "\n\n".join(part.strip() for part in parts).strip()
+    if not markdown:
+        raise ValueError("OCR produced no readable text from this PDF")
+    return markdown
+
+
+def parse_pdf(path: Path, fallback_title: str | None = None) -> ParsedDocument:
+    """Parse a PDF: anydoc for text pages, local OCR (indra-ocr) for scans.
+
+    Both run fully locally — the hosted-OCR path exists in anydoc but is
+    never used, and indra's models run on ONNX Runtime on the CPU.
     """
     import anydoc
 
     try:
         markdown = anydoc.to_markdown(str(path), ocr="reject")
-    except anydoc.NeedsOcrError as exc:
-        raise ValueError(
-            "This PDF looks scanned or image-only. OCR is not supported locally, "
-            "so there is no text to narrate."
-        ) from exc
+    except anydoc.NeedsOcrError:
+        markdown = _ocr_markdown(path)
     except anydoc.EncryptedError as exc:
         raise ValueError(
             "This PDF is password-protected. Remove the password and upload it again."

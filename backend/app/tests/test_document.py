@@ -166,13 +166,52 @@ def test_parse_pdf(tmp_path: Path) -> None:
     assert len(dispatched.chapters) == 2
 
 
-def test_parse_pdf_scanned_raises_clear_error(tmp_path: Path) -> None:
-    from PIL import Image
+def _create_scanned_pdf(path: Path) -> Path:
+    """Image-only PDF (no text layer): text drawn with a realistic font size."""
+    from PIL import Image, ImageDraw, ImageFont
 
-    scanned = tmp_path / "scanned.pdf"
-    Image.new("RGB", (400, 200), "white").save(scanned, "PDF")
+    font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+    if not Path(font_path).exists():
+        pytest.skip("DejaVuSans font not available")
+    big = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 54)
+    small = ImageFont.truetype(font_path, 36)
+    pages = [
+        ("Chapter I: The Arrival", "Sherlock Holmes was sitting at the breakfast table."),
+        ("Chapter II: The Clue", "The visitor arrived promptly at ten with news."),
+    ]
+    images = []
+    for heading, body in pages:
+        img = Image.new("RGB", (1240, 1600), "white")
+        draw = ImageDraw.Draw(img)
+        draw.text((100, 100), heading, fill="black", font=big)
+        draw.text((100, 260), body, fill="black", font=small)
+        images.append(img)
+    images[0].save(path, "PDF", save_all=True, append_images=images[1:])
+    return path
 
-    with pytest.raises(ValueError, match="scanned"):
+
+def test_parse_pdf_scanned_uses_local_ocr(tmp_path: Path) -> None:
+    scanned = _create_scanned_pdf(tmp_path / "scanned.pdf")
+
+    doc = parse_pdf(scanned, fallback_title="Scanned")
+    assert doc.title == "Scanned"
+    assert len(doc.chapters) == 2
+    assert "breakfast table" in doc.chapters[0].text
+    assert "news" in doc.chapters[1].text
+
+
+def test_parse_pdf_ocr_failure_is_a_clear_error(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    scanned = _create_scanned_pdf(tmp_path / "scanned.pdf")
+
+    def fail_load(*args: object, **kwargs: object) -> object:
+        raise RuntimeError("model missing")
+
+    import indra_ocr
+
+    monkeypatch.setattr(indra_ocr, "load", fail_load)
+    with pytest.raises(ValueError, match="Could not OCR"):
         parse_pdf(scanned, fallback_title="Scanned")
 
 
