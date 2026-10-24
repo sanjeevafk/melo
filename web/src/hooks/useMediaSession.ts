@@ -31,8 +31,8 @@ export function useMediaSession({
     if (title && typeof MediaMetadata !== "undefined") {
       navigator.mediaSession.metadata = new MediaMetadata({
         title,
-        artist: artist ?? "MELO",
-        album: "MELO Audiobook Companion",
+        artist: artist ?? "Melo",
+        album: "Melo Audiobook Companion",
       });
     }
 

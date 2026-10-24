@@ -17,7 +17,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s %(name)s %(message)s",
 )
-logger = logging.getLogger("echoread")
+logger = logging.getLogger("melo")
 
 
 @asynccontextmanager
@@ -33,7 +33,7 @@ async def lifespan(_: FastAPI):
 
 def create_app() -> FastAPI:
     application = FastAPI(
-        title="EchoRead",
+        title="Melo",
         version="0.1.0",
         lifespan=lifespan,
     )

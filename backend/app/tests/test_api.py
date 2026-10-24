@@ -402,3 +402,42 @@ def test_job_status_endpoints(client: TestClient) -> None:
     assert comp_data["manifest"]["id"] == BOOK_ID
     assert "chapters" in comp_data["manifest"]
 
+
+def test_voice_query_passes_book_hotwords(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    captured: dict[str, object] = {}
+
+    class FakeSTT:
+        def transcribe(
+            self,
+            _: Path,
+            hotwords: list[str] | None = None,
+            word_timestamps: bool = True,
+        ) -> tuple[str, list[object]]:
+            captured["hotwords"] = hotwords
+            return "Who is Poirot?", []
+
+    class FakeTTS:
+        def wav_bytes(self, text: str, voice: str | None = None) -> bytes:
+            return b"RIFFfake"
+
+    with db.get_connection() as connection:
+        connection.execute(
+            "UPDATE books SET hotwords_json = ? WHERE id = ?",
+            ('["Poirot", "Cavendish", ""]', BOOK_ID),
+        )
+        connection.commit()
+
+    monkeypatch.setattr(voice_router, "get_stt", lambda: FakeSTT())
+    monkeypatch.setattr(voice_router, "get_tts", lambda: FakeTTS())
+    with client.stream(
+        "POST",
+        "/api/voice-query",
+        files={"audio": ("question.wav", FIXTURE.read_bytes(), "audio/wav")},
+        data={"book_id": BOOK_ID, "t_ms": "0", "mode": "story"},
+    ) as response:
+        assert response.status_code == 200
+        list(response.iter_lines())
+
+    assert captured["hotwords"] == ["Poirot", "Cavendish"]

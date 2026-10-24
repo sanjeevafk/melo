@@ -19,10 +19,14 @@ describe("UploadDialog", () => {
   it("imports an audio file and reports the new book", async () => {
     const onUploaded = vi.fn();
     const onClose = vi.fn();
-    const fetchMock = vi.fn(() => Promise.resolve(new Response(JSON.stringify(uploaded), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    })));
+    const fetchMock = vi.fn(() =>
+      Promise.resolve(
+        new Response(JSON.stringify(uploaded), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
     vi.stubGlobal("fetch", fetchMock);
 
     render(<UploadDialog open onClose={onClose} onUploaded={onUploaded} />);

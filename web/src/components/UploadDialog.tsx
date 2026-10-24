@@ -14,7 +14,7 @@ interface UploadDialogProps {
 }
 
 const ACCEPTED =
-  ".mp3,.webm,.m4a,.m4b,.epub,.txt,audio/mpeg,audio/webm,audio/mp4,audio/x-m4a,application/epub+zip,text/plain";
+  ".mp3,.webm,.m4a,.m4b,.epub,.pdf,.txt,audio/mpeg,audio/webm,audio/mp4,audio/x-m4a,application/epub+zip,application/pdf,text/plain";
 
 export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -45,13 +45,14 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
       return;
     }
     const isSpecial =
-      next.name.endsWith(".m4b") || next.name.endsWith(".epub") || next.name.endsWith(".txt");
+      next.name.endsWith(".m4b") ||
+      next.name.endsWith(".epub") ||
+      next.name.endsWith(".pdf") ||
+      next.name.endsWith(".txt");
     const limit = isSpecial ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
     if (next.size > limit) {
       setError(
-        isSpecial
-          ? "Uploads must be 50 MB or smaller."
-          : "Audio uploads must be 5 MB or smaller.",
+        isSpecial ? "Uploads must be 50 MB or smaller." : "Audio uploads must be 5 MB or smaller.",
       );
       return;
     }
@@ -130,7 +131,7 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
               Add audio or document
             </h2>
             <p className="mt-1 text-xs text-white/40">
-              MP3, M4B, M4A, EPUB, or TXT · local AI processing.
+              Audiobooks (.mp3, .m4b) or chapters/articles (.pdf, .epub, .txt) · 100% offline.
             </p>
           </div>
           <motion.button
@@ -184,7 +185,9 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
             {file ? file.name : "Drop audio here or choose a file"}
           </span>
           <span className="text-[11px] text-white/30">
-            {file ? `${(file.size / 1024 / 1024).toFixed(1)} MB selected` : "The file never leaves this machine."}
+            {file
+              ? `${(file.size / 1024 / 1024).toFixed(1)} MB selected`
+              : "The file never leaves this machine."}
           </span>
         </motion.button>
         <input
@@ -195,6 +198,10 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
           className="sr-only"
           onChange={(event) => chooseFile(event.target.files?.[0] ?? null)}
         />
+        <p className="mt-2 text-center text-[11px] text-white/35">
+          Audiobooks (.mp3, .m4b) transcribe in seconds. Documents (.pdf, .epub) are synthesized to
+          audio (up to 250 sentences / ~15 min).
+        </p>
 
         <div className="mt-5 grid gap-4 sm:grid-cols-[1fr_auto]">
           <label className="grid gap-1.5 text-xs text-white/45">
@@ -240,7 +247,10 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
         ) : null}
 
         {error ? (
-          <p role="alert" className="mt-4 rounded-xl border border-danger/25 bg-danger/10 p-3 text-xs text-danger">
+          <p
+            role="alert"
+            className="mt-4 rounded-xl border border-danger/25 bg-danger/10 p-3 text-xs text-danger"
+          >
             {error}
           </p>
         ) : null}

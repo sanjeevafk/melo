@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import shutil
 import sys
 import urllib.request
@@ -68,8 +69,7 @@ def write_hashes(files: list[Path]) -> None:
     payload = {
         "version": 1,
         "files": {
-            str(relative): {"sha256": sha256(settings.models_dir / relative)}
-            for relative in files
+            str(relative): {"sha256": sha256(settings.models_dir / relative)} for relative in files
         },
     }
     HASHES_PATH.write_text(json.dumps(payload, indent=2) + "\n")
@@ -146,6 +146,39 @@ def download_kokoro(force: bool) -> None:
         print(f"Wrote {target}")
 
 
+def download_phonon() -> None:
+    """Prefetch the pinned Phonon profile into the fermion cache.
+
+    fermion verifies the sha256 from its own catalog pin and is a no-op when
+    the profile is already unpacked. FERMION_SPEECH_FETCH_ANYWAY skips the
+    audio-I/O gate so prefetching works on headless machines.
+    """
+    try:
+        from fermion._speech.fetch import ensure
+        from fermion.transcribe import _resolve
+    except ImportError:
+        print("fermion-research is not installed; skipping Phonon prefetch")
+        return
+    repo, key, pin, local_dir = _resolve(settings.phonon_model)
+    if local_dir is not None:
+        print(f"Keeping local Phonon profile at {local_dir}")
+        return
+    print(f"Ensuring Phonon profile {repo} ({key})")
+    os.environ.setdefault("FERMION_SPEECH_FETCH_ANYWAY", "1")
+    ensure(repo, key, pin, quiet=True)
+
+
+def download_indra_ocr() -> None:
+    """Prefetch the indra-ocr detection/recognition models (HF-cached)."""
+    try:
+        import indra_ocr
+    except ImportError:
+        print("indra-ocr is not installed; skipping OCR model prefetch")
+        return
+    print("Ensuring indra-ocr models")
+    indra_ocr.model_dir()
+
+
 def required_files(profile: str) -> list[Path]:
     required = [
         settings.models_dir / "faster-whisper-base.en/model.bin",
@@ -181,7 +214,7 @@ def write_manifest(profile: str) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Fetch and verify EchoRead models")
+    parser = argparse.ArgumentParser(description="Fetch and verify Melo models")
     parser.add_argument("--profile", choices=["cpu", "gpu", "all"], default="all")
     parser.add_argument("--verify", action="store_true", help="verify without downloading")
     parser.add_argument("--force", action="store_true", help="redownload existing files")
@@ -204,6 +237,18 @@ def main() -> int:
             revision=EMBEDDING_REVISION,
         )
         download_kokoro(args.force)
+        download_phonon()
+        download_indra_ocr()
+
+    if settings.stt_provider == "phonon":
+        from backend.app.services.stt import phonon_profile_installed
+
+        if not phonon_profile_installed():
+            print(
+                "Missing: Phonon profile is not cached (run without --verify to prefetch it)",
+                file=sys.stderr,
+            )
+            return 1
 
     missing = [path for path in required_files(args.profile) if not path.exists()]
     if missing:

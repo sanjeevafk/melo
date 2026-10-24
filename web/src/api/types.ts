@@ -56,13 +56,7 @@ export interface ChapterMeta {
 }
 
 export type IngestJobState =
-  | "queued"
-  | "transcribing"
-  | "chunking"
-  | "embedding"
-  | "synthesizing"
-  | "completed"
-  | "failed";
+  "queued" | "transcribing" | "chunking" | "embedding" | "synthesizing" | "completed" | "failed";
 
 export interface IngestJobStatus {
   id: string;

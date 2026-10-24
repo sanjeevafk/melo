@@ -1,21 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { streamVoiceQuery } from "../api/client";
-import type {
-  ContextPreview,
-  HistoryTurn,
-  Mode,
-  VoiceEvent,
-  VoiceTimings,
-} from "../api/types";
+import type { ContextPreview, HistoryTurn, Mode, VoiceEvent, VoiceTimings } from "../api/types";
 
-export type VoiceStatus =
-  | "idle"
-  | "transcribing"
-  | "thinking"
-  | "speaking"
-  | "done"
-  | "error";
+export type VoiceStatus = "idle" | "transcribing" | "thinking" | "speaking" | "done" | "error";
 
 interface VoiceState {
   status: VoiceStatus;

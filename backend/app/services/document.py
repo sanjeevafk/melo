@@ -193,9 +193,115 @@ def parse_txt(path: Path, fallback_title: str | None = None) -> ParsedDocument:
 
 
 def parse_document(path: Path, fallback_title: str | None = None) -> ParsedDocument:
-    if path.suffix.lower() == ".epub":
+    suffix = path.suffix.lower()
+    if suffix == ".epub":
         return parse_epub(path, fallback_title)
+    if suffix == ".pdf":
+        return parse_pdf(path, fallback_title)
     return parse_txt(path, fallback_title)
+
+
+_MD_HEADING_RE = re.compile(r"^(#{1,6})\s+(.+)$", re.MULTILINE)
+
+
+def _markdown_to_spoken(markdown: str) -> str:
+    """Flatten Markdown to plain spoken text: drop code blocks and images,
+    unwrap links and emphasis, keep the words."""
+    text = re.sub(r"```.*?```", " ", markdown, flags=re.DOTALL)
+    text = re.sub(r"`([^`]*)`", r"\1", text)
+    text = re.sub(r"!\[[^\]]*\]\([^)]*\)", " ", text)
+    text = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", text)
+    text = re.sub(r"[*_~]{1,3}", "", text)
+    # Justified PDFs hyphenate at line ends and anydoc wraps the fragments in
+    # emphasis markers ("learn-* *ing"). Strip markers first, then rejoin —
+    # without this the TTS pauses mid-word. A compound hyphenated at a line
+    # break ("high- level") is joined too ("highlevel"): the rarer wrong
+    # outcome, and suspended hyphens ("pre - and") keep their leading space
+    # so they are untouched.
+    text = re.sub(r"(\w)-[ \t\n]+(\w)", r"\1\2", text)
+    text = re.sub(r"^#{1,6}\s+", "", text, flags=re.MULTILINE)
+    text = re.sub(r"^\s*>\s?", "", text, flags=re.MULTILINE)
+    text = re.sub(r"^\s*[-*+]\s+", "", text, flags=re.MULTILINE)
+    text = re.sub(r"\|", " ", text)
+    text = re.sub(r"[*_~]{1,3}", "", text)
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = re.sub(r"[ \t]+", " ", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip()
+
+
+def _split_markdown_chapters(markdown: str, fallback_title: str) -> list[ParsedChapter]:
+    matches = list(_MD_HEADING_RE.finditer(markdown))
+    if len(matches) < 2:
+        text = _markdown_to_spoken(markdown)
+        return [ParsedChapter(title=fallback_title, text=text)] if text else []
+    chapters: list[ParsedChapter] = []
+    preamble = _markdown_to_spoken(markdown[: matches[0].start()])
+    if len(preamble) > 30:
+        chapters.append(ParsedChapter(title="Introduction", text=preamble))
+    for index, match in enumerate(matches):
+        title = match.group(2).strip()
+        end = matches[index + 1].start() if index + 1 < len(matches) else len(markdown)
+        body = _markdown_to_spoken(markdown[match.end() : end])
+        if body:
+            chapters.append(ParsedChapter(title=title, text=body))
+    return chapters or [ParsedChapter(title=fallback_title, text=_markdown_to_spoken(markdown))]
+
+
+def _ocr_markdown(path: Path) -> str:
+    """OCR a scanned PDF locally with indra-ocr.
+
+    mode="auto" reads the PDF text layer where it is sound and OCRs the
+    rest, so mixed digital/scanned documents come through whole. Models are
+    downloaded from Hugging Face on first use and cached.
+    """
+    try:
+        import indra_ocr
+    except ImportError as exc:
+        raise ValueError(
+            "This PDF looks scanned or image-only, and indra-ocr is not installed. "
+            "Run 'uv sync' to install it, then upload the PDF again."
+        ) from exc
+    try:
+        converter = indra_ocr.load(mode="auto")
+        pages = list(converter.convert(path))
+    except Exception as exc:
+        raise ValueError(f"Could not OCR this PDF: {exc}") from exc
+    parts = [
+        page.markdown
+        for _, page in pages
+        if page.source != "error" and page.markdown and page.markdown.strip()
+    ]
+    markdown = "\n\n".join(part.strip() for part in parts).strip()
+    if not markdown:
+        raise ValueError("OCR produced no readable text from this PDF")
+    return markdown
+
+
+def parse_pdf(path: Path, fallback_title: str | None = None) -> ParsedDocument:
+    """Parse a PDF: anydoc for text pages, local OCR (indra-ocr) for scans.
+
+    Both run fully locally — the hosted-OCR path exists in anydoc but is
+    never used, and indra's models run on ONNX Runtime on the CPU.
+    """
+    import anydoc
+
+    try:
+        markdown = anydoc.to_markdown(str(path), ocr="reject")
+    except anydoc.NeedsOcrError:
+        markdown = _ocr_markdown(path)
+    except anydoc.EncryptedError as exc:
+        raise ValueError(
+            "This PDF is password-protected. Remove the password and upload it again."
+        ) from exc
+    except anydoc.ConvertError as exc:
+        raise ValueError(f"Could not read this document: {exc}") from exc
+
+    title = fallback_title or path.stem
+    chapters = _split_markdown_chapters(markdown, title)
+    if not chapters:
+        raise ValueError("No readable text found in this PDF")
+    return ParsedDocument(title=title, author=None, chapters=chapters)
 
 
 def synthesize_document(

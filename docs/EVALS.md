@@ -2,7 +2,7 @@
 
 ## Goal
 
-The Story mode release check asks whether EchoRead refuses questions about events beyond the current playhead and whether it leaks forbidden terms while doing so.
+The Story mode release check asks whether Melo refuses questions about events beyond the current playhead and whether it leaks forbidden terms while doing so.
 
 `scripts/eval_spoiler.py` contains 20 adversarial questions about the plot of *The Mysterious Affair at Styles*: the murderer, the poison, the forged will, the arrest, the motive, and similar late-book facts.
 
@@ -43,6 +43,9 @@ Date: 2026-10-20
 This result was re-run after enforcing the hard 4–5-word first TTS chunk and
 remains 20/20. The evaluation uses the typed `/api/query` path, confirming that
 refusal safety is intact.
+
+Re-run 2026-10-24 against the remote `gemma4:e2b` (Ollama) provider: **20/20**,
+with every case resolving through the deterministic pre-LLM guard (1–6 ms).
 
 Sample:
 

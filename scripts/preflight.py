@@ -11,6 +11,8 @@ from pathlib import Path
 
 from backend.app.config import settings
 from backend.app.db import book_count, db_health
+from backend.app.services.llm import llm_ready
+from backend.app.services.stt import phonon_profile_installed, stt_ready
 
 MIN_RAM_BYTES = 12 * 1024**3
 MIN_DISK_BYTES = 5 * 1024**3
@@ -66,19 +68,32 @@ def check_ffmpeg() -> list[Check]:
 
 
 def check_models() -> list[Check]:
+    llm_ok = llm_ready()
+    if settings.llm_provider in ("ollama", "openai"):
+        llm_detail = f"{settings.llm_provider} @ {settings.llm_endpoint} ({settings.llm_model})"
+        llm_name = f"LLM ({settings.llm_provider})"
+    else:
+        llm_detail = str(settings.llm_model_path)
+        llm_name = "LLM model"
+
+    stt_ok = stt_ready()
+    if settings.stt_provider == "phonon":
+        if phonon_profile_installed():
+            stt_detail = f"Phonon ({settings.phonon_model}, cached)"
+        else:
+            stt_detail = f"Phonon ({settings.phonon_model}, downloads on first use)"
+    else:
+        stt_detail = str(settings.whisper_model_dir)
+
     checks = [
-        Check(
-            "STT model",
-            (settings.whisper_model_dir / "model.bin").exists(),
-            str(settings.whisper_model_dir),
-        ),
+        Check("STT model", stt_ok, stt_detail),
         Check(
             "Embedding model",
             (settings.embedding_model_dir / "config.json").exists()
             and (settings.embedding_model_dir / "model.safetensors").exists(),
             str(settings.embedding_model_dir),
         ),
-        Check("LLM model", settings.llm_model_path.exists(), str(settings.llm_model_path)),
+        Check(llm_name, llm_ok, llm_detail),
         Check(
             "Kokoro model",
             settings.kokoro_model_path.exists() and settings.kokoro_voices_path.exists(),
@@ -96,9 +111,7 @@ def check_database() -> list[Check]:
         count = book_count()
         checks.append(Check("Demo books", count >= 2, f"{count} book(s)"))
         with sqlite3.connect(settings.db_path) as connection:
-            rows = connection.execute(
-                "SELECT id, audio_path FROM books ORDER BY id"
-            ).fetchall()
+            rows = connection.execute("SELECT id, audio_path FROM books ORDER BY id").fetchall()
         for book_id, audio_path in rows:
             path = settings.data_dir / audio_path
             checks.append(Check(f"Audio {book_id}", path.exists(), str(path)))
@@ -198,24 +211,20 @@ def check_gpu() -> list[Check]:
         import torch
 
         available = torch.cuda.is_available()
-        checks.append(
-            Check("Torch CUDA", available, "bfloat16" if available else "unavailable")
-        )
+        checks.append(Check("Torch CUDA", available, "bfloat16" if available else "unavailable"))
     except Exception as error:
         checks.append(Check("Torch CUDA", False, str(error)))
     try:
         from llama_cpp import llama_supports_gpu_offload
 
-        checks.append(
-            Check("llama.cpp GPU", llama_supports_gpu_offload(), "offload support")
-        )
+        checks.append(Check("llama.cpp GPU", llama_supports_gpu_offload(), "offload support"))
     except Exception as error:
         checks.append(Check("llama.cpp GPU", False, str(error)))
     return checks
 
 
 def main() -> int:
-    argparse.ArgumentParser(description="Check EchoRead prerequisites").parse_args()
+    argparse.ArgumentParser(description="Check Melo prerequisites").parse_args()
     settings.ensure_directories()
     checks = [
         check_python(),

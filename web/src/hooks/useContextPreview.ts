@@ -4,11 +4,7 @@ import { fetchContext } from "../api/client";
 import type { ContextPreview, Mode } from "../api/types";
 import { getDemoContext } from "../lib/demoData";
 
-export function useContextPreview(
-  bookId: string | null,
-  tMs: number,
-  mode: Mode,
-) {
+export function useContextPreview(bookId: string | null, tMs: number, mode: Mode) {
   const [context, setContext] = useState<ContextPreview | null>(null);
   const [error, setError] = useState<string | null>(null);
   const second = Math.floor(tMs / 1000);

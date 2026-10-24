@@ -61,7 +61,11 @@ export default function App() {
   const selectedBook = books.find((book) => book.id === selectedBookId) ?? null;
   const { manifest, error: manifestError } = useBookManifest(selectedBookId);
   const player = useAudioPlayer(manifest?.audio_url ?? null, selectedBook?.duration_ms ?? 0);
-  const { context, error: contextError } = useContextPreview(selectedBookId, player.currentMs, mode);
+  const { context, error: contextError } = useContextPreview(
+    selectedBookId,
+    player.currentMs,
+    mode,
+  );
   const lore = useLoreLog(selectedBookId);
 
   const narrator = useDemoNarrator({

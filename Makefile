@@ -29,7 +29,7 @@ dev:
 
 check:
 	$(UV) run ruff check backend scripts
-	$(UV) run pytest
+	$(PYTHON) -m pytest
 	cd web && npm run lint
 	cd web && npm run typecheck
 	cd web && npm run test -- --run

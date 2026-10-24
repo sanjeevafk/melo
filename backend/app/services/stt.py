@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import logging
 import threading
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
 from backend.app.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 class STTUnavailable(RuntimeError):
@@ -19,7 +22,17 @@ class TranscriptWord:
     end_ms: int
 
 
-class STT:
+class BaseSTT:
+    def transcribe(
+        self,
+        audio_path: Path,
+        hotwords: list[str] | None = None,
+        word_timestamps: bool = True,
+    ) -> tuple[str, list[TranscriptWord]]:
+        raise NotImplementedError
+
+
+class WhisperSTT(BaseSTT):
     def __init__(self) -> None:
         from faster_whisper import WhisperModel
 
@@ -30,6 +43,7 @@ class STT:
             str(settings.whisper_model_dir),
             device=device,
             compute_type=compute_type,
+            cpu_threads=4 if not settings.is_gpu else 0,
             local_files_only=True,
         )
 
@@ -66,12 +80,117 @@ class STT:
         return " ".join(part for part in text_parts if part), words
 
 
+class PhononSTT(BaseSTT):
+    def __init__(self) -> None:
+        import fermion
+
+        self._lock = threading.Lock()
+        self._speech = fermion.load_speech(settings.phonon_model)
+
+    def transcribe(
+        self,
+        audio_path: Path,
+        hotwords: list[str] | None = None,
+        word_timestamps: bool = True,
+    ) -> tuple[str, list[TranscriptWord]]:
+        with self._lock:
+            if word_timestamps:
+                detailed = self._speech.transcribe_detailed(
+                    str(audio_path),
+                    hotwords=hotwords or [],
+                )
+                text = (detailed.text or "").strip()
+                words: list[TranscriptWord] = []
+                for w in detailed.words or []:
+                    word_str = (
+                        w.get("text", "").strip()
+                        if isinstance(w, dict)
+                        else getattr(w, "text", "").strip()
+                    )
+                    if word_str:
+                        start_val = (
+                            w.get("start", 0.0) if isinstance(w, dict) else getattr(w, "start", 0.0)
+                        )
+                        end_val = (
+                            w.get("end", 0.0) if isinstance(w, dict) else getattr(w, "end", 0.0)
+                        )
+                        words.append(
+                            TranscriptWord(
+                                word=word_str,
+                                start_ms=int(round(start_val * 1000)),
+                                end_ms=int(round(end_val * 1000)),
+                            )
+                        )
+                return text, words
+            else:
+                text, _, _ = self._speech.transcribe(
+                    str(audio_path),
+                    hotwords=hotwords or [],
+                )
+                return (text or "").strip(), []
+
+
+class STT(BaseSTT):
+    """Unified STT dispatcher supporting Phonon-2.5 and Faster-Whisper."""
+
+    def __init__(self) -> None:
+        self._backend: BaseSTT
+        if settings.stt_provider == "phonon":
+            try:
+                self._backend = PhononSTT()
+                logger.info("Initialized Phonon STT (%s)", settings.phonon_model)
+                return
+            except Exception as exc:
+                logger.warning(
+                    "Failed to initialize Phonon STT (%s), falling back to Whisper: %s",
+                    settings.phonon_model,
+                    exc,
+                )
+        self._backend = WhisperSTT()
+        logger.info("Initialized Whisper STT")
+
+    def transcribe(
+        self,
+        audio_path: Path,
+        hotwords: list[str] | None = None,
+        word_timestamps: bool = True,
+    ) -> tuple[str, list[TranscriptWord]]:
+        return self._backend.transcribe(
+            audio_path,
+            hotwords=hotwords,
+            word_timestamps=word_timestamps,
+        )
+
+
 @lru_cache(maxsize=1)
 def get_stt() -> STT:
-    if not (settings.whisper_model_dir / "model.bin").exists():
-        raise STTUnavailable(f"Whisper model not found at {settings.whisper_model_dir}")
+    if not stt_ready():
+        raise STTUnavailable("Neither Phonon nor Whisper model is ready")
     return STT()
 
 
+def phonon_profile_installed() -> bool:
+    """True when the pinned Phonon profile is unpacked in the fermion cache.
+
+    fermion downloads the model on first use into its own cache
+    (~/.cache/fermion, overridable via FERMION_CACHE_DIR), so an importable
+    package does not mean a usable model.
+    """
+    try:
+        from fermion._speech.fetch import installed
+        from fermion.transcribe import _resolve
+
+        repo, _key, pin, local_dir = _resolve(settings.phonon_model)
+    except Exception:
+        return False
+    if local_dir is not None:
+        return Path(local_dir).exists()
+    return installed(repo, pin["unpack_dir"])
+
+
 def stt_ready() -> bool:
+    if settings.stt_provider == "phonon" and phonon_profile_installed():
+        return True
+    # Fall through: the STT dispatcher falls back to Whisper when Phonon
+    # cannot initialize, so readiness follows the same rule.
     return (settings.whisper_model_dir / "model.bin").exists()

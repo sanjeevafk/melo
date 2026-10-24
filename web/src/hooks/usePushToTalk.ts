@@ -52,10 +52,7 @@ export function usePushToTalk({
       const mimeType = MIME_CANDIDATES.find((candidate) =>
         MediaRecorder.isTypeSupported(candidate),
       );
-      const recorder = new MediaRecorder(
-        stream,
-        mimeType ? { mimeType } : undefined,
-      );
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
       streamRef.current = stream;
       recorderRef.current = recorder;
       chunksRef.current = [];
