@@ -24,6 +24,7 @@ dependencies = [
     "pillow>=13.0.0",
     "torchvision>=0.29.1",
     "av<19",
+    "indra-ocr>=1.1.2",
 ]
 
 [dependency-groups]
