@@ -193,9 +193,80 @@ def parse_txt(path: Path, fallback_title: str | None = None) -> ParsedDocument:
 
 
 def parse_document(path: Path, fallback_title: str | None = None) -> ParsedDocument:
-    if path.suffix.lower() == ".epub":
+    suffix = path.suffix.lower()
+    if suffix == ".epub":
         return parse_epub(path, fallback_title)
+    if suffix == ".pdf":
+        return parse_pdf(path, fallback_title)
     return parse_txt(path, fallback_title)
+
+
+_MD_HEADING_RE = re.compile(r"^(#{1,6})\s+(.+)$", re.MULTILINE)
+
+
+def _markdown_to_spoken(markdown: str) -> str:
+    """Flatten Markdown to plain spoken text: drop code blocks and images,
+    unwrap links and emphasis, keep the words."""
+    text = re.sub(r"```.*?```", " ", markdown, flags=re.DOTALL)
+    text = re.sub(r"`([^`]*)`", r"\1", text)
+    text = re.sub(r"!\[[^\]]*\]\([^)]*\)", " ", text)
+    text = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", text)
+    text = re.sub(r"^#{1,6}\s+", "", text, flags=re.MULTILINE)
+    text = re.sub(r"^\s*>\s?", "", text, flags=re.MULTILINE)
+    text = re.sub(r"^\s*[-*+]\s+", "", text, flags=re.MULTILINE)
+    text = re.sub(r"\|", " ", text)
+    text = re.sub(r"[*_~]{1,3}", "", text)
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = re.sub(r"[ \t]+", " ", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip()
+
+
+def _split_markdown_chapters(markdown: str, fallback_title: str) -> list[ParsedChapter]:
+    matches = list(_MD_HEADING_RE.finditer(markdown))
+    if len(matches) < 2:
+        text = _markdown_to_spoken(markdown)
+        return [ParsedChapter(title=fallback_title, text=text)] if text else []
+    chapters: list[ParsedChapter] = []
+    preamble = _markdown_to_spoken(markdown[: matches[0].start()])
+    if len(preamble) > 30:
+        chapters.append(ParsedChapter(title="Introduction", text=preamble))
+    for index, match in enumerate(matches):
+        title = match.group(2).strip()
+        end = matches[index + 1].start() if index + 1 < len(matches) else len(markdown)
+        body = _markdown_to_spoken(markdown[match.end() : end])
+        if body:
+            chapters.append(ParsedChapter(title=title, text=body))
+    return chapters or [ParsedChapter(title=fallback_title, text=_markdown_to_spoken(markdown))]
+
+
+def parse_pdf(path: Path, fallback_title: str | None = None) -> ParsedDocument:
+    """Parse a (text-based) PDF via anydoc, fully locally.
+
+    Scanned PDFs raise NeedsOcrError; we surface that instead of opting into
+    hosted OCR, which would send the document to a third party.
+    """
+    import anydoc
+
+    try:
+        markdown = anydoc.to_markdown(str(path), ocr="reject")
+    except anydoc.NeedsOcrError as exc:
+        raise ValueError(
+            "This PDF looks scanned or image-only. OCR is not supported locally, "
+            "so there is no text to narrate."
+        ) from exc
+    except anydoc.EncryptedError as exc:
+        raise ValueError(
+            "This PDF is password-protected. Remove the password and upload it again."
+        ) from exc
+    except anydoc.ConvertError as exc:
+        raise ValueError(f"Could not read this document: {exc}") from exc
+
+    title = fallback_title or path.stem
+    chapters = _split_markdown_chapters(markdown, title)
+    if not chapters:
+        raise ValueError("No readable text found in this PDF")
+    return ParsedDocument(title=title, author=None, chapters=chapters)
 
 
 def synthesize_document(

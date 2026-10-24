@@ -14,10 +14,15 @@ UPLOAD_TYPES = {
     "audio/m4b": ".m4b",
     "audio/x-m4b": ".m4b",
     "application/epub+zip": ".epub",
+    "application/pdf": ".pdf",
     "text/plain": ".txt",
 }
-DOCUMENT_EXTENSIONS = {".epub", ".txt"}
-DOCUMENT_TYPES = {"application/epub+zip": ".epub", "text/plain": ".txt"}
+DOCUMENT_EXTENSIONS = {".epub", ".pdf", ".txt"}
+DOCUMENT_TYPES = {
+    "application/epub+zip": ".epub",
+    "application/pdf": ".pdf",
+    "text/plain": ".txt",
+}
 VOICE_TYPES = {
     "audio/wav": ".wav",
     "audio/x-wav": ".wav",
@@ -53,7 +58,7 @@ class AudioInfo:
 def detect_upload_suffix(filename: str | None, content_type: str | None) -> str | None:
     if filename:
         lower = filename.lower()
-        for ext in (".mp3", ".webm", ".m4a", ".m4b", ".epub", ".txt"):
+        for ext in (".mp3", ".webm", ".m4a", ".m4b", ".epub", ".pdf", ".txt"):
             if lower.endswith(ext):
                 return ext
     if content_type:
@@ -153,7 +158,7 @@ def validate_upload(
     if eff_suffix is None or (content_type and content_type not in UPLOAD_TYPES and not suffix):
         raise AudioValidationError(
             "unsupported_format",
-            "Use MP3, WebM, M4A, M4B, EPUB, or TXT for uploads",
+            "Use MP3, WebM, M4A, M4B, EPUB, PDF, or TXT for uploads",
         )
     if size > max_bytes:
         raise AudioValidationError(
