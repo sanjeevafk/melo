@@ -33,7 +33,7 @@ export function BookPage({
         <div className="ab-endplate">
           <span className="ab-endplate-label">Ex Libris</span>
           <p className="ab-endplate-title">{bookTitle}</p>
-          <span className="ab-endplate-sub">EchoRead · Private Listening Library</span>
+          <span className="ab-endplate-sub">MELO · Private Listening Library</span>
         </div>
       </div>
     );

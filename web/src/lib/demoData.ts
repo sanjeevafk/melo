@@ -1,7 +1,7 @@
 import type { BookManifest, BookSummary, ContextPreview, WordTiming } from "../api/types";
 
 /**
- * An original superhero comic tale (EchoRead Originals) used to demonstrate
+ * An original superhero comic tale (MELO Originals) used to demonstrate
  * the animated book. Timings are generated deterministically from the text so
  * the demo runs fully offline with the simulated playback clock.
  */
@@ -66,7 +66,7 @@ export const DEMO_BOOKS: BookSummary[] = [
   {
     id: COMIC_TALE_ID,
     title: "The Sentinel of Halcyon City",
-    author: "EchoRead Originals",
+    author: "MELO Originals",
     duration_ms: comicTaleDurationMs,
     default_mode: "story",
   },
@@ -262,12 +262,12 @@ export function getDemoContext(bookId: string | null, tMs: number, mode: string)
 export const COMIC_TALE_MANIFEST: BookManifest = {
   id: COMIC_TALE_ID,
   title: "The Sentinel of Halcyon City",
-  author: "EchoRead Originals",
+  author: "MELO Originals",
   duration_ms: comicTaleDurationMs,
   default_mode: "story",
   audio_url: "/media/sentinel-tale.mp3",
   provenance: {
-    source: "EchoRead Originals",
+    source: "MELO Originals",
     license: "Demo content",
   },
   chapters: [

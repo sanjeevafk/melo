@@ -98,7 +98,7 @@ beforeEach(() => {
 describe("App", () => {
   it("renders the listening shell with the story transcript", async () => {
     render(<App />);
-    expect(screen.getByRole("heading", { name: "EchoRead" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "MELO" })).toBeInTheDocument();
     expect(
       await screen.findByRole("heading", { name: "The Mysterious Affair at Styles" }),
     ).toBeInTheDocument();

@@ -115,7 +115,7 @@ export function createCoverTexture({ title, author, bookId }: CoverOptions): THR
   ctx.fillStyle = "rgba(203, 163, 110, 0.65)";
   ctx.textAlign = "center";
   ctx.letterSpacing = "6px";
-  ctx.fillText("ECHOREAD AUDIO EDITION", 512, 280);
+  ctx.fillText("MELO AUDIO EDITION", 512, 280);
 
   // Title typography (Editorial Serif)
   ctx.font = "italic 400 64px 'Fraunces', 'Iowan Old Style', serif";
