@@ -29,9 +29,9 @@ data/books/*
 !data/books/attention/**
 
 # Planning, design and implementation documents (keep benchmark reports)
-local-docs/*
-!local-docs/BENCHMARKS.md
-!local-docs/EVALS.md
+docs/*
+!docs/BENCHMARKS.md
+!docs/EVALS.md
 
 *.log
 .DS_Store

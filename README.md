@@ -3,8 +3,8 @@
 > **Zero-spoiler, voice-first audiobook companion powered by local temporal RAG and open weights.**
 
 [![CI Checks](https://img.shields.io/badge/checks-55%20passed-brightgreen.svg)]()
-[![Spoiler Shield](https://img.shields.io/badge/spoiler%20eval-20%2F20%20(100%25)-emerald.svg)](local-docs/EVALS.md)
-[![Voice TTFA](https://img.shields.io/badge/voice%20TTFA-1.9s%20p50%20(CPU)-blue.svg)](local-docs/BENCHMARKS.md)
+[![Spoiler Shield](https://img.shields.io/badge/spoiler%20eval-20%2F20%20(100%25)-emerald.svg)](docs/EVALS.md)
+[![Voice TTFA](https://img.shields.io/badge/voice%20TTFA-1.9s%20p50%20(CPU)-blue.svg)](docs/BENCHMARKS.md)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 
 Melo is an offline-first companion for audiobooks. Unlike conventional chatbots that ingest entire books and spoil major plot twists, Melo binds its awareness strictly to your current listening position (`t <= current_ms`). You can interrupt at any point via push-to-talk to ask who a character is, clarify a scene, or test a theory — and Melo answers in spoken audio in under two seconds without ever spoiling what comes next.
@@ -77,8 +77,8 @@ Tested on consumer hardware (13th Gen Intel Core i5 CPU, 16GB RAM):
 | **First Audio Chunk (TTS)** | Kokoro-82M ONNX (`af_heart` @ 1.15x) | **522 ms** |
 | **Total Voice TTFA** | **End-to-End Voice-to-Voice** | **1,970 ms** |
 
-- **Spoiler Release Gate:** **20/20 passed (100%)** on adversarial murder/plot questions at early timestamps ([EVALS.md](local-docs/EVALS.md)).
-- **Latency Acceptance Gate:** Passes the CPU budget gate (p50 <= 3000 ms, p95 <= 4000 ms) with margin ([BENCHMARKS.md](local-docs/BENCHMARKS.md)).
+- **Spoiler Release Gate:** **20/20 passed (100%)** on adversarial murder/plot questions at early timestamps ([EVALS.md](docs/EVALS.md)).
+- **Latency Acceptance Gate:** Passes the CPU budget gate (p50 <= 3000 ms, p95 <= 4000 ms) with margin ([BENCHMARKS.md](docs/BENCHMARKS.md)).
 
 ---
 
