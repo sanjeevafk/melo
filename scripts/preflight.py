@@ -12,7 +12,7 @@ from pathlib import Path
 from backend.app.config import settings
 from backend.app.db import book_count, db_health
 from backend.app.services.llm import llm_ready
-from backend.app.services.stt import stt_ready
+from backend.app.services.stt import phonon_profile_installed, stt_ready
 
 MIN_RAM_BYTES = 12 * 1024**3
 MIN_DISK_BYTES = 5 * 1024**3
@@ -78,7 +78,10 @@ def check_models() -> list[Check]:
 
     stt_ok = stt_ready()
     if settings.stt_provider == "phonon":
-        stt_detail = f"Phonon ({settings.phonon_model})"
+        if phonon_profile_installed():
+            stt_detail = f"Phonon ({settings.phonon_model}, cached)"
+        else:
+            stt_detail = f"Phonon ({settings.phonon_model}, downloads on first use)"
     else:
         stt_detail = str(settings.whisper_model_dir)
 

@@ -173,12 +173,28 @@ def get_stt() -> STT:
     return STT()
 
 
-def stt_ready() -> bool:
-    if settings.stt_provider == "phonon":
-        try:
-            import fermion  # noqa: F401
+def phonon_profile_installed() -> bool:
+    """True when the pinned Phonon profile is unpacked in the fermion cache.
 
-            return True
-        except ImportError:
-            pass
+    fermion downloads the model on first use into its own cache
+    (~/.cache/fermion, overridable via FERMION_CACHE_DIR), so an importable
+    package does not mean a usable model.
+    """
+    try:
+        from fermion._speech.fetch import installed
+        from fermion.transcribe import _resolve
+
+        repo, _key, pin, local_dir = _resolve(settings.phonon_model)
+    except Exception:
+        return False
+    if local_dir is not None:
+        return Path(local_dir).exists()
+    return installed(repo, pin["unpack_dir"])
+
+
+def stt_ready() -> bool:
+    if settings.stt_provider == "phonon" and phonon_profile_installed():
+        return True
+    # Fall through: the STT dispatcher falls back to Whisper when Phonon
+    # cannot initialize, so readiness follows the same rule.
     return (settings.whisper_model_dir / "model.bin").exists()

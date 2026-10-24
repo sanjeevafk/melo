@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from backend.app.config import settings
+from backend.app.services import stt as stt_module
 from backend.app.services.stt import STT, PhononSTT, WhisperSTT, get_stt, stt_ready
 
 QUESTION_WAV = Path(__file__).parent / "fixtures" / "question.wav"
@@ -10,6 +13,21 @@ QUESTION_WAV = Path(__file__).parent / "fixtures" / "question.wav"
 
 def test_stt_ready():
     assert stt_ready() is True
+
+
+def test_stt_ready_follows_whisper_when_provider_is_whisper(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(settings, "stt_provider", "whisper")
+    assert stt_ready() == (settings.whisper_model_dir / "model.bin").exists()
+
+
+def test_stt_ready_falls_back_to_whisper_when_phonon_profile_missing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(settings, "stt_provider", "phonon")
+    monkeypatch.setattr(stt_module, "phonon_profile_installed", lambda: False)
+    assert stt_ready() == (settings.whisper_model_dir / "model.bin").exists()
 
 
 def test_get_stt_returns_instance():
