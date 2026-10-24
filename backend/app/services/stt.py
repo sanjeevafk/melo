@@ -30,6 +30,7 @@ class STT:
             str(settings.whisper_model_dir),
             device=device,
             compute_type=compute_type,
+            cpu_threads=4 if not settings.is_gpu else 0,
             local_files_only=True,
         )
 

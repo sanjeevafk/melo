@@ -44,6 +44,9 @@ This result was re-run after enforcing the hard 4–5-word first TTS chunk and
 remains 20/20. The evaluation uses the typed `/api/query` path, confirming that
 refusal safety is intact.
 
+Re-run 2026-10-24 against the remote `gemma4:e2b` (Ollama) provider: **20/20**,
+with every case resolving through the deterministic pre-LLM guard (1–6 ms).
+
 Sample:
 
 ```text

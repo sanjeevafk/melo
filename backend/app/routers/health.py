@@ -5,6 +5,7 @@ from fastapi import APIRouter
 from backend.app.config import settings
 from backend.app.db import db_health
 from backend.app.schemas import HealthResponse, ModelStatus
+from backend.app.services.llm import llm_ready
 
 router = APIRouter(tags=["health"])
 
@@ -14,12 +15,12 @@ def model_statuses() -> dict[str, ModelStatus]:
     embeddings_ready = (settings.embedding_model_dir / "config.json").exists() and (
         settings.embedding_model_dir / "model.safetensors"
     ).exists()
-    llm_ready = settings.llm_model_path.exists()
+    llm_is_ready = llm_ready()
     tts_ready = settings.kokoro_model_path.exists() and settings.kokoro_voices_path.exists()
     return {
         "stt": "ready" if stt_ready else "missing",
         "embeddings": "ready" if embeddings_ready else "missing",
-        "llm": "ready" if llm_ready else "missing",
+        "llm": "ready" if llm_is_ready else "missing",
         "tts": "ready" if tts_ready else "missing",
     }
 

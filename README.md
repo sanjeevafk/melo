@@ -1,8 +1,8 @@
 # EchoRead
 
-EchoRead is a local audiobook companion that answers questions from the listener's current position without revealing later events. It combines a React player, a FastAPI backend, local speech-to-text, local retrieval, a local LLM, and local text-to-speech.
+EchoRead is a local-first audiobook companion that answers questions from the listener's current position without revealing later events. It combines a React player, a FastAPI backend, local speech-to-text, local retrieval, an open-weight LLM, and local text-to-speech.
 
-Everything runs on your machine. Audio, transcripts, and questions are not sent to a hosted model.
+STT, embeddings, retrieval, and TTS always run on your machine. The LLM runs fully offline via llama.cpp by default, or against any open-weight model you serve yourself (e.g. Gemma 4 via your own Ollama instance). No third-party hosted APIs are called.
 
 ## Status
 
@@ -12,14 +12,19 @@ This repository contains a working v0.1 MVP:
 - Study mode that may add clearly labelled background knowledge.
 - Synchronized, clickable transcript with Story redaction.
 - Hold-to-talk voice questions and a typed-query fallback.
-- Local MP3 upload and ingestion.
+- Local audio (MP3, WebM, M4A, M4B) and document (EPUB, TXT) upload and ingestion.
 - Local benchmark and spoiler-evaluation scripts.
 
-The CPU latency acceptance gate is not met on the current development machine. See [BENCHMARKS.md](local-docs/BENCHMARKS.md) for measured results. Spoiler evaluation passes 20/20; see [EVALS.md](local-docs/EVALS.md).
+See [BENCHMARKS.md](local-docs/BENCHMARKS.md) for measured latency against the CPU acceptance gate, and [EVALS.md](local-docs/EVALS.md) for the spoiler evaluation (20/20).
 
 ## Voice latency
 
-The CPU profile targets p50 <= 3000 ms and p95 <= 4000 ms for time-to-first-audio. The latest 10-run benchmark (2026-10-20) measured **p50 3652 ms / p95 4635 ms**, so the gate is a **FAIL** on both bounds. The `tts_first_sentence_ms` timing field now measures the first TTS chunk, not a full sentence.
+The CPU profile targets p50 <= 3000 ms and p95 <= 4000 ms for time-to-first-audio. Two configurations have been measured (see [BENCHMARKS.md](local-docs/BENCHMARKS.md) for full data):
+
+- **Local llama.cpp (Qwen2.5-1.5B, 2026-10-20):** p50 1895 ms / p95 2549 ms on the standard benchmark (PASS), but novel questions degrade to p50 5554 ms because CPU prompt prefill cannot reuse the KV cache.
+- **Remote open-weight LLM (Gemma 4 4.6B Q4_K_M via Ollama, 2026-10-24):** first token drops to ~300-500 ms regardless of question novelty, giving a consistent TTFA of ~2.8-3.8 s; local STT and TTS now dominate the budget.
+
+The `tts_first_sentence_ms` timing field measures the first TTS chunk, not a full sentence.
 
 To reduce time-to-first-audio, EchoRead:
 
@@ -37,10 +42,10 @@ Tradeoffs: the first chunk can start mid-sentence, `beam_size=1` may modestly re
 
 Story mode answers only from:
 
-- the last 90 seconds of transcript immediately before the playhead;
+- the last 90 seconds of transcript immediately before the playhead (45 seconds on the CPU profile, to keep local prompts small);
 - earlier chunks that end at or before the playhead.
 
-Future chunks are never inserted into the prompt. If no evidence is retrieved and the question is not anchored in the immediate transcript, EchoRead refuses before calling the LLM. LLM refusal variants are canonicalized to one exact sentence.
+Future chunks are never inserted into the prompt. Retrieved chunks that substantially overlap the immediate buffer are clipped to the parts outside it, so unique earlier evidence survives without repeating buffer text. If no evidence is retrieved and the question is not anchored in the immediate transcript, EchoRead refuses before calling the LLM. LLM refusal variants are canonicalized to one exact sentence.
 
 ### Study mode
 
@@ -79,7 +84,7 @@ The health endpoint is <http://127.0.0.1:8000/api/health>.
 - Press play. The transcript follows the playhead and dims later Story content.
 - Hold `Space` or the microphone button to ask a question. Release to send.
 - Use the keyboard icon in the voice dock for typed questions.
-- Use `Add audio` to upload a local MP3 up to 5 MB and 180 seconds.
+- Use `Add content` to upload audio (MP3, WebM, M4A, M4B) or documents (EPUB, TXT) up to 50 MB and 30 minutes.
 - The `Latency` toggle shows per-stage timings in the voice dock and query panel.
 
 Voice samples are limited to 15 seconds and 2 MB.
@@ -124,11 +129,13 @@ FastAPI
         +-- SQLite + FTS5 (books, words, chunks, chunks_fts, lore_entries, chapters, ingest_jobs)
         +-- faster-whisper
         +-- EmbeddingGemma-2 (256 dimensions)
-        +-- Qwen2.5-1.5B-Instruct GGUF via llama.cpp
+        +-- Qwen2.5-1.5B-Instruct GGUF via llama.cpp (offline default)
+        |   or Gemma 4 / any open-weight model via a self-hosted Ollama or
+        |   OpenAI-compatible endpoint
         +-- Kokoro ONNX
 ```
 
-Retrieval uses the immediate transcript plus hybrid search: NumPy cosine similarity over chunk embeddings and SQLite FTS5 BM25, fused with reciprocal rank fusion. Story mode filters chunks by `end_ms <= t_ms` and drops chunks that substantially overlap the immediate buffer.
+Retrieval uses the immediate transcript plus hybrid search: NumPy cosine similarity over chunk embeddings and SQLite FTS5 BM25, fused with reciprocal rank fusion. Story mode filters chunks by `end_ms <= t_ms` and clips chunks that substantially overlap the immediate buffer to the parts outside it.
 
 ### Content Ingestion Expansion
 
@@ -139,9 +146,11 @@ EchoRead supports bring-your-own audiobooks and documents without request timeou
 
 ## Privacy
 
-All inference is local. The only network access in normal use is the one-time model download. Uploaded audio and generated transcripts stay under `data/books/`; the SQLite database is `data/echoread.db`.
+STT, retrieval, and TTS always run locally; uploaded audio and generated transcripts stay under `data/books/`, and the SQLite database is `data/echoread.db`. With the default `LLM_PROVIDER=llama_cpp`, all inference — including the LLM — happens on your machine, and the only network access in normal use is the one-time model download.
 
-No analytics, telemetry, accounts, or cloud APIs are used.
+If you configure `LLM_PROVIDER=ollama` (or `openai`), the transcribed question, the retrieved excerpts, and the immediate buffer are sent to the endpoint you configure. Point it at a server you control; no third-party hosted APIs are used.
+
+No analytics, telemetry, or accounts are used in either mode.
 
 ## Configuration
 
@@ -153,21 +162,26 @@ Settings use the `ECHOREAD_` environment prefix and an optional `.env` file.
 | `ECHOREAD_HOST` | `127.0.0.1` | Backend bind host. |
 | `ECHOREAD_PORT` | `8000` | Backend port. |
 | `ECHOREAD_DATA_DIR` | `./data` | Models, books, and database root. |
-| `ECHOREAD_MAX_UPLOAD_BYTES` | `5242880` | Upload size limit. |
-| `ECHOREAD_MAX_UPLOAD_DURATION_MS` | `180000` | Upload duration limit. |
+| `ECHOREAD_MAX_UPLOAD_BYTES` | `52428800` | Upload size limit. |
+| `ECHOREAD_MAX_UPLOAD_DURATION_MS` | `1800000` | Upload duration limit. |
 | `ECHOREAD_MAX_VOICE_BYTES` | `2097152` | Voice clip size limit. |
 | `ECHOREAD_MAX_VOICE_DURATION_MS` | `15000` | Voice clip duration limit. |
+| `LLM_PROVIDER` / `ECHOREAD_LLM_PROVIDER` | `ollama` | `llama_cpp` (offline), `ollama`, or `openai` (OpenAI-compatible endpoint). |
+| `LLM_ENDPOINT` / `ECHOREAD_LLM_ENDPOINT` | `http://127.0.0.1:11434` | Endpoint used by the `ollama`/`openai` providers. |
+| `LLM_MODEL` / `ECHOREAD_LLM_MODEL` | `gemma4:e2b` | Model tag for the `ollama`/`openai` providers. |
+| `LLM_THINK` / `ECHOREAD_LLM_THINK` | `false` | Ask thinking-capable models to reason; thought tags are stripped either way. |
+| `LLM_TIMEOUT` / `ECHOREAD_LLM_TIMEOUT` | `60` | LLM request timeout in seconds. |
 
 The GPU profile expects the small English Whisper model, Qwen2.5-3B, and a CUDA-capable GPU with enough memory for the selected models. The development machine's MX550 with 2 GB is not sufficient.
 
 ## Known limitations
 
-- The measured CPU voice TTFA on the standard benchmark is p50 1895 ms / p95 2549 ms, passing the 3000/4000 ms gate with a hard 4–5-word first TTS chunk and overlapped audio scheduling.
-- Novel questions (`make bench-novel`) bypass llama.cpp prompt caching and require ~2–7 s for CPU first-token prompt evaluation. Cold first queries immediately after server start take ~18–20 s due to on-demand model loading into RAM.
-- `npm audit` reports no vulnerabilities after the Vitest 5 development-dependency upgrade.
+- With the local llama.cpp provider the standard-benchmark CPU TTFA is p50 1895 ms / p95 2549 ms (PASS), but novel questions need ~2–7 s of CPU prompt prefill. With the remote Ollama provider, TTFA is a consistent ~2.8–3.8 s and local STT/TTS dominate. See [BENCHMARKS.md](local-docs/BENCHMARKS.md).
+- Cold first queries immediately after server start take ~18–20 s due to on-demand model loading into RAM; models are not pre-warmed at startup.
 - Word highlighting is driven by media `timeupdate`, not `requestAnimationFrame`.
 - The waveform is decorative; it does not use decoded audio peaks.
-- Upload accepts MP3 only. EPUB, PDF, and full-length audiobooks are out of scope for v0.1.
+- The latency HUD only appears when the `Latency` toggle is enabled.
+- Uploads are processed asynchronously with a small in-process worker pool; jobs are not persisted across server restarts.
 
 ## Documentation
 
@@ -176,3 +190,7 @@ The GPU profile expects the small English Whisper model, Qwen2.5-3B, and a CUDA-
 - [Architecture and state machines](local-docs/DIAGRAMS-AND-FSM.md)
 - [Benchmark method and results](local-docs/BENCHMARKS.md)
 - [Spoiler evaluation method and results](local-docs/EVALS.md)
+
+## License
+
+Licensed under the [Apache License 2.0](LICENSE). The bundled demo narration is generated from public-domain and authored sources recorded in `data/books/*/provenance.json`; model weights keep their upstream licenses and are downloaded, not distributed.

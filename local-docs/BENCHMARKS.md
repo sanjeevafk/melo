@@ -182,3 +182,20 @@ Tradeoffs:
 2. **Novel query prompt evaluation.** On CPU, novel queries experience 2–7 s first-token latency because llama.cpp cannot reuse KV cache prefixes across distinct contexts. Speculative decoding, smaller quantized draft models, or prompt compression could help close this gap.
 3. **STT optimizations.** Investigating distilled Whisper variants (e.g. distil-whisper) or aggressive voice activity silence trimming could shave 200–400 ms from STT.
 4. **TTS threading.** Further profiling ONNX session intra-op threading options for Kokoro under heavy CPU loads.
+
+## Addendum 2026-10-24: remote open-weight LLM (Gemma 4 via Ollama)
+
+The LLM provider now defaults to a self-hosted Ollama endpoint running `gemma4:e2b`
+(4.6B, Q4_K_M). STT, embeddings, and TTS remain local. With `LLM_PROVIDER=llama_cpp`
+the configuration above applies unchanged.
+
+3-run spot checks (same host, same fixture; small samples, not percentile-grade):
+
+| Benchmark | STT p50 | Retrieval p50 | LLM first token p50 | TTS first chunk p50 | Total p50 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Standard (repeated question) | 1480 ms | 166 ms | 346 ms | 1359 ms | 3324 ms |
+| Novel (cycling questions) | 1181 ms | 215 ms | 303 ms | 1295 ms | 3015 ms |
+
+- The novel-query blow-up is gone: first token is ~300–520 ms regardless of prompt-cache state, so TTFA is now a consistent ~2.8–3.8 s in both benchmarks.
+- The gate reads FAIL on p50 by a small margin (3324 ms vs 3000 ms); the budget is now dominated by local STT (~1.1–1.5 s) and local TTS first chunk (~1.3–1.7 s), not the LLM.
+- TTFA with the remote LLM was re-measured after the buffer-overlap clip fix (retrieved excerpts are clipped to the parts outside the immediate buffer instead of being dropped, which can add unique earlier evidence to the prompt).

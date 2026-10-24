@@ -40,6 +40,29 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("DEMO_CACHE", "ECHOREAD_DEMO_CACHE"),
     )
 
+    llm_provider: Literal["ollama", "openai", "llama_cpp"] = Field(
+        default="ollama",
+        validation_alias=AliasChoices("LLM_PROVIDER", "ECHOREAD_LLM_PROVIDER"),
+    )
+    llm_endpoint: str = Field(
+        default="http://100.127.242.86:11434",
+        validation_alias=AliasChoices(
+            "LLM_ENDPOINT", "ECHOREAD_LLM_ENDPOINT", "OLLAMA_HOST", "OLLAMA_BASE_URL"
+        ),
+    )
+    llm_model: str = Field(
+        default="gemma4:e2b",
+        validation_alias=AliasChoices("LLM_MODEL", "ECHOREAD_LLM_MODEL"),
+    )
+    llm_think: bool = Field(
+        default=False,
+        validation_alias=AliasChoices("LLM_THINK", "ECHOREAD_LLM_THINK"),
+    )
+    llm_timeout_seconds: float = Field(
+        default=60.0,
+        validation_alias=AliasChoices("LLM_TIMEOUT", "ECHOREAD_LLM_TIMEOUT"),
+    )
+
     @property
     def is_gpu(self) -> bool:
         return self.profile == "gpu"
@@ -75,6 +98,9 @@ class Settings(BaseSettings):
 
     @property
     def llm_model_path(self) -> Path:
+        gemma_gguf = self.models_dir / "gemma-2-2b-it-q4_k_m.gguf"
+        if gemma_gguf.exists():
+            return gemma_gguf
         name = (
             "qwen2.5-3b-instruct-q4_k_m.gguf"
             if self.is_gpu
