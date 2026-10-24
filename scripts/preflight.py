@@ -12,6 +12,7 @@ from pathlib import Path
 from backend.app.config import settings
 from backend.app.db import book_count, db_health
 from backend.app.services.llm import llm_ready
+from backend.app.services.stt import stt_ready
 
 MIN_RAM_BYTES = 12 * 1024**3
 MIN_DISK_BYTES = 5 * 1024**3
@@ -75,12 +76,14 @@ def check_models() -> list[Check]:
         llm_detail = str(settings.llm_model_path)
         llm_name = "LLM model"
 
+    stt_ok = stt_ready()
+    if settings.stt_provider == "phonon":
+        stt_detail = f"Phonon ({settings.phonon_model})"
+    else:
+        stt_detail = str(settings.whisper_model_dir)
+
     checks = [
-        Check(
-            "STT model",
-            (settings.whisper_model_dir / "model.bin").exists(),
-            str(settings.whisper_model_dir),
-        ),
+        Check("STT model", stt_ok, stt_detail),
         Check(
             "Embedding model",
             (settings.embedding_model_dir / "config.json").exists()

@@ -40,6 +40,15 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("DEMO_CACHE", "ECHOREAD_DEMO_CACHE"),
     )
 
+    stt_provider: Literal["phonon", "whisper"] = Field(
+        default="phonon",
+        validation_alias=AliasChoices("STT_PROVIDER", "ECHOREAD_STT_PROVIDER"),
+    )
+    phonon_model: str = Field(
+        default="phonon-2.5",
+        validation_alias=AliasChoices("PHONON_MODEL", "ECHOREAD_PHONON_MODEL"),
+    )
+
     llm_provider: Literal["ollama", "openai", "llama_cpp"] = Field(
         default="ollama",
         validation_alias=AliasChoices("LLM_PROVIDER", "ECHOREAD_LLM_PROVIDER"),
