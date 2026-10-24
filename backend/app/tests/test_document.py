@@ -198,6 +198,18 @@ def test_markdown_to_spoken_strips_syntax() -> None:
     assert "https://" not in spoken
 
 
+def test_markdown_to_spoken_joins_hyphenated_line_breaks() -> None:
+    spoken = _markdown_to_spoken("We reformulate the layers as learn-\ning residual functions.")
+    assert "learning residual functions" in spoken
+    assert "learn- ing" not in spoken
+
+    interleaved = _markdown_to_spoken(
+        "We provide com-* *prehensive empirical evidence of *substan-* *tial* gains."
+    )
+    assert "comprehensive empirical evidence" in interleaved
+    assert "substantial gains" in interleaved
+
+
 def test_split_markdown_chapters() -> None:
     md = "# One\n\nFirst body.\n\n## Two\n\nSecond body."
     chapters = _split_markdown_chapters(md, "Fallback")
