@@ -23,6 +23,12 @@ class Settings(BaseSettings):
 
     max_upload_bytes: int = 50 * 1024 * 1024
     max_upload_duration_ms: int = 1_800_000
+    max_document_sentences: int = Field(
+        default=250,
+        validation_alias=AliasChoices(
+            "MAX_DOCUMENT_SENTENCES", "ECHOREAD_MAX_DOCUMENT_SENTENCES"
+        ),
+    )
     max_voice_bytes: int = 2 * 1024 * 1024
     max_voice_duration_ms: int = 15_000
 
