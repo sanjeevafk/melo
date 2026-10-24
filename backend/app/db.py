@@ -275,6 +275,27 @@ def get_word_rows(
         ).fetchall()
 
 
+def get_chunk_word_rows(
+    chunk_id: str,
+    start_ms: int | None = None,
+    end_ms: int | None = None,
+    db_path: Path | None = None,
+) -> list[sqlite3.Row]:
+    clauses = ["chunk_id = ?"]
+    params: list[object] = [chunk_id]
+    if start_ms is not None:
+        clauses.append("start_ms >= ?")
+        params.append(start_ms)
+    if end_ms is not None:
+        clauses.append("start_ms < ?")
+        params.append(end_ms)
+    with get_connection(db_path) as connection:
+        return connection.execute(
+            f"SELECT * FROM words WHERE {' AND '.join(clauses)} ORDER BY idx ASC",
+            params,
+        ).fetchall()
+
+
 def get_active_chunk(book_id: str, t_ms: int, db_path: Path | None = None) -> sqlite3.Row | None:
     with get_connection(db_path) as connection:
         return connection.execute(

@@ -161,6 +161,57 @@ def _overlap_ratio(chunk: ChunkRecord, start_ms: int, end_ms: int) -> float:
     return (overlap_end - overlap_start) / duration
 
 
+def _segment_excerpts(
+    excerpt: RetrievedExcerpt,
+    chunk: ChunkRecord,
+    buffer_start: int,
+    t_ms: int,
+) -> list[RetrievedExcerpt]:
+    """Split a buffer-overlapping excerpt into its segments outside the buffer.
+
+    Dropping a chunk that mostly overlaps the buffer also drops unique evidence
+    in the part outside it (for example the opening of a chunk whose tail the
+    buffer already covers). Clipping keeps that evidence while still avoiding
+    repetition of buffer text in the prompt.
+    """
+    segment_ranges = [
+        (chunk.start_ms, min(buffer_start, chunk.end_ms)),
+        (max(t_ms, chunk.start_ms), chunk.end_ms),
+    ]
+    words = db.get_chunk_word_rows(chunk.id)
+    tokens = chunk.text.split()
+    segments: list[RetrievedExcerpt] = []
+    for seg_start, seg_end in segment_ranges:
+        if seg_end <= seg_start:
+            continue
+        if len(tokens) == len(words):
+            positions = [
+                index
+                for index, row in enumerate(words)
+                if seg_start <= int(row["start_ms"]) < seg_end
+            ]
+            if not positions:
+                continue
+            text = " ".join(tokens[positions[0] : positions[-1] + 1])
+        else:
+            # Token/timing misalignment: keep the full text rather than lose evidence.
+            text = chunk.text
+        segments.append(
+            RetrievedExcerpt(
+                chunk_id=excerpt.chunk_id,
+                start_ms=seg_start,
+                end_ms=seg_end,
+                text=text,
+                rrf_score=excerpt.rrf_score,
+                vector_score=excerpt.vector_score,
+                vector_rank=excerpt.vector_rank,
+                fts_score=excerpt.fts_score,
+                fts_rank=excerpt.fts_rank,
+            )
+        )
+    return segments
+
+
 def build_context(
     book: db.BookRecord,
     t_ms: int,
@@ -203,12 +254,15 @@ def build_context(
         query_vector = get_embedder().encode_query(question)
         semantic = _top_semantic(eligible_chunks, query_vector)
         keyword = _top_fts(book.id, question, fts_end_ms, chunks_by_id)
-        retrieved = _rrf(semantic, keyword)
-        retrieved = [
-            excerpt
-            for excerpt in retrieved
-            if _overlap_ratio(chunks_by_id[excerpt.chunk_id], buffer_start, t) < 0.5
-        ][:final_k]
+        fused = _rrf(semantic, keyword)
+        retrieved = []
+        for excerpt in fused:
+            chunk = chunks_by_id[excerpt.chunk_id]
+            if _overlap_ratio(chunk, buffer_start, t) < 0.5:
+                retrieved.append(excerpt)
+            else:
+                retrieved.extend(_segment_excerpts(excerpt, chunk, buffer_start, t))
+        retrieved = retrieved[:final_k]
 
     if mode == "story":
         history: list[tuple[str, str]] = []
