@@ -211,6 +211,14 @@ def _markdown_to_spoken(markdown: str) -> str:
     text = re.sub(r"`([^`]*)`", r"\1", text)
     text = re.sub(r"!\[[^\]]*\]\([^)]*\)", " ", text)
     text = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", text)
+    text = re.sub(r"[*_~]{1,3}", "", text)
+    # Justified PDFs hyphenate at line ends and anydoc wraps the fragments in
+    # emphasis markers ("learn-* *ing"). Strip markers first, then rejoin —
+    # without this the TTS pauses mid-word. A compound hyphenated at a line
+    # break ("high- level") is joined too ("highlevel"): the rarer wrong
+    # outcome, and suspended hyphens ("pre - and") keep their leading space
+    # so they are untouched.
+    text = re.sub(r"(\w)-[ \t\n]+(\w)", r"\1\2", text)
     text = re.sub(r"^#{1,6}\s+", "", text, flags=re.MULTILINE)
     text = re.sub(r"^\s*>\s?", "", text, flags=re.MULTILINE)
     text = re.sub(r"^\s*[-*+]\s+", "", text, flags=re.MULTILINE)
