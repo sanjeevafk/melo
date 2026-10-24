@@ -19,10 +19,11 @@ See [BENCHMARKS.md](local-docs/BENCHMARKS.md) for measured latency against the C
 
 ## Voice latency
 
-The CPU profile targets p50 <= 3000 ms and p95 <= 4000 ms for time-to-first-audio. Two configurations have been measured (see [BENCHMARKS.md](local-docs/BENCHMARKS.md) for full data):
+The CPU profile targets p50 <= 3000 ms and p95 <= 4000 ms for time-to-first-audio. Three configurations have been measured (see [BENCHMARKS.md](local-docs/BENCHMARKS.md) for full data):
 
 - **Local llama.cpp (Qwen2.5-1.5B, 2026-10-20):** p50 1895 ms / p95 2549 ms on the standard benchmark (PASS), but novel questions degrade to p50 5554 ms because CPU prompt prefill cannot reuse the KV cache.
 - **Remote open-weight LLM (Gemma 4 4.6B Q4_K_M via Ollama, 2026-10-24):** first token drops to ~300-500 ms regardless of question novelty, giving a consistent TTFA of ~2.8-3.8 s; local STT and TTS now dominate the budget.
+- **Phonon-2.5 STT (2026-10-24, same day):** switching STT to Phonon-2.5 cut in-path STT from ~1480 ms to ~633 ms — TTFA p50 1970 ms / p95 2047 ms, passing the CPU gate with margin.
 
 The `tts_first_sentence_ms` timing field measures the first TTS chunk, not a full sentence.
 
@@ -152,6 +153,8 @@ If you configure `LLM_PROVIDER=ollama` (or `openai`), the transcribed question, 
 
 No analytics, telemetry, or accounts are used in either mode.
 
+The Phonon STT model (~156 MB, when selected) is fetched from Hugging Face into `~/.cache/fermion` on first use — `make models` prefetches it; recorded audio itself never leaves the machine.
+
 ## Configuration
 
 Settings use the `ECHOREAD_` environment prefix and an optional `.env` file.
@@ -166,6 +169,8 @@ Settings use the `ECHOREAD_` environment prefix and an optional `.env` file.
 | `ECHOREAD_MAX_UPLOAD_DURATION_MS` | `1800000` | Upload duration limit. |
 | `ECHOREAD_MAX_VOICE_BYTES` | `2097152` | Voice clip size limit. |
 | `ECHOREAD_MAX_VOICE_DURATION_MS` | `15000` | Voice clip duration limit. |
+| `STT_PROVIDER` / `ECHOREAD_STT_PROVIDER` | `phonon` | `phonon` (Phonon-2.5 via fermion-research) or `whisper` (faster-whisper). |
+| `PHONON_MODEL` / `ECHOREAD_PHONON_MODEL` | `phonon-2.5` | Phonon profile name passed to `fermion.load_speech`. |
 | `LLM_PROVIDER` / `ECHOREAD_LLM_PROVIDER` | `ollama` | `llama_cpp` (offline), `ollama`, or `openai` (OpenAI-compatible endpoint). |
 | `LLM_ENDPOINT` / `ECHOREAD_LLM_ENDPOINT` | `http://127.0.0.1:11434` | Endpoint used by the `ollama`/`openai` providers. |
 | `LLM_MODEL` / `ECHOREAD_LLM_MODEL` | `gemma4:e2b` | Model tag for the `ollama`/`openai` providers. |
