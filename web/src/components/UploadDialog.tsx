@@ -119,7 +119,7 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
               Add audio or document
             </h2>
             <p className="mt-1 text-xs text-white/40">
-              MP3, M4B, M4A, EPUB, PDF, or TXT · local AI processing.
+              Audiobooks (.mp3, .m4b) or chapters/articles (.pdf, .epub, .txt) · 100% offline.
             </p>
           </div>
           <button
@@ -169,6 +169,9 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
           className="sr-only"
           onChange={(event) => chooseFile(event.target.files?.[0] ?? null)}
         />
+        <p className="mt-2 text-center text-[11px] text-white/35">
+          Audiobooks (.mp3, .m4b) transcribe in seconds. Documents (.pdf, .epub) are synthesized to audio (up to 250 sentences / ~15 min).
+        </p>
 
         <div className="mt-5 grid gap-4 sm:grid-cols-[1fr_auto]">
           <label className="grid gap-1.5 text-xs text-white/45">

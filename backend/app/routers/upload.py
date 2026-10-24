@@ -11,6 +11,7 @@ from fastapi import APIRouter, File, Form, Query, UploadFile
 from backend.app import db
 from backend.app.config import settings
 from backend.app.errors import ApiError
+from backend.app.prompts import split_sentences
 from backend.app.routers.books import build_manifest
 from backend.app.schemas import BookManifest, IngestJobStatus
 from backend.app.services.audio import (
@@ -50,6 +51,21 @@ def _process_ingestion(
             doc = parse_document(raw_path, fallback_title=title)
             final_title = doc.title or title or "Uploaded document"
             audio_destination = book_dir / "audio.mp3"
+
+            total_sentences = sum(
+                len(split_sentences(ch.text.replace("\n", " "))) for ch in doc.chapters
+            )
+            if (
+                settings.max_document_sentences > 0
+                and total_sentences > settings.max_document_sentences
+            ):
+                msg = (
+                    f"Document has {total_sentences} sentences, which exceeds the limit of "
+                    f"{settings.max_document_sentences} sentences (~15 min of audio). "
+                    "For full-length novels, please upload an audiobook file (.m4b or .mp3)."
+                )
+                db.update_ingest_job(job_id, status="failed", error=msg)
+                return
 
             def _progress_callback(pct: int, msg: str) -> None:
                 db.update_ingest_job(job_id, stage=msg, progress_pct=pct)

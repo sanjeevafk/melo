@@ -165,6 +165,29 @@ def validate_upload(
             "upload_too_large", f"Audio upload exceeds {max_bytes // 1024 // 1024} MB"
         )
     if eff_suffix in DOCUMENT_EXTENSIONS:
+        from backend.app.config import settings
+        from backend.app.prompts import split_sentences
+        from backend.app.services.document import parse_document
+
+        try:
+            doc = parse_document(path)
+            total_sentences = sum(
+                len(split_sentences(ch.text.replace("\n", " "))) for ch in doc.chapters
+            )
+            if (
+                settings.max_document_sentences > 0
+                and total_sentences > settings.max_document_sentences
+            ):
+                raise AudioValidationError(
+                    "document_too_long",
+                    f"Document has {total_sentences} sentences, which exceeds the limit of "
+                    f"{settings.max_document_sentences} sentences (~15 min of audio). "
+                    "For full-length novels, please upload an audiobook file (.m4b or .mp3).",
+                )
+        except AudioValidationError:
+            raise
+        except Exception:
+            pass
         return AudioInfo(duration_ms=0, format_name=eff_suffix.lstrip("."), chapters=[])
     info = probe_audio(path)
     if max_ms > 0 and info.duration_ms > max_ms:

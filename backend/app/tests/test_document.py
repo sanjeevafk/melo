@@ -289,3 +289,41 @@ def test_chapters_db_crud(tmp_path: Path) -> None:
     assert loaded[1].title == "Part II"
     assert loaded[1].start_ms == 5000
     assert loaded[1].end_ms == 10000
+
+
+def test_document_sentence_limit_guard(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from backend.app.config import settings
+    from backend.app.services.audio import AudioValidationError, validate_upload
+
+    monkeypatch.setattr(settings, "max_document_sentences", 10)
+
+    # 15 sentences > 10 limit
+    long_txt = tmp_path / "long.txt"
+    long_txt.write_text("\n".join(f"Sentence number {i} is here." for i in range(15)))
+
+    with pytest.raises(AudioValidationError) as exc:
+        validate_upload(
+            long_txt,
+            "text/plain",
+            long_txt.stat().st_size,
+            max_bytes=10_000_000,
+            max_ms=0,
+            suffix=".txt",
+        )
+    assert exc.value.code == "document_too_long"
+    assert "exceeds the limit of 10 sentences" in exc.value.message
+
+    # 5 sentences <= 10 limit
+    short_txt = tmp_path / "short.txt"
+    short_txt.write_text("\n".join(f"Short sentence {i}." for i in range(5)))
+
+    info = validate_upload(
+        short_txt,
+        "text/plain",
+        short_txt.stat().st_size,
+        max_bytes=10_000_000,
+        max_ms=0,
+        suffix=".txt",
+    )
+    assert info.format_name == "txt"
+
