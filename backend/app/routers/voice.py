@@ -87,6 +87,20 @@ def _audio_event(
     )
 
 
+def _book_hotwords(book: db.BookRecord) -> list[str] | None:
+    """Stored per-book terms for STT biasing; Phonon accepts at most 25."""
+    if not book.hotwords_json:
+        return None
+    try:
+        payload = json.loads(book.hotwords_json)
+    except (ValueError, TypeError):
+        return None
+    if not isinstance(payload, list):
+        return None
+    terms = [str(term).strip() for term in payload if str(term).strip()]
+    return terms[:25] or None
+
+
 def _voice_events(
     book: db.BookRecord,
     audio_path: Path,
@@ -105,7 +119,9 @@ def _voice_events(
     try:
         yield _event({"type": "status", "stage": "transcribing"})
         try:
-            transcript, _ = get_stt().transcribe(audio_path, hotwords=None, word_timestamps=False)
+            transcript, _ = get_stt().transcribe(
+                audio_path, hotwords=_book_hotwords(book), word_timestamps=False
+            )
         except STTUnavailable as exc:
             yield _event({"type": "error", "code": "not_ready", "message": str(exc)})
             yield _event({"type": "done"})
