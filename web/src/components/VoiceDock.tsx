@@ -128,10 +128,14 @@ export function VoiceDock({
       }
     };
     const handleStop = () => stopRef.current();
+    window.addEventListener("melo:voice-start", handleStart);
     window.addEventListener("echoread:voice-start", handleStart);
+    window.addEventListener("melo:voice-stop", handleStop);
     window.addEventListener("echoread:voice-stop", handleStop);
     return () => {
+      window.removeEventListener("melo:voice-start", handleStart);
       window.removeEventListener("echoread:voice-start", handleStart);
+      window.removeEventListener("melo:voice-stop", handleStop);
       window.removeEventListener("echoread:voice-stop", handleStop);
     };
   }, []);

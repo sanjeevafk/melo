@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 
 import type { BookManifest, ContextPreview, Mode } from "../api/types";
 import { formatDuration } from "../lib/time";
+import { generateWaveformBars } from "../lib/waveform";
 import { AnimatedBook } from "./book/AnimatedBook";
 import { AnimatedNumber } from "./ui/AnimatedNumber";
 
@@ -20,14 +21,6 @@ interface PlayerProps {
 
 const BAR_COUNT = 64;
 
-function barHeight(index: number): number {
-  const t = index / BAR_COUNT;
-  const envelope = Math.sin(t * Math.PI);
-  const wave = Math.sin(index * 0.42) * 0.35 + Math.cos(index * 0.78) * 0.25 + 0.55;
-  const raw = envelope * wave;
-  return Math.max(22, Math.min(95, Math.round(raw * 85 + 20)));
-}
-
 export function Player({
   book,
   currentMs,
@@ -38,7 +31,7 @@ export function Player({
   onSeek,
 }: PlayerProps) {
   const progress = durationMs > 0 ? Math.min(1, currentMs / durationMs) : 0;
-  const bars = useMemo(() => Array.from({ length: BAR_COUNT }, (_, index) => barHeight(index)), []);
+  const bars = useMemo(() => generateWaveformBars(BAR_COUNT), []);
   const [hoverFraction, setHoverFraction] = useState<number | null>(null);
   const draggingRef = useRef(false);
 
@@ -274,13 +267,27 @@ export function Player({
               </AnimatePresence>
             </div>
 
-            {/* Micro Progress Track */}
+            {/* Micro Progress Track & Spoiler Horizon Indicator */}
             <div
-              className="relative mt-2.5 h-1 w-full cursor-pointer overflow-hidden rounded-full bg-white/[0.08]"
+              className="relative mt-2.5 h-1.5 w-full cursor-pointer overflow-hidden rounded-full bg-white/[0.08]"
               onClick={scrubHandlers.onClick}
             >
+              {mode === "story" && (
+                <div
+                  className="pointer-events-none absolute inset-0 opacity-25"
+                  style={{
+                    backgroundImage:
+                      "repeating-linear-gradient(-45deg, rgba(255,255,255,0.15) 0 4px, transparent 4px 8px)",
+                  }}
+                  title="Locked spoiler shield"
+                />
+              )}
               <motion.div
-                className="h-full rounded-full bg-gradient-to-r from-[#cba36e] to-[#f5f0e6]"
+                className={`h-full rounded-full ${
+                  mode === "story"
+                    ? "bg-gradient-to-r from-[#7bc47f]/80 via-[#cba36e] to-[#f5f0e6]"
+                    : "bg-gradient-to-r from-[#cba36e] to-[#f5f0e6]"
+                }`}
                 animate={{ width: `${Math.min(100, progress * 100)}%` }}
                 transition={{ type: "tween", ease: "linear", duration: 0.2 }}
               />
@@ -289,6 +296,12 @@ export function Player({
             {/* Time Indicators */}
             <div className="mt-2 flex items-center justify-between font-mono text-[11px] tabular-nums text-white/45">
               <span className="font-medium text-[#f5f0e6]">{formatDuration(currentMs)}</span>
+              {mode === "story" ? (
+                <span className="flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider text-[#7bc47f]/85">
+                  <span className="inline-block size-1.5 rounded-full bg-[#7bc47f]" />
+                  Safe Zone
+                </span>
+              ) : null}
               <span>-{formatDuration(Math.max(0, durationMs - currentMs))}</span>
             </div>
           </div>

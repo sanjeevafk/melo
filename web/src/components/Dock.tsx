@@ -14,6 +14,7 @@ import { AnimatePresence, motion } from "motion/react";
 
 import type { BookManifest } from "../api/types";
 import { formatDuration } from "../lib/time";
+import { generateWaveformBars } from "../lib/waveform";
 
 interface DockProps {
   book: BookManifest | null;
@@ -34,13 +35,6 @@ interface DockProps {
 
 const RATES = [1, 1.2, 1.5, 2];
 const BAR_COUNT = 24;
-
-function barHeight(index: number): number {
-  const t = index / BAR_COUNT;
-  const envelope = Math.sin(t * Math.PI);
-  const wave = Math.sin(index * 0.7) * 0.4 + Math.cos(index * 1.1) * 0.2 + 0.6;
-  return Math.max(15, Math.min(100, Math.round(envelope * wave * 100)));
-}
 
 /**
  * The floating glass dock pill: transport, now-playing capsule, speed and
@@ -66,7 +60,7 @@ export function Dock({
   const [muted, setMuted] = useState(false);
   const lastVolumeRef = useRef(volume > 0 ? volume : 1);
   const progress = durationMs > 0 ? Math.min(1, currentMs / durationMs) : 0;
-  const bars = useMemo(() => Array.from({ length: BAR_COUNT }, (_, index) => barHeight(index)), []);
+  const bars = useMemo(() => generateWaveformBars(BAR_COUNT), []);
   const canSkip = Boolean(book) && durationMs > 0;
 
   const nextRate = () => {
@@ -78,14 +72,22 @@ export function Dock({
     window.dispatchEvent(new CustomEvent(type));
   };
   const handleMicDown = (event: ReactPointerEvent<HTMLButtonElement>) => {
+    // console.log("micDown", event.button);
     if (event.button !== 0) return;
-    event.currentTarget.setPointerCapture(event.pointerId);
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+    dispatchVoice("melo:voice-start");
     dispatchVoice("echoread:voice-start");
   };
-  const handleMicUp = () => dispatchVoice("echoread:voice-stop");
+  const handleMicUp = () => {
+    dispatchVoice("melo:voice-stop");
+    dispatchVoice("echoread:voice-stop");
+  };
 
   useEffect(() => {
-    return () => dispatchVoice("echoread:voice-stop");
+    return () => {
+      dispatchVoice("melo:voice-stop");
+      dispatchVoice("echoread:voice-stop");
+    };
   }, []);
 
   const toggleMute = () => {
@@ -99,7 +101,7 @@ export function Dock({
     }
   };
 
-  const micDisabled = !book || !voiceOn || !voiceAvailable;
+  const micDisabled = !book;
 
   return (
     <motion.div
@@ -114,10 +116,10 @@ export function Dock({
       <button
         type="button"
         className="dock-btn"
-        onClick={() => onSkip(-15000)}
+        onClick={() => onSkip(-5000)}
         disabled={!canSkip}
-        aria-label="Back 15 seconds"
-        title="Back 15s"
+        aria-label="Back 5 seconds"
+        title="Back 5s"
       >
         <RotateCcw size={16} aria-hidden="true" />
       </button>

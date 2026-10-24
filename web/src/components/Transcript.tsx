@@ -4,28 +4,13 @@ import { AnimatePresence, motion } from "motion/react";
 
 import type { Mode, WordTiming } from "../api/types";
 import { formatDuration } from "../lib/time";
+import { activeWordIndex } from "./book/bookPagination";
 
 interface TranscriptProps {
   words: WordTiming[];
   currentMs: number;
   mode: Mode;
   onSeek: (ms: number) => void;
-}
-
-function activeWordIndex(words: WordTiming[], currentMs: number): number {
-  let low = 0;
-  let high = words.length - 1;
-  let found = -1;
-  while (low <= high) {
-    const middle = Math.floor((low + high) / 2);
-    if (words[middle].start_ms <= currentMs) {
-      found = middle;
-      low = middle + 1;
-    } else {
-      high = middle - 1;
-    }
-  }
-  return found;
 }
 
 export function Transcript({ words, currentMs, mode, onSeek }: TranscriptProps) {
