@@ -2,11 +2,6 @@
 
 > **Zero-spoiler, voice-first audiobook companion powered by local temporal RAG and open weights.**
 
-[![CI Checks](https://img.shields.io/badge/checks-55%20passed-brightgreen.svg)]()
-[![Spoiler Shield](https://img.shields.io/badge/spoiler%20eval-20%2F20%20(100%25)-emerald.svg)](docs/EVALS.md)
-[![Voice TTFA](https://img.shields.io/badge/voice%20TTFA-1.9s%20p50%20(CPU)-blue.svg)](docs/BENCHMARKS.md)
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-
 Melo is an offline-first companion for audiobooks. Unlike conventional chatbots that ingest entire books and spoil major plot twists, Melo binds its awareness strictly to your current listening position (`t <= current_ms`). You can interrupt at any point via push-to-talk to ask who a character is, clarify a scene, or test a theory — and Melo answers in spoken audio in under two seconds without ever spoiling what comes next.
 
 ---
@@ -62,6 +57,23 @@ flowchart TD
   - **Study Mode:** Whole-document synthesis with clearly labeled background knowledge (`Beyond the document: ...`).
 - **Lore Log:** Automatically indexes your questions, answers, and timestamps into an interactive study drawer.
 - **Bring Your Own Audiobooks & Documents:** Supports `.mp3`, `.m4a`, multi-chapter `.m4b` (with automated `ffprobe` chapter detection), plus `.epub`, `.pdf` (via `anydoc`), and scanned documents via on-device `indra-ocr`.
+
+---
+
+## Open-Weight Models & Hugging Face Registry
+
+Melo runs open-weight models on consumer hardware without third-party cloud APIs:
+
+| Component | Model Name | Parameters / Size | Hugging Face Link | Role in Pipeline |
+| --- | --- | --- | --- | --- |
+| **Speech-to-Text (Primary)** | Phonon-2.5 | 156 MB (int6) | [`FermionResearch/Phonon-2.5`](https://huggingface.co/FermionResearch/Phonon-2.5) | Fast voice recognition with per-book hotword biasing. |
+| **Speech-to-Text (Fallback)** | faster-whisper (`base.en` / `small.en`) | 142 MB / 466 MB | [`Systran/faster-whisper-base.en`](https://huggingface.co/Systran/faster-whisper-base.en) | Fallback ASR running under CTranslate2. |
+| **Temporal Embeddings** | EmbeddingGemma-2 | 300M (256d MRL) | [`google/embeddinggemma-2`](https://huggingface.co/google/embeddinggemma-2) | Local chunk embeddings for hybrid vector retrieval. |
+| **Companion Reasoning (Default)** | Gemma 4 4.6B (`gemma4:e2b`) | 4.6B (Q4_K_M) | [`google/gemma-4-e2b`](https://huggingface.co/google) | In-the-moment reasoning, refusal enforcement, and token streaming. |
+| **Offline LLM (CPU)** | Qwen2.5-1.5B-Instruct / 3B | 1.5B / 3B GGUF | [`Qwen/Qwen2.5-1.5B-Instruct-GGUF`](https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF) | Fully offline local GGUF running via `llama-cpp-python`. |
+| **Offline LLM (Gemma)** | Gemma-2-2B-It | 2.6B GGUF | [`google/gemma-2-2b-it`](https://huggingface.co/google/gemma-2-2b-it) | Alternative offline Gemma model for `llama-cpp-python`. |
+| **Streaming Audio Synthesis** | Kokoro-82M | 82M (85 MB int8) | [`hexgrad/Kokoro-82M`](https://huggingface.co/hexgrad/Kokoro-82M) | Chunked streaming voice response (`af_heart` voice). |
+| **Document OCR** | Indra OCR | ~120 MB ONNX | [`datalab-to/indra-ocr`](https://huggingface.co/datalab-to/indra-ocr) | Local on-device OCR for scanned EPUB/PDF pages. |
 
 ---
 
