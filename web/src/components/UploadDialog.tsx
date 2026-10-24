@@ -11,7 +11,7 @@ interface UploadDialogProps {
 }
 
 const ACCEPTED =
-  ".mp3,.webm,.m4a,.m4b,.epub,.txt,audio/mpeg,audio/webm,audio/mp4,audio/x-m4a,application/epub+zip,text/plain";
+  ".mp3,.webm,.m4a,.m4b,.epub,.pdf,.txt,audio/mpeg,audio/webm,audio/mp4,audio/x-m4a,application/epub+zip,application/pdf,text/plain";
 
 export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -46,7 +46,7 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
       return;
     }
     const isSpecial =
-      next.name.endsWith(".m4b") || next.name.endsWith(".epub") || next.name.endsWith(".txt");
+      next.name.endsWith(".m4b") || next.name.endsWith(".epub") || next.name.endsWith(".pdf") || next.name.endsWith(".txt");
     const limit = isSpecial ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
     if (next.size > limit) {
       setError(
@@ -119,7 +119,7 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
               Add audio or document
             </h2>
             <p className="mt-1 text-xs text-white/40">
-              MP3, M4B, M4A, EPUB, or TXT · local AI processing.
+              MP3, M4B, M4A, EPUB, PDF, or TXT · local AI processing.
             </p>
           </div>
           <button

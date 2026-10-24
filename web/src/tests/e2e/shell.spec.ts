@@ -22,7 +22,7 @@ test("opens and cancels the local import dialog", async ({ page }) => {
   await expect(uploadButton).toBeVisible();
   await uploadButton.click();
   await expect(page.getByRole("heading", { name: "Add audio or document" })).toBeVisible();
-  await expect(page.getByText(/MP3, M4B, M4A, EPUB, or TXT/i)).toBeVisible();
+  await expect(page.getByText(/MP3, M4B, M4A, EPUB, PDF, or TXT/i)).toBeVisible();
   await page.getByRole("button", { name: "Cancel" }).click();
   await expect(page.getByRole("heading", { name: "Add audio or document" })).not.toBeVisible();
 });

@@ -12,7 +12,7 @@ This repository contains a working v0.1 MVP:
 - Study mode that may add clearly labelled background knowledge.
 - Synchronized, clickable transcript with Story redaction.
 - Hold-to-talk voice questions and a typed-query fallback.
-- Local audio (MP3, WebM, M4A, M4B) and document (EPUB, TXT) upload and ingestion.
+- Local audio (MP3, WebM, M4A, M4B) and document (EPUB, PDF, TXT) upload and ingestion.
 - Local benchmark and spoiler-evaluation scripts.
 
 See [BENCHMARKS.md](local-docs/BENCHMARKS.md) for measured latency against the CPU acceptance gate, and [EVALS.md](local-docs/EVALS.md) for the spoiler evaluation (20/20).
@@ -85,7 +85,7 @@ The health endpoint is <http://127.0.0.1:8000/api/health>.
 - Press play. The transcript follows the playhead and dims later Story content.
 - Hold `Space` or the microphone button to ask a question. Release to send.
 - Use the keyboard icon in the voice dock for typed questions.
-- Use `Add content` to upload audio (MP3, WebM, M4A, M4B) or documents (EPUB, TXT) up to 50 MB and 30 minutes.
+- Use `Add content` to upload audio (MP3, WebM, M4A, M4B) or documents (EPUB, PDF, TXT) up to 50 MB and 30 minutes.
 - The `Latency` toggle shows per-stage timings in the voice dock and query panel.
 
 Voice samples are limited to 15 seconds and 2 MB.
@@ -124,7 +124,7 @@ FastAPI
   /api/books       list, manifest, context preview
   /api/query       typed questions
   /api/voice-query audio upload -> STT -> retrieval -> LLM -> chunked TTS
-  /api/upload      audio (.mp3, .m4a, .webm, .m4b) & document (.epub, .txt) async upload
+  /api/upload      audio (.mp3, .m4a, .webm, .m4b) & document (.epub, .pdf, .txt) async upload
   /api/jobs/{id}   live ingestion job status and progress polling
         |
         +-- SQLite + FTS5 (books, words, chunks, chunks_fts, lore_entries, chapters, ingest_jobs)
@@ -143,7 +143,7 @@ Retrieval uses the immediate transcript plus hybrid search: NumPy cosine similar
 EchoRead supports bring-your-own audiobooks and documents without request timeout bottlenecks:
 - **Asynchronous Ingestion Queue:** Uploads return an ingest job ID immediately. The frontend polls `/api/jobs/{id}` showing live stage transitions and percentage progress bars.
 - **Multi-Chapter `.m4b` Audio:** Extracts chapter marks via `ffprobe`, indexes chunks into chapter segments, and stores chapter metadata in SQLite.
-- **Document Ingestion (EPUB & TXT):** Parses EPUB metadata and chapters (via standard library `zipfile` and `xml.etree.ElementTree`) or text chapters, synthesizes audio offline with Kokoro TTS, and directly derives word-level timestamps.
+- **Document Ingestion (EPUB, PDF & TXT):** Parses EPUB metadata and chapters (via standard library `zipfile` and `xml.etree.ElementTree`), PDFs via [anydoc](https://github.com/firecrawl/anydoc) (fully local; scanned PDFs that would need OCR are rejected with a clear error, never sent to a hosted service), or text chapters, synthesizes audio offline with Kokoro TTS, and directly derives word-level timestamps.
 
 ## Privacy
 

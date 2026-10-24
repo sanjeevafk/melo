@@ -166,7 +166,7 @@ def upload_audio(
         raise ApiError(
             400,
             "unsupported_format",
-            "Use MP3, WebM, M4A, M4B, EPUB, or TXT for uploads",
+            "Use MP3, WebM, M4A, M4B, EPUB, PDF, or TXT for uploads",
         )
 
     book_id = uuid4().hex
