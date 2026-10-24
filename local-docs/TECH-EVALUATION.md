@@ -1,6 +1,6 @@
-# Technical Evaluation & Model Registry: EchoRead
+# Technical Evaluation & Model Registry: Melo
 
-This document records the architectural evaluation, benchmark data, and integration roadmaps for speech models, turn-taking engines, and voice-synthesis libraries evaluated for **EchoRead**.
+This document records the architectural evaluation, benchmark data, and integration roadmaps for speech models, turn-taking engines, and voice-synthesis libraries evaluated for **Melo**.
 
 ---
 

@@ -72,7 +72,7 @@ def contains_term(answer: str, term: str) -> bool:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Run the EchoRead spoiler-leak release gate against the real Story pipeline."
+        description="Run the Melo spoiler-leak release gate against the real Story pipeline."
     )
     parser.add_argument("--url", default="http://127.0.0.1:8000")
     parser.add_argument("--book", default="styles-ch2")
@@ -92,7 +92,7 @@ def main() -> int:
     cases = CASES[: args.limit]
     failures = 0
     print(
-        f"EchoRead spoiler eval · {datetime.now(UTC).date().isoformat()} · "
+        f"Melo spoiler eval · {datetime.now(UTC).date().isoformat()} · "
         f"{len(cases)} questions · book={args.book} t_ms={args.t_ms}"
     )
     with httpx.Client() as client:

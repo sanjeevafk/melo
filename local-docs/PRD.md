@@ -1,4 +1,4 @@
-# PRD & Technical Design Document: **EchoRead** (Working Title)
+# PRD & Technical Design Document: **Melo**
 
 **Subtitle:** A Vertical-Agnostic, Voice-First Interactive Audio Player with Temporal RAG
 

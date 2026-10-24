@@ -1,4 +1,4 @@
-# PRD: EchoRead MVP (Investor & Hackathon Edition)
+# PRD: Melo MVP (Investor & Hackathon Edition)
 
 **Subtitle:** Voice-First Interactive Audio Player with Temporal RAG & Visual Spoiler Shield  
 **Target Platform:** Desktop Web Application (Optimized for Chrome / Chromium browsers)  

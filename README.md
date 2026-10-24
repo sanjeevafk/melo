@@ -1,6 +1,6 @@
-# EchoRead
+# Melo
 
-EchoRead is a local-first audiobook companion that answers questions from the listener's current position without revealing later events. It combines a React player, a FastAPI backend, local speech-to-text, local retrieval, an open-weight LLM, and local text-to-speech.
+Melo is a local-first audiobook companion that answers questions from the listener's current position without revealing later events. It combines a React player, a FastAPI backend, local speech-to-text, local retrieval, an open-weight LLM, and local text-to-speech.
 
 STT, embeddings, retrieval, and TTS always run on your machine. The LLM runs fully offline via llama.cpp by default, or against any open-weight model you serve yourself (e.g. Gemma 4 via your own Ollama instance). No third-party hosted APIs are called.
 
@@ -27,7 +27,7 @@ The CPU profile targets p50 <= 3000 ms and p95 <= 4000 ms for time-to-first-audi
 
 The `tts_first_sentence_ms` timing field measures the first TTS chunk, not a full sentence.
 
-To reduce time-to-first-audio, EchoRead:
+To reduce time-to-first-audio, Melo:
 
 - streams the first TTS chunk from the first complete clause or a short word-capped prefix, extended past dangling function words;
 - removes spoken-only openers such as "The main idea so far is that" while keeping the displayed answer unchanged;
@@ -46,7 +46,7 @@ Story mode answers only from:
 - the last 90 seconds of transcript immediately before the playhead (45 seconds on the CPU profile, to keep local prompts small);
 - earlier chunks that end at or before the playhead.
 
-Future chunks are never inserted into the prompt. Retrieved chunks that substantially overlap the immediate buffer are clipped to the parts outside it, so unique earlier evidence survives without repeating buffer text. If no evidence is retrieved and the question is not anchored in the immediate transcript, EchoRead refuses before calling the LLM. LLM refusal variants are canonicalized to one exact sentence.
+Future chunks are never inserted into the prompt. Retrieved chunks that substantially overlap the immediate buffer are clipped to the parts outside it, so unique earlier evidence survives without repeating buffer text. If no evidence is retrieved and the question is not anchored in the immediate transcript, Melo refuses before calling the LLM. LLM refusal variants are canonicalized to one exact sentence.
 
 ### Study mode
 
@@ -140,14 +140,14 @@ Retrieval uses the immediate transcript plus hybrid search: NumPy cosine similar
 
 ### Content Ingestion Expansion
 
-EchoRead supports bring-your-own audiobooks and documents without request timeout bottlenecks:
+Melo supports bring-your-own audiobooks and documents without request timeout bottlenecks:
 - **Asynchronous Ingestion Queue:** Uploads return an ingest job ID immediately. The frontend polls `/api/jobs/{id}` showing live stage transitions and percentage progress bars.
 - **Multi-Chapter `.m4b` Audio:** Extracts chapter marks via `ffprobe`, indexes chunks into chapter segments, and stores chapter metadata in SQLite.
 - **Document Ingestion (EPUB, PDF & TXT):** Parses EPUB metadata and chapters (via standard library `zipfile` and `xml.etree.ElementTree`), PDFs via [anydoc](https://github.com/firecrawl/anydoc), with scanned pages OCR'd locally by [indra-ocr](https://pypi.org/project/indra-ocr/) (CPU ONNX, Apache-2.0) — everything on-machine, never a hosted service, or text chapters, synthesizes audio offline with Kokoro TTS, and directly derives word-level timestamps.
 
 ## Privacy
 
-STT, retrieval, and TTS always run locally; uploaded audio and generated transcripts stay under `data/books/`, and the SQLite database is `data/echoread.db`. With the default `LLM_PROVIDER=llama_cpp`, all inference — including the LLM — happens on your machine, and the only network access in normal use is the one-time model download.
+STT, retrieval, and TTS always run locally; uploaded audio and generated transcripts stay under `data/books/`, and the SQLite database is `data/melo.db`. With the default `LLM_PROVIDER=llama_cpp`, all inference — including the LLM — happens on your machine, and the only network access in normal use is the one-time model download.
 
 If you configure `LLM_PROVIDER=ollama` (or `openai`), the transcribed question, the retrieved excerpts, and the immediate buffer are sent to the endpoint you configure. Point it at a server you control; no third-party hosted APIs are used.
 
@@ -157,25 +157,25 @@ The Phonon STT (~156 MB) and indra-ocr models are fetched from Hugging Face into
 
 ## Configuration
 
-Settings use the `ECHOREAD_` environment prefix and an optional `.env` file.
+Settings use the `MELO_` environment prefix (with backward-compatible support for `ECHOREAD_`) and an optional `.env` file.
 
 | Variable | Default | Meaning |
 | --- | --- | --- |
-| `ECHOREAD_PROFILE` | `cpu` | `cpu` or `gpu` model and timing profile. |
-| `ECHOREAD_HOST` | `127.0.0.1` | Backend bind host. |
-| `ECHOREAD_PORT` | `8000` | Backend port. |
-| `ECHOREAD_DATA_DIR` | `./data` | Models, books, and database root. |
-| `ECHOREAD_MAX_UPLOAD_BYTES` | `52428800` | Upload size limit. |
-| `ECHOREAD_MAX_UPLOAD_DURATION_MS` | `1800000` | Upload duration limit. |
-| `ECHOREAD_MAX_VOICE_BYTES` | `2097152` | Voice clip size limit. |
-| `ECHOREAD_MAX_VOICE_DURATION_MS` | `15000` | Voice clip duration limit. |
-| `STT_PROVIDER` / `ECHOREAD_STT_PROVIDER` | `phonon` | `phonon` (Phonon-2.5 via fermion-research) or `whisper` (faster-whisper). |
-| `PHONON_MODEL` / `ECHOREAD_PHONON_MODEL` | `phonon-2.5` | Phonon profile name passed to `fermion.load_speech`. |
-| `LLM_PROVIDER` / `ECHOREAD_LLM_PROVIDER` | `ollama` | `llama_cpp` (offline), `ollama`, or `openai` (OpenAI-compatible endpoint). |
-| `LLM_ENDPOINT` / `ECHOREAD_LLM_ENDPOINT` | `http://127.0.0.1:11434` | Endpoint used by the `ollama`/`openai` providers. |
-| `LLM_MODEL` / `ECHOREAD_LLM_MODEL` | `gemma4:e2b` | Model tag for the `ollama`/`openai` providers. |
-| `LLM_THINK` / `ECHOREAD_LLM_THINK` | `false` | Ask thinking-capable models to reason; thought tags are stripped either way. |
-| `LLM_TIMEOUT` / `ECHOREAD_LLM_TIMEOUT` | `60` | LLM request timeout in seconds. |
+| `MELO_PROFILE` | `cpu` | `cpu` or `gpu` model and timing profile. |
+| `MELO_HOST` | `127.0.0.1` | Backend bind host. |
+| `MELO_PORT` | `8000` | Backend port. |
+| `MELO_DATA_DIR` | `./data` | Models, books, and database root. |
+| `MELO_MAX_UPLOAD_BYTES` | `52428800` | Upload size limit. |
+| `MELO_MAX_UPLOAD_DURATION_MS` | `1800000` | Upload duration limit. |
+| `MELO_MAX_VOICE_BYTES` | `2097152` | Voice clip size limit. |
+| `MELO_MAX_VOICE_DURATION_MS` | `15000` | Voice clip duration limit. |
+| `STT_PROVIDER` / `MELO_STT_PROVIDER` | `phonon` | `phonon` (Phonon-2.5 via fermion-research) or `whisper` (faster-whisper). |
+| `PHONON_MODEL` / `MELO_PHONON_MODEL` | `phonon-2.5` | Phonon profile name passed to `fermion.load_speech`. |
+| `LLM_PROVIDER` / `MELO_LLM_PROVIDER` | `ollama` | `llama_cpp` (offline), `ollama`, or `openai` (OpenAI-compatible endpoint). |
+| `LLM_ENDPOINT` / `MELO_LLM_ENDPOINT` | `http://127.0.0.1:11434` | Endpoint used by the `ollama`/`openai` providers. |
+| `LLM_MODEL` / `MELO_LLM_MODEL` | `gemma4:e2b` | Model tag for the `ollama`/`openai` providers. |
+| `LLM_THINK` / `MELO_LLM_THINK` | `false` | Ask thinking-capable models to reason; thought tags are stripped either way. |
+| `LLM_TIMEOUT` / `MELO_LLM_TIMEOUT` | `60` | LLM request timeout in seconds. |
 
 The GPU profile expects the small English Whisper model, Qwen2.5-3B, and a CUDA-capable GPU with enough memory for the selected models. The development machine's MX550 with 2 GB is not sufficient.
 

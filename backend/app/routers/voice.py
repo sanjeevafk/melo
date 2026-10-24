@@ -319,7 +319,7 @@ def voice_query(
     suffix = Path(audio.filename or "clip.wav").suffix or ".wav"
     if audio.content_type == "audio/wav" and suffix.lower() != ".wav":
         suffix = ".wav"
-    descriptor, name = tempfile.mkstemp(prefix="echoread-voice-", suffix=suffix)
+    descriptor, name = tempfile.mkstemp(prefix="melo-voice-", suffix=suffix)
     path = Path(name)
     size = 0
     try:

@@ -56,7 +56,10 @@ export function Transcript({ words, currentMs, mode, onSeek }: TranscriptProps) 
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="eyebrow">Synchronized transcript</p>
-          <h2 id="transcript-heading" className="mt-2 font-display text-xl tracking-[-0.02em] text-paper">
+          <h2
+            id="transcript-heading"
+            className="mt-2 font-display text-xl tracking-[-0.02em] text-paper"
+          >
             Follow the spoken word
           </h2>
         </div>

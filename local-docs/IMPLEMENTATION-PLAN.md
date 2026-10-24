@@ -1,4 +1,4 @@
-# EchoRead MVP: Master Implementation Plan
+# Melo MVP: Master Implementation Plan
 
 **Status:** Revised after review; implementation-ready  
 **Objective:** Build a self-contained, desktop web-first interactive audio player with local Temporal RAG, low-latency companion voice answers, and a visual spoiler shield. Target Time-to-First-Audio (TTFA): **<= 1.2s p50 on the GPU reference profile**, **<= 3.0s p50 on the CPU profile**. Measure with `scripts/bench_latency.py`; do not claim sub-second without a benchmark result.

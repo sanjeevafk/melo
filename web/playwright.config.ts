@@ -12,12 +12,11 @@ export default defineConfig({
   },
   webServer: [
     {
-      command:
-        "uv run python -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000",
+      command: "uv run python -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000",
       cwd: "..",
       url: "http://127.0.0.1:8000/api/health",
       reuseExistingServer: !process.env.CI,
-      env: { TEST_MODE: "1", ECHOREAD_TEST_MODE: "1" },
+      env: { TEST_MODE: "1", MELO_TEST_MODE: "1", ECHOREAD_TEST_MODE: "1" },
     },
     {
       command: "npm run dev",

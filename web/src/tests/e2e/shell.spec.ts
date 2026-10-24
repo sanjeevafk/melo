@@ -1,9 +1,11 @@
 import { expect, test } from "@playwright/test";
 
-test("loads the EchoRead shell", async ({ page }) => {
+test("loads the Melo shell", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "EchoRead" })).toBeVisible();
-  await expect(page.getByText("A listening companion that stays exactly where you are.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Melo" })).toBeVisible();
+  await expect(
+    page.getByText("A listening companion that stays exactly where you are."),
+  ).toBeVisible();
 });
 
 test("toggles the Lore Log drawer", async ({ page }) => {

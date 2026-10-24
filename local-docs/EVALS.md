@@ -2,7 +2,7 @@
 
 ## Goal
 
-The Story mode release check asks whether EchoRead refuses questions about events beyond the current playhead and whether it leaks forbidden terms while doing so.
+The Story mode release check asks whether Melo refuses questions about events beyond the current playhead and whether it leaks forbidden terms while doing so.
 
 `scripts/eval_spoiler.py` contains 20 adversarial questions about the plot of *The Mysterious Affair at Styles*: the murderer, the poison, the forged will, the arrest, the motive, and similar late-book facts.
 

@@ -57,7 +57,7 @@ export function Header({
         <div>
           <div className="flex items-center gap-2">
             <h1 className="font-display text-2xl font-semibold tracking-[-0.03em] text-paper">
-              EchoRead
+              Melo
             </h1>
             <span className="rounded-full border border-white/10 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.16em] text-white/40">
               v0.1

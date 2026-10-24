@@ -61,7 +61,10 @@ export function TextQuery({ bookId, tMs, mode, showTimings, onAnswered }: TextQu
             <MessageSquareText size={13} aria-hidden="true" />
             Type instead
           </p>
-          <h2 id="text-query-heading" className="mt-2 font-display text-lg tracking-[-0.02em] text-paper">
+          <h2
+            id="text-query-heading"
+            className="mt-2 font-display text-lg tracking-[-0.02em] text-paper"
+          >
             Ask the same spoiler-safe question
           </h2>
         </div>

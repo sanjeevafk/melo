@@ -46,13 +46,14 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
       return;
     }
     const isSpecial =
-      next.name.endsWith(".m4b") || next.name.endsWith(".epub") || next.name.endsWith(".pdf") || next.name.endsWith(".txt");
+      next.name.endsWith(".m4b") ||
+      next.name.endsWith(".epub") ||
+      next.name.endsWith(".pdf") ||
+      next.name.endsWith(".txt");
     const limit = isSpecial ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
     if (next.size > limit) {
       setError(
-        isSpecial
-          ? "Uploads must be 50 MB or smaller."
-          : "Audio uploads must be 5 MB or smaller.",
+        isSpecial ? "Uploads must be 50 MB or smaller." : "Audio uploads must be 5 MB or smaller.",
       );
       return;
     }
@@ -115,7 +116,10 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
               <Upload size={13} aria-hidden="true" />
               Local import
             </p>
-            <h2 id="upload-heading" className="mt-2 font-display text-2xl tracking-[-0.02em] text-paper">
+            <h2
+              id="upload-heading"
+              className="mt-2 font-display text-2xl tracking-[-0.02em] text-paper"
+            >
               Add audio or document
             </h2>
             <p className="mt-1 text-xs text-white/40">
@@ -158,7 +162,9 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
             {file ? file.name : "Drop audio here or choose a file"}
           </span>
           <span className="text-[11px] text-white/30">
-            {file ? `${(file.size / 1024 / 1024).toFixed(1)} MB selected` : "The file never leaves this machine."}
+            {file
+              ? `${(file.size / 1024 / 1024).toFixed(1)} MB selected`
+              : "The file never leaves this machine."}
           </span>
         </button>
         <input
@@ -170,7 +176,8 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
           onChange={(event) => chooseFile(event.target.files?.[0] ?? null)}
         />
         <p className="mt-2 text-center text-[11px] text-white/35">
-          Audiobooks (.mp3, .m4b) transcribe in seconds. Documents (.pdf, .epub) are synthesized to audio (up to 250 sentences / ~15 min).
+          Audiobooks (.mp3, .m4b) transcribe in seconds. Documents (.pdf, .epub) are synthesized to
+          audio (up to 250 sentences / ~15 min).
         </p>
 
         <div className="mt-5 grid gap-4 sm:grid-cols-[1fr_auto]">
@@ -214,7 +221,10 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
         ) : null}
 
         {error ? (
-          <p role="alert" className="mt-4 rounded-xl border border-danger/25 bg-danger/10 p-3 text-xs text-danger">
+          <p
+            role="alert"
+            className="mt-4 rounded-xl border border-danger/25 bg-danger/10 p-3 text-xs text-danger"
+          >
             {error}
           </p>
         ) : null}
@@ -239,7 +249,7 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
             ) : (
               <Upload size={14} aria-hidden="true" />
             )}
-            {busy ? (progress?.stage || "Transcribing locally…") : "Import audio"}
+            {busy ? progress?.stage || "Transcribing locally…" : "Import audio"}
           </button>
         </div>
       </div>

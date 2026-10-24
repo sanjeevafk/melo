@@ -21,6 +21,7 @@ web/blob-report/
 data/models/
 data/demo_cache/
 data/echoread.db
+data/melo.db
 data/books/*
 !data/books/styles-ch2/
 !data/books/styles-ch2/**

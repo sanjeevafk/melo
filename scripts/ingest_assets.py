@@ -86,10 +86,7 @@ def ingest_asset(book_id: str) -> None:
         words=words,
         chapter=config["chapter"],
     )
-    print(
-        f"ingested {result.book_id}: {result.chunks} chunks, "
-        f"{result.words} words"
-    )
+    print(f"ingested {result.book_id}: {result.chunks} chunks, {result.words} words")
 
 
 def main() -> None:

@@ -19,9 +19,7 @@ export function ModeToggle({ mode, onChange }: ModeToggleProps) {
         onClick={() => onChange("story")}
         aria-pressed={mode === "story"}
         className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold tracking-wide transition ${
-          mode === "story"
-            ? "bg-amber text-ink-950"
-            : "text-white/55 hover:text-white/85"
+          mode === "story" ? "bg-amber text-ink-950" : "text-white/55 hover:text-white/85"
         }`}
       >
         <ShieldCheck size={14} aria-hidden="true" />
@@ -32,9 +30,7 @@ export function ModeToggle({ mode, onChange }: ModeToggleProps) {
         onClick={() => onChange("study")}
         aria-pressed={mode === "study"}
         className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold tracking-wide transition ${
-          mode === "study"
-            ? "bg-safe text-ink-950"
-            : "text-white/55 hover:text-white/85"
+          mode === "study" ? "bg-safe text-ink-950" : "text-white/55 hover:text-white/85"
         }`}
       >
         <GraduationCap size={14} aria-hidden="true" />

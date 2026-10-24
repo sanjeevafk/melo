@@ -2,7 +2,7 @@
 
 ## Acceptance criteria
 
-EchoRead defines voice time-to-first-audio as:
+Melo defines voice time-to-first-audio as:
 
 ```text
 total_ms = stt_ms + retrieval_ms + llm_first_token_ms + tts_first_sentence_ms

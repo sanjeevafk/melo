@@ -52,7 +52,11 @@ export default function App() {
   const selectedBook = books.find((book) => book.id === selectedBookId) ?? null;
   const { manifest, error: manifestError } = useBookManifest(selectedBookId);
   const player = useAudioPlayer(manifest?.audio_url ?? null, selectedBook?.duration_ms ?? 0);
-  const { context, error: contextError } = useContextPreview(selectedBookId, player.currentMs, mode);
+  const { context, error: contextError } = useContextPreview(
+    selectedBookId,
+    player.currentMs,
+    mode,
+  );
   const lore = useLoreLog(selectedBookId);
 
   useMediaSession({
@@ -187,7 +191,9 @@ export default function App() {
 
         <footer className="flex flex-col gap-2 border-t border-white/10 py-4 text-[11px] text-white/30 sm:flex-row sm:items-center sm:justify-between">
           <span>Audio, transcripts, and answers stay on this machine.</span>
-          <span className="font-mono uppercase tracking-[0.14em]">Local temporal RAG · No telemetry</span>
+          <span className="font-mono uppercase tracking-[0.14em]">
+            Local temporal RAG · No telemetry
+          </span>
         </footer>
       </div>
 

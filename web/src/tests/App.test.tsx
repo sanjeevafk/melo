@@ -98,7 +98,7 @@ beforeEach(() => {
 describe("App", () => {
   it("renders the listening shell with the story transcript", async () => {
     render(<App />);
-    expect(screen.getByRole("heading", { name: "EchoRead" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Melo" })).toBeInTheDocument();
     expect(
       await screen.findByRole("heading", { name: "The Mysterious Affair at Styles" }),
     ).toBeInTheDocument();
@@ -114,10 +114,7 @@ describe("App", () => {
     fireEvent.click(screen.getByRole("button", { name: "Study" }));
     expect(await screen.findByText("upon")).toBeInTheDocument();
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: "Study" })).toHaveAttribute(
-        "aria-pressed",
-        "true",
-      );
+      expect(screen.getByRole("button", { name: "Study" })).toHaveAttribute("aria-pressed", "true");
     });
     expect(screen.getByText("Study mode: full document")).toBeInTheDocument();
   });

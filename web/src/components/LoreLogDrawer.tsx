@@ -35,11 +35,7 @@ export function LoreLogDrawer({
       aria-modal="true"
       aria-labelledby="lore-drawer-title"
     >
-      <div
-        className="fixed inset-0"
-        aria-hidden="true"
-        onClick={onClose}
-      />
+      <div className="fixed inset-0" aria-hidden="true" onClick={onClose} />
 
       <aside className="relative z-10 flex h-full w-full max-w-lg flex-col border-l border-white/10 bg-ink-950 p-6 shadow-2xl">
         <header className="flex items-start justify-between border-b border-white/10 pb-5">
@@ -79,9 +75,7 @@ export function LoreLogDrawer({
 
         <div className="flex-1 overflow-y-auto py-5">
           {loading && entries.length === 0 ? (
-            <div className="py-12 text-center text-sm text-white/40">
-              Loading lore entries…
-            </div>
+            <div className="py-12 text-center text-sm text-white/40">Loading lore entries…</div>
           ) : entries.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <div className="rounded-full border border-white/10 bg-white/5 p-4 text-white/30">
@@ -89,7 +83,8 @@ export function LoreLogDrawer({
               </div>
               <h3 className="mt-4 font-display text-base text-paper">No questions recorded yet</h3>
               <p className="mt-2 max-w-xs text-xs text-white/40">
-                Hold Spacebar or use the mic button to ask questions as you listen. Your voice bookmarks and companion answers will automatically appear here.
+                Hold Spacebar or use the mic button to ask questions as you listen. Your voice
+                bookmarks and companion answers will automatically appear here.
               </p>
             </div>
           ) : (
@@ -141,9 +136,7 @@ export function LoreLogDrawer({
                       {entry.question}
                     </h4>
 
-                    <p className="mt-2 text-xs text-white/70 leading-relaxed">
-                      {entry.answer}
-                    </p>
+                    <p className="mt-2 text-xs text-white/70 leading-relaxed">{entry.answer}</p>
 
                     {entry.retrieved_chunk_ids && entry.retrieved_chunk_ids.length > 0 && (
                       <p className="mt-2 text-[10px] font-mono text-white/30">

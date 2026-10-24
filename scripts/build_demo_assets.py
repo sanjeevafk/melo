@@ -43,12 +43,12 @@ Several design choices matter. Scaled dot-product attention is faster than addit
 
 The Transformer's influence extends far beyond machine translation. Its ability to process sequences in parallel made it a foundation for large language models, vision transformers, speech models, and multimodal systems. The paper's central claim is simple: attention alone, combined with feed-forward layers, residual connections, and normalization, can model sequences effectively. That claim changed the direction of deep learning.
 
-For EchoRead, the paper is a useful study example because it contains definitions, design motivations, experimental results, and limitations. A listener may ask what a query is, why masking matters, or how multi-head attention differs from a single head. Study mode can connect those questions to the document while still using general background knowledge for definitions and analogies. The key is to keep the answer tied to the source and to label anything that goes beyond it.
+For Melo, the paper is a useful study example because it contains definitions, design motivations, experimental results, and limitations. A listener may ask what a query is, why masking matters, or how multi-head attention differs from a single head. Study mode can connect those questions to the document while still using general background knowledge for definitions and analogies. The key is to keep the answer tied to the source and to label anything that goes beyond it.
 """
 
 
 def _download_story() -> str:
-    request = Request(STORY_URL, headers={"User-Agent": "EchoRead demo asset builder"})
+    request = Request(STORY_URL, headers={"User-Agent": "Melo demo asset builder"})
     with urlopen(request, timeout=60) as response:
         return response.read().decode("utf-8-sig")
 
@@ -106,7 +106,9 @@ def _duration_ms(path: Path) -> int:
     return int(round(float(result.stdout.strip()) * 1000))
 
 
-def _narrate(sentences: list[str], voice: str) -> tuple[np.ndarray, int, list[dict[str, int | str]]]:
+def _narrate(
+    sentences: list[str], voice: str
+) -> tuple[np.ndarray, int, list[dict[str, int | str]]]:
     from kokoro_onnx import Kokoro
 
     kokoro = Kokoro(str(settings.kokoro_model_path), str(settings.kokoro_voices_path))
@@ -200,7 +202,9 @@ def build_asset(
     duration_ms = _duration_ms(mp3_path)
     source_text = "\n\n".join(sentences)
     (output_dir / "source.txt").write_text(source_text + "\n", encoding="utf-8")
-    (output_dir / "words.json").write_text(json.dumps(words, ensure_ascii=False, indent=2), encoding="utf-8")
+    (output_dir / "words.json").write_text(
+        json.dumps(words, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
     provenance = {
         "source": "Project Gutenberg" if "gutenberg" in source_url else "Authored summary",
         "license": license_name,
@@ -219,7 +223,7 @@ def build_asset(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Build the two local EchoRead demo assets")
+    parser = argparse.ArgumentParser(description="Build the two local Melo demo assets")
     parser.add_argument("--force", action="store_true", help="rebuild existing assets")
     parser.add_argument("--story-words", type=int, default=700)
     parser.add_argument("--study-words", type=int, default=650)

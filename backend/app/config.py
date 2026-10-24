@@ -11,26 +11,64 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_prefix="ECHOREAD_",
+        env_prefix="MELO_",
         env_file=REPO_ROOT / ".env",
         extra="ignore",
     )
 
-    profile: Literal["cpu", "gpu"] = "cpu"
-    host: str = "127.0.0.1"
-    port: int = 8000
-    data_dir: Path = REPO_ROOT / "data"
+    profile: Literal["cpu", "gpu"] = Field(
+        default="cpu",
+        validation_alias=AliasChoices("PROFILE", "MELO_PROFILE", "ECHOREAD_PROFILE"),
+    )
+    host: str = Field(
+        default="127.0.0.1",
+        validation_alias=AliasChoices("HOST", "MELO_HOST", "ECHOREAD_HOST"),
+    )
+    port: int = Field(
+        default=8000,
+        validation_alias=AliasChoices("PORT", "MELO_PORT", "ECHOREAD_PORT"),
+    )
+    data_dir: Path = Field(
+        default=REPO_ROOT / "data",
+        validation_alias=AliasChoices("DATA_DIR", "MELO_DATA_DIR", "ECHOREAD_DATA_DIR"),
+    )
 
-    max_upload_bytes: int = 50 * 1024 * 1024
-    max_upload_duration_ms: int = 1_800_000
+    max_upload_bytes: int = Field(
+        default=50 * 1024 * 1024,
+        validation_alias=AliasChoices(
+            "MAX_UPLOAD_BYTES", "MELO_MAX_UPLOAD_BYTES", "ECHOREAD_MAX_UPLOAD_BYTES"
+        ),
+    )
+    max_upload_duration_ms: int = Field(
+        default=1_800_000,
+        validation_alias=AliasChoices(
+            "MAX_UPLOAD_DURATION_MS",
+            "MELO_MAX_UPLOAD_DURATION_MS",
+            "ECHOREAD_MAX_UPLOAD_DURATION_MS",
+        ),
+    )
     max_document_sentences: int = Field(
         default=250,
         validation_alias=AliasChoices(
-            "MAX_DOCUMENT_SENTENCES", "ECHOREAD_MAX_DOCUMENT_SENTENCES"
+            "MAX_DOCUMENT_SENTENCES",
+            "MELO_MAX_DOCUMENT_SENTENCES",
+            "ECHOREAD_MAX_DOCUMENT_SENTENCES",
         ),
     )
-    max_voice_bytes: int = 2 * 1024 * 1024
-    max_voice_duration_ms: int = 15_000
+    max_voice_bytes: int = Field(
+        default=2 * 1024 * 1024,
+        validation_alias=AliasChoices(
+            "MAX_VOICE_BYTES", "MELO_MAX_VOICE_BYTES", "ECHOREAD_MAX_VOICE_BYTES"
+        ),
+    )
+    max_voice_duration_ms: int = Field(
+        default=15_000,
+        validation_alias=AliasChoices(
+            "MAX_VOICE_DURATION_MS",
+            "MELO_MAX_VOICE_DURATION_MS",
+            "ECHOREAD_MAX_VOICE_DURATION_MS",
+        ),
+    )
 
     cors_origins: list[str] = [
         "http://localhost:5173",
@@ -39,43 +77,47 @@ class Settings(BaseSettings):
 
     test_mode: bool = Field(
         default=False,
-        validation_alias=AliasChoices("TEST_MODE", "ECHOREAD_TEST_MODE"),
+        validation_alias=AliasChoices("TEST_MODE", "MELO_TEST_MODE", "ECHOREAD_TEST_MODE"),
     )
     demo_cache: bool = Field(
         default=False,
-        validation_alias=AliasChoices("DEMO_CACHE", "ECHOREAD_DEMO_CACHE"),
+        validation_alias=AliasChoices("DEMO_CACHE", "MELO_DEMO_CACHE", "ECHOREAD_DEMO_CACHE"),
     )
 
     stt_provider: Literal["phonon", "whisper"] = Field(
         default="phonon",
-        validation_alias=AliasChoices("STT_PROVIDER", "ECHOREAD_STT_PROVIDER"),
+        validation_alias=AliasChoices("STT_PROVIDER", "MELO_STT_PROVIDER", "ECHOREAD_STT_PROVIDER"),
     )
     phonon_model: str = Field(
         default="phonon-2.5",
-        validation_alias=AliasChoices("PHONON_MODEL", "ECHOREAD_PHONON_MODEL"),
+        validation_alias=AliasChoices("PHONON_MODEL", "MELO_PHONON_MODEL", "ECHOREAD_PHONON_MODEL"),
     )
 
     llm_provider: Literal["ollama", "openai", "llama_cpp"] = Field(
         default="ollama",
-        validation_alias=AliasChoices("LLM_PROVIDER", "ECHOREAD_LLM_PROVIDER"),
+        validation_alias=AliasChoices("LLM_PROVIDER", "MELO_LLM_PROVIDER", "ECHOREAD_LLM_PROVIDER"),
     )
     llm_endpoint: str = Field(
         default="http://100.127.242.86:11434",
         validation_alias=AliasChoices(
-            "LLM_ENDPOINT", "ECHOREAD_LLM_ENDPOINT", "OLLAMA_HOST", "OLLAMA_BASE_URL"
+            "LLM_ENDPOINT",
+            "MELO_LLM_ENDPOINT",
+            "ECHOREAD_LLM_ENDPOINT",
+            "OLLAMA_HOST",
+            "OLLAMA_BASE_URL",
         ),
     )
     llm_model: str = Field(
         default="gemma4:e2b",
-        validation_alias=AliasChoices("LLM_MODEL", "ECHOREAD_LLM_MODEL"),
+        validation_alias=AliasChoices("LLM_MODEL", "MELO_LLM_MODEL", "ECHOREAD_LLM_MODEL"),
     )
     llm_think: bool = Field(
         default=False,
-        validation_alias=AliasChoices("LLM_THINK", "ECHOREAD_LLM_THINK"),
+        validation_alias=AliasChoices("LLM_THINK", "MELO_LLM_THINK", "ECHOREAD_LLM_THINK"),
     )
     llm_timeout_seconds: float = Field(
         default=60.0,
-        validation_alias=AliasChoices("LLM_TIMEOUT", "ECHOREAD_LLM_TIMEOUT"),
+        validation_alias=AliasChoices("LLM_TIMEOUT", "MELO_LLM_TIMEOUT", "ECHOREAD_LLM_TIMEOUT"),
     )
 
     @property
@@ -96,7 +138,12 @@ class Settings(BaseSettings):
 
     @property
     def db_path(self) -> Path:
-        return self.data_dir / "echoread.db"
+        melo_db = self.data_dir / "melo.db"
+        if not melo_db.exists():
+            echoread_db = self.data_dir / "echoread.db"
+            if echoread_db.exists():
+                return echoread_db
+        return melo_db
 
     @property
     def model_manifest_path(self) -> Path:

@@ -224,7 +224,7 @@ def check_gpu() -> list[Check]:
 
 
 def main() -> int:
-    argparse.ArgumentParser(description="Check EchoRead prerequisites").parse_args()
+    argparse.ArgumentParser(description="Check Melo prerequisites").parse_args()
     settings.ensure_directories()
     checks = [
         check_python(),

@@ -158,7 +158,7 @@ wheels = [
 ]
 
 [[package]]
-name = "echoread"
+name = "melo"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

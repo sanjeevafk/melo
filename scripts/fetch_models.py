@@ -214,7 +214,7 @@ def write_manifest(profile: str) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Fetch and verify EchoRead models")
+    parser = argparse.ArgumentParser(description="Fetch and verify Melo models")
     parser.add_argument("--profile", choices=["cpu", "gpu", "all"], default="all")
     parser.add_argument("--verify", action="store_true", help="verify without downloading")
     parser.add_argument("--force", action="store_true", help="redownload existing files")

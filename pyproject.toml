@@ -1,5 +1,5 @@
 [project]
-name = "echoread"
+name = "melo"
 version = "0.1.0"
 description = "Local temporal-RAG audiobook companion"
 requires-python = ">=3.11,<3.13"
@@ -37,7 +37,7 @@ dev = [
 [tool.uv]
 package = false
 # fermion-research pins torch <2.3 on Intel macOS, which conflicts with torch>=2.5.
-# EchoRead targets Linux x86_64 and Apple Silicon (see the implementation plan).
+# Melo targets Linux x86_64 and Apple Silicon (see the implementation plan).
 environments = [
     "sys_platform == 'linux'",
     "sys_platform == 'darwin' and platform_machine == 'arm64'",

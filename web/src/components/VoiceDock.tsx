@@ -54,7 +54,12 @@ export function VoiceDock({
   const wasPlayingRef = useRef(false);
   const capturedTMsRef = useRef(0);
 
-  const { recording, error: microphoneError, start, stop } = usePushToTalk({
+  const {
+    recording,
+    error: microphoneError,
+    start,
+    stop,
+  } = usePushToTalk({
     disabled: !book || !ready,
     onStart: async () => {
       capturedTMsRef.current = currentMs;
@@ -82,9 +87,7 @@ export function VoiceDock({
 
   const error = microphoneError ?? voice.state.error;
   const timings = voice.state.timings;
-  const firstAudioMs = timings
-    ? timings.llm_first_token_ms + timings.tts_first_sentence_ms
-    : null;
+  const firstAudioMs = timings ? timings.llm_first_token_ms + timings.tts_first_sentence_ms : null;
 
   return (
     <section className="card p-5 lg:p-6" aria-labelledby="voice-heading">
@@ -94,11 +97,16 @@ export function VoiceDock({
             <AudioLines size={13} aria-hidden="true" />
             Companion
           </p>
-          <h2 id="voice-heading" className="mt-2 font-display text-xl tracking-[-0.02em] text-paper">
+          <h2
+            id="voice-heading"
+            className="mt-2 font-display text-xl tracking-[-0.02em] text-paper"
+          >
             Ask about what you just heard
           </h2>
         </div>
-        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/30">Local only</span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/30">
+          Local only
+        </span>
       </div>
 
       <div className="mt-5 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-3">
@@ -138,7 +146,10 @@ export function VoiceDock({
             {ready ? statusLabel(recording, voice.state.status) : "Loading local models…"}
           </p>
           <p className="mt-0.5 text-[11px] text-white/35">
-            Hold the button or <kbd className="rounded border border-white/15 bg-white/[0.06] px-1 py-0.5 font-mono text-[10px] text-white/60">Space</kbd>{" "}
+            Hold the button or{" "}
+            <kbd className="rounded border border-white/15 bg-white/[0.06] px-1 py-0.5 font-mono text-[10px] text-white/60">
+              Space
+            </kbd>{" "}
             while the narration pauses.
           </p>
         </div>

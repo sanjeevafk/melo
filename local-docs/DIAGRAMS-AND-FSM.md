@@ -1,6 +1,6 @@
-# EchoRead: Architecture Diagrams & Finite State Machines (FSMs)
+# Melo: Architecture Diagrams & Finite State Machines (FSMs)
 
-This document specifies the end-to-end system architecture and lifecycle state machines for the EchoRead MVP. 
+This document specifies the end-to-end system architecture and lifecycle state machines for the Melo MVP. 
 
 An editable, native Excalidraw canvas is also generated and ready to open:  
 👉 **Excalidraw Canvas File:** [echoread-architecture-and-fsm.excalidraw](file:///home/sanjeev/Downloads/echoread/echoread-architecture-and-fsm.excalidraw) *(Drag & drop into [excalidraw.com](https://excalidraw.com) or open with VS Code Excalidraw extension)*.

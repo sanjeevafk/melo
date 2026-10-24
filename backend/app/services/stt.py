@@ -109,14 +109,10 @@ class PhononSTT(BaseSTT):
                     )
                     if word_str:
                         start_val = (
-                            w.get("start", 0.0)
-                            if isinstance(w, dict)
-                            else getattr(w, "start", 0.0)
+                            w.get("start", 0.0) if isinstance(w, dict) else getattr(w, "start", 0.0)
                         )
                         end_val = (
-                            w.get("end", 0.0)
-                            if isinstance(w, dict)
-                            else getattr(w, "end", 0.0)
+                            w.get("end", 0.0) if isinstance(w, dict) else getattr(w, "end", 0.0)
                         )
                         words.append(
                             TranscriptWord(

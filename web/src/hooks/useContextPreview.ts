@@ -3,11 +3,7 @@ import { useEffect, useState } from "react";
 import { fetchContext } from "../api/client";
 import type { ContextPreview, Mode } from "../api/types";
 
-export function useContextPreview(
-  bookId: string | null,
-  tMs: number,
-  mode: Mode,
-) {
+export function useContextPreview(bookId: string | null, tMs: number, mode: Mode) {
   const [context, setContext] = useState<ContextPreview | null>(null);
   const [error, setError] = useState<string | null>(null);
   const second = Math.floor(tMs / 1000);

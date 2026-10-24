@@ -441,4 +441,3 @@ def test_voice_query_passes_book_hotwords(
         list(response.iter_lines())
 
     assert captured["hotwords"] == ["Poirot", "Cavendish"]
-

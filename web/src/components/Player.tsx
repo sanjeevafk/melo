@@ -75,11 +75,15 @@ export function Player({
             {book?.title ?? "Your next listening session"}
           </h2>
           <p className="mt-2 text-sm text-white/45">
-            {book?.author ? `${book.author} · ${formatDuration(book.duration_ms)}` : "Demo audio, indexed locally."}
+            {book?.author
+              ? `${book.author} · ${formatDuration(book.duration_ms)}`
+              : "Demo audio, indexed locally."}
           </p>
         </div>
         <div className="hidden rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-right sm:block">
-          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/35">Position</p>
+          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/35">
+            Position
+          </p>
           <p className="mt-1 font-mono text-sm text-paper">{formatDuration(currentMs)}</p>
         </div>
       </div>
@@ -186,7 +190,9 @@ export function Player({
             Context window
           </p>
           <p className="mt-2 text-sm text-white/70">
-            {context ? `From ${formatDuration(context.buffer_start_ms)} to ${formatDuration(context.t_ms)}` : "Last 90 seconds, verbatim"}
+            {context
+              ? `From ${formatDuration(context.buffer_start_ms)} to ${formatDuration(context.t_ms)}`
+              : "Last 90 seconds, verbatim"}
           </p>
         </div>
         <div>

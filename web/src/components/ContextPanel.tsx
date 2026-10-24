@@ -23,13 +23,18 @@ export function ContextPanel({ mode, context, error, durationMs }: ContextPanelP
             <ShieldCheck size={13} aria-hidden="true" />
             Temporal horizon
           </p>
-          <h2 id="context-heading" className="mt-2 font-display text-xl tracking-[-0.02em] text-paper">
+          <h2
+            id="context-heading"
+            className="mt-2 font-display text-xl tracking-[-0.02em] text-paper"
+          >
             {isStory ? "Spoiler shield armed" : "Study mode: full document"}
           </h2>
         </div>
         <span
           className={`rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] ${
-            isStory ? "border-safe/30 bg-safe/10 text-safe" : "border-amber/30 bg-amber/10 text-amber"
+            isStory
+              ? "border-safe/30 bg-safe/10 text-safe"
+              : "border-amber/30 bg-amber/10 text-amber"
           }`}
         >
           {isStory ? "Story" : "Study"}
@@ -54,7 +59,11 @@ export function ContextPanel({ mode, context, error, durationMs }: ContextPanelP
         <div className="mt-3 flex items-center justify-between text-xs text-white/40">
           <span>{formatDuration(cutoff)}</span>
           <span className="inline-flex items-center gap-1.5">
-            {isStory ? <LockKeyhole size={12} aria-hidden="true" /> : <Waypoints size={12} aria-hidden="true" />}
+            {isStory ? (
+              <LockKeyhole size={12} aria-hidden="true" />
+            ) : (
+              <Waypoints size={12} aria-hidden="true" />
+            )}
             {isStory ? "Future text stays out of context" : "Whole book is available"}
           </span>
           <span>{formatDuration(durationMs)}</span>
@@ -63,12 +72,20 @@ export function ContextPanel({ mode, context, error, durationMs }: ContextPanelP
 
       <div className="mt-6 grid grid-cols-2 gap-3">
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
-          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/35">Blocked chunks</p>
-          <p className="mt-1 font-display text-2xl text-paper">{context ? context.blocked_chunks : "—"}</p>
+          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/35">
+            Blocked chunks
+          </p>
+          <p className="mt-1 font-display text-2xl text-paper">
+            {context ? context.blocked_chunks : "—"}
+          </p>
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
-          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/35">Retrieved</p>
-          <p className="mt-1 font-display text-2xl text-paper">{context ? context.retrieved.length : "—"}</p>
+          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/35">
+            Retrieved
+          </p>
+          <p className="mt-1 font-display text-2xl text-paper">
+            {context ? context.retrieved.length : "—"}
+          </p>
         </div>
       </div>
 
@@ -84,8 +101,12 @@ export function ContextPanel({ mode, context, error, durationMs }: ContextPanelP
         <div className="mt-5 space-y-3">
           <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-3">
             <div className="flex items-center justify-between">
-              <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/35">Immediate buffer</p>
-              <span className="font-mono text-[10px] text-white/25">{context?.immediate_words.length ?? 0} words</span>
+              <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/35">
+                Immediate buffer
+              </p>
+              <span className="font-mono text-[10px] text-white/25">
+                {context?.immediate_words.length ?? 0} words
+              </span>
             </div>
             <p className="mt-2 max-h-20 overflow-y-auto text-xs leading-5 text-white/55">
               {context?.immediate_text
@@ -99,20 +120,27 @@ export function ContextPanel({ mode, context, error, durationMs }: ContextPanelP
           {context?.retrieved.length ? (
             <div className="space-y-2">
               {context.retrieved.map((excerpt) => (
-                <div key={excerpt.chunk_id} className="rounded-xl border border-safe/15 bg-safe/[0.045] p-3">
+                <div
+                  key={excerpt.chunk_id}
+                  className="rounded-xl border border-safe/15 bg-safe/[0.045] p-3"
+                >
                   <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.1em] text-safe/65">
                     <span>Past passage</span>
                     <span>
                       {formatDuration(excerpt.start_ms)}–{formatDuration(excerpt.end_ms)}
                     </span>
                   </div>
-                  <p className="mt-1.5 max-h-24 overflow-y-auto text-xs leading-5 text-white/55">{excerpt.text}</p>
+                  <p className="mt-1.5 max-h-24 overflow-y-auto text-xs leading-5 text-white/55">
+                    {excerpt.text}
+                  </p>
                 </div>
               ))}
             </div>
           ) : (
             <p className="rounded-xl border border-dashed border-white/10 p-3 text-xs text-white/35">
-              {isStory ? "Nothing from the past matches yet. The shield is still armed." : "No matching document passages yet."}
+              {isStory
+                ? "Nothing from the past matches yet. The shield is still armed."
+                : "No matching document passages yet."}
             </p>
           )}
         </div>

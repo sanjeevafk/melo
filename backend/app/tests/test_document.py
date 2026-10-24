@@ -326,4 +326,3 @@ def test_document_sentence_limit_guard(tmp_path: Path, monkeypatch: pytest.Monke
         suffix=".txt",
     )
     assert info.format_name == "txt"
-

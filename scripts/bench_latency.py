@@ -121,7 +121,7 @@ def run_once(
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Measure EchoRead voice TTFA through the API.")
+    parser = argparse.ArgumentParser(description="Measure Melo voice TTFA through the API.")
     parser.add_argument("--url", default="http://127.0.0.1:8000", help="Running backend URL")
     parser.add_argument("--book", default="styles-ch2", help="Book id used for retrieval")
     parser.add_argument("--t-ms", type=int, default=60_000, help="Fixed playback position")
@@ -184,7 +184,7 @@ def main() -> int:
 
         try:
             print(
-                f"EchoRead latency benchmark · {datetime.now(UTC).date().isoformat()} · "
+                f"Melo latency benchmark · {datetime.now(UTC).date().isoformat()} · "
                 f"{profile.upper()} · {platform.platform()}"
             )
             mode_desc = f"novel ({len(novel_fixtures)}q)" if args.novel else "standard"
@@ -234,8 +234,7 @@ def main() -> int:
                 samples.append(timings)
                 walls.append(wall_ms)
                 stage_summary = "  ".join(
-                    f"{stage.removesuffix('_ms')}={timings[stage]}"
-                    for stage in STAGES
+                    f"{stage.removesuffix('_ms')}={timings[stage]}" for stage in STAGES
                 )
                 print(f"Run {index + 1:02d}/{args.runs}{tag}: {stage_summary} wall={wall_ms:.0f}ms")
         finally:
