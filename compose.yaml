@@ -1,0 +1,33 @@
+# Local container run: docker compose up --build, then open http://localhost:8000
+#
+# ./data is mounted so books, uploads and the DB survive container rebuilds.
+# On first run the entrypoint fetches the model weights into the volume.
+#
+# LLM provider: defaults to the baked GGUF (llama_cpp, fully offline). To use a
+# hosted or local server instead, set these in your shell or .env before
+# `docker compose up` (see .env.example for provider examples):
+#   ECHOREAD_LLM_PROVIDER=openai
+#   ECHOREAD_LLM_ENDPOINT=https://api.groq.com/openai/v1
+#   ECHOREAD_LLM_API_KEY=gsk_...
+services:
+  echoread:
+    build: .
+    image: echoread:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      ECHOREAD_LLM_PROVIDER: ${ECHOREAD_LLM_PROVIDER:-llama_cpp}
+      ECHOREAD_LLM_ENDPOINT: ${ECHOREAD_LLM_ENDPOINT-}
+      ECHOREAD_LLM_API_KEY: ${ECHOREAD_LLM_API_KEY-}
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import sys,urllib.request; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=4).status == 200 else 1)"
+      interval: 30s
+      timeout: 5s
+      start_period: 300s
+      retries: 3
