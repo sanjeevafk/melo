@@ -5,6 +5,9 @@ import type { ContextPreview, HistoryTurn, Mode, VoiceEvent, VoiceTimings } from
 
 export type VoiceStatus = "idle" | "transcribing" | "thinking" | "speaking" | "done" | "error";
 
+/** Why send() resolved: "empty" is a mic_empty clip (server said no speech). */
+export type SendOutcome = "answered" | "consumed" | "empty" | "failed";
+
 interface VoiceState {
   status: VoiceStatus;
   transcript: string;
@@ -12,6 +15,7 @@ interface VoiceState {
   context: ContextPreview | null;
   timings: VoiceTimings | null;
   error: string | null;
+  errorCode: string | null;
 }
 
 const initialState: VoiceState = {
@@ -21,12 +25,16 @@ const initialState: VoiceState = {
   context: null,
   timings: null,
   error: null,
+  errorCode: null,
 };
 
-interface SendOptions {
+export interface SendOptions {
   bookId: string;
   tMs: number;
   mode: Mode;
+  /** Runs when the transcript event arrives — before retrieval and the LLM
+   * start on the server. "consume" aborts the stream and skips the answer. */
+  onTranscript?: (text: string) => "consume" | "continue";
 }
 
 export function useVoiceAnswer() {
@@ -143,7 +151,7 @@ export function useVoiceAnswer() {
   }, [stopPlayback]);
 
   const send = useCallback(
-    async (blob: Blob, options: SendOptions) => {
+    async (blob: Blob, options: SendOptions): Promise<SendOutcome> => {
       abortRef.current?.abort();
       stopPlayback();
       const generation = generationRef.current + 1;
@@ -152,6 +160,9 @@ export function useVoiceAnswer() {
       abortRef.current = controller;
       transcriptRef.current = "";
       answerRef.current = "";
+      let consumed = false;
+      let empty = false;
+      let errored = false;
       setState({ ...initialState, status: "transcribing" });
 
       const form = new FormData();
@@ -174,10 +185,17 @@ export function useVoiceAnswer() {
               status: event.stage === "thinking" ? "thinking" : "transcribing",
             }));
             break;
-          case "transcript":
+          case "transcript": {
+            if (options.onTranscript?.(event.text) === "consume") {
+              consumed = true;
+              setState({ ...initialState });
+              controller.abort();
+              break;
+            }
             transcriptRef.current = event.text;
             setState((previous) => ({ ...previous, transcript: event.text }));
             break;
+          }
           case "context":
             setState((previous) => ({
               ...previous,
@@ -226,10 +244,13 @@ export function useVoiceAnswer() {
             }));
             break;
           case "error":
+            errored = true;
+            empty = event.code === "mic_empty";
             setState((previous) => ({
               ...previous,
               status: "error",
               error: event.message,
+              errorCode: event.code,
             }));
             break;
           case "done":
@@ -246,13 +267,15 @@ export function useVoiceAnswer() {
         await pendingCompletionRef.current.catch(() => undefined);
       } catch (cause) {
         if (cause instanceof DOMException && cause.name === "AbortError") {
-          return;
+          return consumed ? "consumed" : "failed";
         }
         if (generation === generationRef.current) {
+          errored = true;
           setState((previous) => ({
             ...previous,
             status: "error",
             error: cause instanceof Error ? cause.message : "Voice query failed",
+            errorCode: null,
           }));
         }
       } finally {
@@ -260,6 +283,7 @@ export function useVoiceAnswer() {
           abortRef.current = null;
         }
       }
+      return errored ? (empty ? "empty" : "failed") : "answered";
     },
     [playWav, stopPlayback],
   );
