@@ -27,7 +27,7 @@ var tags = {
 }
 var acrPullRoleId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
 
-// Free-tier guardrails: 7-day retention and a ~5 GB/month ingest cap
+// Free-tier guardrails: minimum 30-day retention and a ~5 GB/month ingest cap
 // (0.167 GB/day) keep the Log Analytics workspace inside its free allowance.
 resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
   name: '${resourceToken}-logs'
@@ -37,7 +37,7 @@ resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
     sku: {
       name: 'PerGB2018'
     }
-    retentionInDays: 7
+    retentionInDays: 30
     workspaceCapping: {
       // json() wrapper: Bicep < 0.49 (incl. the one azd bundles) has no float
       // literals and lexes 0.167 as int 0 + property access.
@@ -72,7 +72,7 @@ resource registry 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
 
 // The Container App pulls from ACR with its own managed identity — no admin
 // credential is stored anywhere.
-resource appIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-07-31' = {
+resource appIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' = {
   name: '${resourceToken}-identity'
   location: location
   tags: tags
@@ -103,14 +103,13 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
   properties: {
     managedEnvironmentId: managedEnvironment.id
     configuration: {
+      // Container Apps rejects empty-valued secrets, so when no API key is
+      // configured (llama_cpp needs none) a placeholder is stored instead;
+      // llama_cpp never reads it, and openai deploys overwrite it.
       secrets: [
         {
           name: 'llm-api-key'
-          value: llmApiKey
-        }
-        {
-          name: 'llm-endpoint'
-          value: llmEndpoint
+          value: empty(llmApiKey) ? 'unset' : llmApiKey
         }
       ]
       registries: [
@@ -147,7 +146,7 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
             }
             {
               name: 'ECHOREAD_LLM_ENDPOINT'
-              secretRef: 'llm-endpoint'
+              value: empty(llmEndpoint) ? '' : llmEndpoint
             }
             {
               name: 'ECHOREAD_LLM_API_KEY'
