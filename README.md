@@ -139,7 +139,7 @@ make preflight
 | Command | Description |
 | --- | --- |
 | `make start` | One-command run: bootstrap + single-process server at `http://localhost:8000`. |
-| `make check` | Run all test suites: Ruff, pytest (55 passed), ESLint, TypeScript, Vitest. |
+| `make check` | Run all test suites: Ruff, pytest (61 passed), ESLint, TypeScript, Vitest. |
 | `make preflight` | Audit environment, models, database, ports, and hardware readiness. |
 | `make bench-gate` | Run 10-cycle voice latency benchmark and enforce CPU TTFA <= 3000 ms gate. |
 | `make bench-novel` | Run latency tests across diverse, cycling novel questions. |
