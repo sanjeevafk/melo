@@ -51,7 +51,10 @@ def model_files() -> list[Path]:
         if not path.is_file():
             continue
         relative = path.relative_to(settings.models_dir)
-        if relative.parts and relative.parts[0] == ".cache":
+        # snapshot_download stages blobs under <model>/.cache/huggingface/…
+        # before copying them into place — regenerable bookkeeping whose bytes
+        # vary per environment, not model payload. Never pin or verify it.
+        if ".cache" in relative.parts:
             continue
         if relative.name == "manifest.json":
             continue
