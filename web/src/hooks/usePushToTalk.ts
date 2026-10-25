@@ -5,6 +5,13 @@ interface PushToTalkOptions {
   onRecorded: (blob: Blob, durationMs: number) => Promise<void> | void;
   disabled?: boolean;
   maxDurationMs?: number;
+  /** Record from this already-open stream instead of requesting a new one;
+   * the stream stays owned by the caller and is never stopped here. */
+  stream?: MediaStream | null;
+  /** Bind the global Space/blur/visibility hold-to-talk handlers. */
+  keyboardControls?: boolean;
+  /** Mirrors capture start/stop out for callers that need it before render. */
+  onRecordingChange?: (recording: boolean) => void;
 }
 
 const MIME_CANDIDATES = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4"];
@@ -14,8 +21,17 @@ export function usePushToTalk({
   onRecorded,
   disabled = false,
   maxDurationMs = 15_000,
+  stream: injectedStream = null,
+  keyboardControls = true,
+  onRecordingChange,
 }: PushToTalkOptions) {
   const [recording, setRecording] = useState(false);
+  const onRecordingChangeRef = useRef(onRecordingChange);
+  onRecordingChangeRef.current = onRecordingChange;
+  const updateRecording = useCallback((next: boolean) => {
+    setRecording(next);
+    onRecordingChangeRef.current?.(next);
+  }, []);
   const [error, setError] = useState<string | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -36,24 +52,13 @@ export function usePushToTalk({
     }
   }, []);
 
-  const start = useCallback(async () => {
-    if (disabled || requestedRef.current) {
-      return;
-    }
-    requestedRef.current = true;
-    setError(null);
-    try {
-      await onStart?.();
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      if (!requestedRef.current) {
-        stream.getTracks().forEach((track) => track.stop());
-        return;
-      }
+  const beginRecording = useCallback(
+    (stream: MediaStream, ownedStream: MediaStream | null) => {
       const mimeType = MIME_CANDIDATES.find((candidate) =>
         MediaRecorder.isTypeSupported(candidate),
       );
       const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
-      streamRef.current = stream;
+      streamRef.current = ownedStream;
       recorderRef.current = recorder;
       chunksRef.current = [];
       recorder.addEventListener("dataavailable", (event) => {
@@ -74,7 +79,7 @@ export function usePushToTalk({
           window.clearTimeout(timerRef.current);
           timerRef.current = null;
         }
-        setRecording(false);
+        updateRecording(false);
         if (durationMs < 300) {
           setError("Hold the microphone a little longer.");
           return;
@@ -83,13 +88,41 @@ export function usePushToTalk({
       });
       startedAtRef.current = performance.now();
       recorder.start();
-      setRecording(true);
+      updateRecording(true);
       timerRef.current = window.setTimeout(() => stop(), maxDurationMs);
+    },
+    [maxDurationMs, onRecorded, stop, updateRecording],
+  );
+
+  const start = useCallback(async () => {
+    if (disabled || requestedRef.current) {
+      return;
+    }
+    requestedRef.current = true;
+    setError(null);
+    try {
+      await onStart?.();
+      if (!requestedRef.current) {
+        return;
+      }
+      // An injected stream is never stored in streamRef: every track-stopping
+      // site below only touches streamRef, so caller-owned streams survive.
+      if (injectedStream) {
+        streamRef.current = null;
+        beginRecording(injectedStream, null);
+        return;
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      if (!requestedRef.current) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+      beginRecording(stream, stream);
     } catch (cause) {
       requestedRef.current = false;
       streamRef.current?.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
-      setRecording(false);
+      updateRecording(false);
       setError(
         cause instanceof Error
           ? cause.name === "NotAllowedError"
@@ -98,9 +131,12 @@ export function usePushToTalk({
           : "Could not start the microphone.",
       );
     }
-  }, [disabled, maxDurationMs, onRecorded, onStart, stop]);
+  }, [beginRecording, disabled, injectedStream, onStart, updateRecording]);
 
   useEffect(() => {
+    if (!keyboardControls) {
+      return;
+    }
     const isTyping = (target: EventTarget | null): boolean => {
       const element = target as HTMLElement | null;
       return Boolean(
@@ -150,7 +186,7 @@ export function usePushToTalk({
       }
       streamRef.current?.getTracks().forEach((track) => track.stop());
     };
-  }, [start, stop]);
+  }, [keyboardControls, start, stop]);
 
   return {
     recording,

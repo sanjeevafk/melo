@@ -229,6 +229,8 @@ export default function App() {
               mode={mode}
               ready={health?.ready ?? false}
               showTimings={showTimings}
+              playing={player.playing}
+              simulated={player.simulated}
               onPause={player.fadeOutAndPause}
               onResumeAt={(tMs) => {
                 player.seek(tMs);
