@@ -1,12 +1,15 @@
-import { useEffect, useRef } from "react";
-import { AudioLines, Mic, Quote, ShieldCheck, Square, TriangleAlert } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { AudioLines, Ear, Mic, Quote, ShieldCheck, Square, TriangleAlert } from "lucide-react";
 
 import { AnimatePresence, motion } from "motion/react";
 
 import type { BookManifest, Mode } from "../api/types";
+import { useHandsFree } from "../hooks/useHandsFree";
 import { usePushToTalk } from "../hooks/usePushToTalk";
 import { useVoiceAnswer } from "../hooks/useVoiceAnswer";
 import { revealText, spring } from "../lib/motion";
+import { createEndpoint, type SpeechEndpoint } from "../lib/vad";
+import { matchControlCommand } from "../lib/voiceCommands";
 import { formatDuration } from "../lib/time";
 
 interface VoiceDockProps {
@@ -15,6 +18,8 @@ interface VoiceDockProps {
   mode: Mode;
   ready: boolean;
   showTimings: boolean;
+  playing: boolean;
+  simulated: boolean;
   onPause: () => Promise<boolean>;
   onResumeAt: (tMs: number) => void;
   onAnswered?: () => void;
@@ -26,9 +31,12 @@ const BEYOND_MARKER = "Beyond the document:";
 
 type VoiceStatus = ReturnType<typeof useVoiceAnswer>["state"]["status"];
 
-function statusLabel(recording: boolean, status: VoiceStatus): string {
+function statusLabel(passiveListening: boolean, recording: boolean, status: VoiceStatus): string {
   if (recording) {
     return "Listening… release to send";
+  }
+  if (passiveListening) {
+    return "Listening hands-free…";
   }
   switch (status) {
     case "transcribing":
@@ -48,11 +56,12 @@ function statusLabel(recording: boolean, status: VoiceStatus): string {
 
 type OrbPhase = "idle" | "listening" | "working" | "speaking" | "error";
 
-function orbPhase(recording: boolean, status: VoiceStatus): OrbPhase {
+function orbPhase(passiveListening: boolean, recording: boolean, status: VoiceStatus): OrbPhase {
   if (recording) return "listening";
   if (status === "transcribing" || status === "thinking") return "working";
   if (status === "speaking") return "speaking";
   if (status === "error") return "error";
+  if (passiveListening) return "listening";
   return "idle";
 }
 
@@ -70,6 +79,8 @@ export function VoiceDock({
   mode,
   ready,
   showTimings,
+  playing,
+  simulated,
   onPause,
   onResumeAt,
   onAnswered,
@@ -78,11 +89,88 @@ export function VoiceDock({
   const voice = useVoiceAnswer();
   const wasPlayingRef = useRef(false);
   const capturedTMsRef = useRef(0);
+  const [handsFreeOn, setHandsFreeOn] = useState(false);
+  const [handsFreeError, setHandsFreeError] = useState<string | null>(null);
+  const [hint, setHint] = useState<string | null>(null);
+  const [pushRecording, setPushRecording] = useState(false);
+  const hintTimerRef = useRef<number | null>(null);
+  const currentMsRef = useRef(currentMs);
+  currentMsRef.current = currentMs;
+  const handsFreeCaptureRef = useRef(false);
+  const pushRecordingRef = useRef(false);
+
+  const startRef = useRef<() => void>(() => undefined);
+  const stopRef = useRef<() => void>(() => undefined);
+  const bargeInRef = useRef<() => void>(() => undefined);
+  const getThresholdRef = useRef<() => number>(() => Number.POSITIVE_INFINITY);
+  const endpointRef = useRef<SpeechEndpoint | null>(null);
+  if (endpointRef.current === null) {
+    endpointRef.current = createEndpoint({
+      getThreshold: () => getThresholdRef.current(),
+      silenceEndMs: 800,
+    });
+  }
+
+  const showHint = useCallback((message: string) => {
+    setHint(message);
+    if (hintTimerRef.current !== null) {
+      window.clearTimeout(hintTimerRef.current);
+    }
+    hintTimerRef.current = window.setTimeout(() => setHint(null), 3500);
+  }, []);
+
+  useEffect(
+    () => () => {
+      if (hintTimerRef.current !== null) {
+        window.clearTimeout(hintTimerRef.current);
+      }
+    },
+    [],
+  );
+
+  // During a barge-in capture, sustained silence ends the question.
+  const handleRms = useCallback((rms: number, nowMs: number) => {
+    if (!pushRecordingRef.current) {
+      return;
+    }
+    if (endpointRef.current?.feed(rms, nowMs) === "end") {
+      endpointRef.current?.reset();
+      stopRef.current();
+    }
+  }, []);
+
+  const handsFree = useHandsFree({
+    enabled: handsFreeOn && Boolean(book) && ready && !simulated,
+    active: playing || voice.state.status === "speaking",
+    suspended: pushRecording,
+    onBargeIn: () => bargeInRef.current(),
+    onRms: handleRms,
+    onError: setHandsFreeError,
+  });
+  getThresholdRef.current = handsFree.getThreshold;
+
+  // Barge-in reuses the exact push-to-talk protocol via start() → onStart
+  // (cancel in-flight, pause playback, chime, capture); it only arms the
+  // hands-free flag and the endpoint detector around it.
+  const handleBargeIn = useCallback(() => {
+    if (!book) {
+      return;
+    }
+    endpointRef.current?.reset();
+    startRef.current();
+    // Set after start() so it cannot be cleared mid-flight; this flag must
+    // only be true for barge-in captures, never manual ones.
+    handsFreeCaptureRef.current = true;
+  }, [book]);
+  bargeInRef.current = () => void handleBargeIn();
 
   const { recording, error: microphoneError, start, stop } = usePushToTalk({
     disabled: !book || !ready,
+    stream: handsFree.stream,
+    keyboardControls: !handsFreeOn,
+    onRecordingChange: setPushRecording,
     onStart: async () => {
-      capturedTMsRef.current = currentMs;
+      capturedTMsRef.current = currentMsRef.current;
       voice.cancel();
       voice.primeAudio();
       wasPlayingRef.current = await onPause();
@@ -92,11 +180,26 @@ export function VoiceDock({
       if (!book) {
         return;
       }
-      await voice.send(blob, {
+      const wasHandsFree = handsFreeCaptureRef.current;
+      handsFreeCaptureRef.current = false;
+      const outcome = await voice.send(blob, {
         bookId: book.id,
         tMs: capturedTMsRef.current,
         mode,
+        onTranscript: (text) => (matchControlCommand(text) ? "consume" : "continue"),
       });
+      if (outcome === "consumed") {
+        showHint("Paused — press play to continue.");
+        return;
+      }
+      if (outcome === "empty" && wasHandsFree) {
+        showHint("Didn't catch that — picking up where we left off.");
+        if (wasPlayingRef.current) {
+          await new Promise((resolve) => window.setTimeout(resolve, 800));
+          onResumeAt(Math.max(0, capturedTMsRef.current - 5000));
+        }
+        return;
+      }
       onAnswered?.();
       if (wasPlayingRef.current) {
         await new Promise((resolve) => window.setTimeout(resolve, 1500));
@@ -105,22 +208,43 @@ export function VoiceDock({
     },
   });
 
-  const error = microphoneError ?? voice.state.error;
+  startRef.current = start;
+  stopRef.current = stop;
+  pushRecordingRef.current = recording;
+
+  // When a capture ends without sending (discarded short clip), a hands-free
+  // capture resumes the book instead of nagging with an error.
+  const prevRecordingRef = useRef(false);
+  useEffect(() => {
+    if (prevRecordingRef.current && !recording) {
+      handsFree.resetVad();
+      if (handsFreeCaptureRef.current && microphoneError) {
+        handsFreeCaptureRef.current = false;
+        showHint("Didn't catch that — picking up where we left off.");
+        if (wasPlayingRef.current) {
+          onResumeAt(Math.max(0, capturedTMsRef.current - 5000));
+        }
+      }
+    }
+    prevRecordingRef.current = recording;
+  }, [recording, microphoneError, handsFree, showHint, onResumeAt]);
+
+  const micDisabledRef = useRef(!book || !ready);
+  micDisabledRef.current = !book || !ready;
+
+  const error = microphoneError ?? voice.state.error ?? handsFreeError;
   const timings = voice.state.timings;
   const firstAudioMs = timings
     ? timings.llm_first_token_ms + timings.tts_first_sentence_ms
     : null;
-  const phase = orbPhase(recording, voice.state.status);
-  const label = ready ? statusLabel(recording, voice.state.status) : "Loading models…";
+  const passiveListening =
+    handsFreeOn && handsFree.listening &&
+    (voice.state.status === "idle" || voice.state.status === "done");
+  const phase = orbPhase(passiveListening, recording, voice.state.status);
+  const label = ready
+    ? statusLabel(passiveListening, recording, voice.state.status)
+    : "Loading models…";
   const busy = phase === "working";
-
-  // The floating dock's mic forwards hold-to-talk here via window events.
-  const startRef = useRef(start);
-  startRef.current = start;
-  const stopRef = useRef(stop);
-  stopRef.current = stop;
-  const micDisabledRef = useRef(!book || !ready);
-  micDisabledRef.current = !book || !ready;
   useEffect(() => {
     const handleStart = () => {
       if (!micDisabledRef.current) {
@@ -168,9 +292,32 @@ export function VoiceDock({
             Voice inquiry
           </h2>
         </div>
-        <span className="rounded-full border border-white/10 bg-white/[0.02] px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.16em] text-white/40">
-          Private inference
-        </span>
+        <div className="flex items-center gap-2">
+          {!simulated ? (
+            <button
+              type="button"
+              role="switch"
+              aria-checked={handsFreeOn}
+              aria-label="Hands-free listening"
+              disabled={!book || !ready}
+              onClick={() => {
+                setHandsFreeOn((previous) => !previous);
+                setHandsFreeError(null);
+              }}
+              className={`flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.16em] transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+                handsFreeOn
+                  ? "border-amber/50 bg-amber/10 text-amber"
+                  : "border-white/10 bg-white/[0.02] text-white/40 hover:border-white/25 hover:text-white/60"
+              }`}
+            >
+              <Ear size={11} aria-hidden="true" />
+              Hands-free
+            </button>
+          ) : null}
+          <span className="rounded-full border border-white/10 bg-white/[0.02] px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.16em] text-white/40">
+            Private inference
+          </span>
+        </div>
       </div>
 
       <div className="mt-5 flex items-center gap-4 rounded-2xl border border-white/[0.07] bg-black/30 p-3.5">
@@ -249,13 +396,19 @@ export function VoiceDock({
               {label}
             </motion.p>
           </AnimatePresence>
-          <p className="mt-0.5 text-[11px] text-white/40">
-            Hold button or{" "}
-            <kbd className="rounded border border-white/15 bg-white/[0.05] px-1 py-0.5 font-mono text-[9px] text-white/60">
-              Space
-            </kbd>{" "}
-            to speak.
-          </p>
+          {handsFreeOn ? (
+            <p className="mt-0.5 text-[11px] text-white/40">
+              Just speak — say “stop” or ask a question. Best in Chrome/Edge or with headphones.
+            </p>
+          ) : (
+            <p className="mt-0.5 text-[11px] text-white/40">
+              Hold button or{" "}
+              <kbd className="rounded border border-white/15 bg-white/[0.05] px-1 py-0.5 font-mono text-[9px] text-white/60">
+                Space
+              </kbd>{" "}
+              to speak.
+            </p>
+          )}
 
           {/* Equalizer Waveform indicator */}
           <div className="mt-2.5 flex h-3 items-end gap-[2px]" aria-hidden="true">
@@ -303,6 +456,24 @@ export function VoiceDock({
             <p className="flex items-center gap-2">
               <TriangleAlert size={14} aria-hidden="true" />
               {error}
+            </p>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {hint ? (
+          <motion.div
+            key="hint"
+            variants={revealText}
+            initial="hidden"
+            animate="show"
+            exit="exit"
+            className="mt-3.5 rounded-xl border border-amber/30 bg-amber/[0.06] p-3 text-xs text-amber"
+          >
+            <p className="flex items-center gap-2">
+              <AudioLines size={14} aria-hidden="true" />
+              {hint}
             </p>
           </motion.div>
         ) : null}
