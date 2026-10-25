@@ -4,7 +4,7 @@ PYTHON ?= $(UV) run python
 BACKEND_HOST ?= 127.0.0.1
 BACKEND_PORT ?= 8000
 
-.PHONY: setup models assets ingest dev check bench bench-gate bench-novel bench-cold e2e demo preflight eval format
+.PHONY: setup models assets ingest dev start check bench bench-gate bench-novel bench-cold e2e demo preflight eval format
 
 setup:
 	$(UV) sync
@@ -51,6 +51,19 @@ e2e:
 
 demo: preflight
 	$(MAKE) dev
+
+# Production-style single process: FastAPI serves the built SPA on one origin.
+# Idempotent — syncs deps, fetches models, builds the web bundle, and ingests
+# demo books only when missing.
+start:
+	@set -e; \
+	$(UV) sync; \
+	if [ ! -d web/node_modules ]; then (cd web && npm install); fi; \
+	if [ ! -f data/models/manifest.json ]; then $(MAKE) --no-print-directory models; fi; \
+	if [ ! -f web/dist/index.html ]; then (cd web && npm run build); fi; \
+	if [ ! -f data/melo.db ] && [ ! -f data/echoread.db ]; then $(MAKE) --no-print-directory ingest; fi; \
+	echo "EchoRead running at http://$$( [ "$(BACKEND_HOST)" = "0.0.0.0" ] && echo localhost || echo $(BACKEND_HOST) ):$(BACKEND_PORT)"; \
+	$(PYTHON) -m uvicorn backend.app.main:app --host $(BACKEND_HOST) --port $(BACKEND_PORT)
 
 preflight:
 	$(PYTHON) -m scripts.preflight
