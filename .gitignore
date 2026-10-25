@@ -35,3 +35,6 @@ docs/*
 
 *.log
 .DS_Store
+# Container cache dirs (written by the Docker entrypoint / compose volume)
+data/fermion-cache/
+data/hf-cache/
