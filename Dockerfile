@@ -25,15 +25,15 @@ ENV PATH="/app/.venv/bin:$PATH" \
     UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
     UV_PYTHON_DOWNLOADS=never \
+    UV_CACHE_DIR=/root/.cache/uv \
     HF_HOME=/app/data/hf-cache \
-    XDG_CACHE_HOME=/app/data/cache \
     FERMION_CACHE_DIR=/app/data/fermion-cache
 
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev
 
 # Model weights (whisper, Qwen GGUF, EmbeddingGemma, Kokoro, Phonon, indra-ocr)
-# land in /app/data and the package caches under XDG/HF home — all copied to the
+# land in /app/data and the package caches under HF home — all copied to the
 # runtime stage below. Only stt.py is copied from services/ so that backend
 # code changes don't invalidate this (multi-GB) layer; fetch_models checks
 # phonon_profile_installed() from it.
@@ -45,8 +45,13 @@ COPY backend/app/services/__init__.py backend/app/services/__init__.py
 COPY backend/app/services/stt.py backend/app/services/stt.py
 # Drop the HF staging duplicates afterwards — each payload is copied out of
 # <model>/.cache into place, so the staging copy doubles the image weight.
+# Also drop Qwen from hf-cache (hf_hub_download stages into HF_HOME before
+# copying to data/models, duplicating the 1.1GB GGUF).
 RUN python -m scripts.fetch_models --profile cpu \
-    && find data/models -depth -type d -name .cache -exec rm -rf {} +
+    && find data/models -depth -type d -name .cache -exec rm -rf {} + \
+    && rm -rf /app/data/hf-cache/hub/models--Qwen* \
+    && find /app/data/hf-cache/hub/blobs -type f -size +500M -delete \
+    && rm -rf /app/data/cache
 
 # ---- Runtime ----------------------------------------------------------------
 FROM python:3.12-slim AS runtime
@@ -67,10 +72,18 @@ ENV PATH="/app/.venv/bin:$PATH" \
     ECHOREAD_HOST=0.0.0.0 \
     ECHOREAD_LLM_PROVIDER=llama_cpp
 
+RUN mkdir -p /app/data/models && chown -R 1000:1000 /app/data
+
 COPY --from=pydeps /app/.venv /app/.venv
-# data must be writable by the app user at runtime (SQLite, uploads, caches);
-# --chown avoids a separate chown layer, which would duplicate every file.
-COPY --from=pydeps --chown=1000:1000 /app/data /app/data
+# Split model & cache layers to avoid giant single-layer limits in Container Apps
+COPY --from=pydeps --chown=1000:1000 /app/data/models/embeddinggemma-2 /app/data/models/embeddinggemma-2
+COPY --from=pydeps --chown=1000:1000 /app/data/models/qwen2.5-1.5b-instruct-q4_k_m.gguf /app/data/models/qwen2.5-1.5b-instruct-q4_k_m.gguf
+COPY --from=pydeps --chown=1000:1000 /app/data/models/faster-whisper-base.en /app/data/models/faster-whisper-base.en
+COPY --from=pydeps --chown=1000:1000 /app/data/models/kokoro-v1.0.int8.onnx /app/data/models/kokoro-v1.0.int8.onnx
+COPY --from=pydeps --chown=1000:1000 /app/data/models/voices-v1.0.bin /app/data/models/voices-v1.0.bin
+COPY --from=pydeps --chown=1000:1000 /app/data/models/manifest.json /app/data/models/manifest.json
+COPY --from=pydeps --chown=1000:1000 /app/data/fermion-cache /app/data/fermion-cache
+COPY --from=pydeps --chown=1000:1000 /app/data/hf-cache /app/data/hf-cache
 COPY --from=web /app/web/dist /app/web/dist
 COPY backend/ backend/
 COPY scripts/ scripts/
