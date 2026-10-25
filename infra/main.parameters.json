@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environmentName": {
+      "value": "${environmentName}"
+    },
+    "location": {
+      "value": "${AZURE_LOCATION}"
+    },
+    "llmProvider": {
+      "value": "${ECHOREAD_LLM_PROVIDER}"
+    },
+    "llmEndpoint": {
+      "value": "${ECHOREAD_LLM_ENDPOINT}"
+    },
+    "llmApiKey": {
+      "value": "${ECHOREAD_LLM_API_KEY}"
+    }
+  }
+}

@@ -103,6 +103,15 @@ Tested on consumer hardware (13th Gen Intel Core i5 CPU, 16GB RAM):
 - ~4 GB free disk space for local models and demo audio
 
 ### Setup & Run
+
+One command — install, fetch weights, build the web bundle, ingest demo books, and serve everything from a single process on **`http://localhost:8000`**:
+
+```bash
+make start
+```
+
+Or the classic dev loop (backend :8000 + Vite HMR :5173):
+
 ```bash
 # 1. Install dependencies
 make setup
@@ -129,7 +138,8 @@ make preflight
 
 | Command | Description |
 | --- | --- |
-| `make check` | Run all test suites: Ruff, pytest (55 passed), ESLint, TypeScript, Vitest. |
+| `make start` | One-command run: bootstrap + single-process server at `http://localhost:8000`. |
+| `make check` | Run all test suites: Ruff, pytest (61 passed), ESLint, TypeScript, Vitest. |
 | `make preflight` | Audit environment, models, database, ports, and hardware readiness. |
 | `make bench-gate` | Run 10-cycle voice latency benchmark and enforce CPU TTFA <= 3000 ms gate. |
 | `make bench-novel` | Run latency tests across diverse, cycling novel questions. |
@@ -152,14 +162,70 @@ Settings can be configured via environment variables (prefixed with `MELO_` or `
 | `MELO_STT_PROVIDER` | `phonon` | Speech-to-text provider (`phonon` or `whisper`). |
 | `MELO_PHONON_MODEL` | `phonon-2.5` | Profile for `fermion.load_speech`. |
 | `MELO_LLM_PROVIDER` | `ollama` | LLM backend (`ollama`, `llama_cpp`, or `openai`). |
-| `MELO_LLM_ENDPOINT` | `http://127.0.0.1:11434` | Endpoint for Ollama or OpenAI-compatible server. |
+| `MELO_LLM_ENDPOINT` | `http://localhost:11434` | Endpoint for Ollama or OpenAI-compatible server. |
+| `MELO_LLM_API_KEY` | *(empty)* | Bearer token for `openai`-compatible hosted providers (Groq, OpenRouter, OpenAI, ...). |
 | `MELO_LLM_MODEL` | `gemma4:e2b` | Model tag (e.g. `gemma4:e2b`, `qwen2.5:3b`). |
 | `MELO_MAX_DOCUMENT_SENTENCES` | `250` | Maximum sentence count for text documents before synthesis guard. |
+
+Copy [`.env.example`](.env.example) to `.env` to configure any of these — it ships commented examples for every provider below.
+
+### Bring Your Own LLM
+
+The reasoning model is pluggable. Pick whichever fits your setup:
+
+| Provider | `MELO_LLM_PROVIDER` | `MELO_LLM_ENDPOINT` | `MELO_LLM_API_KEY` | Notes |
+| --- | --- | --- | --- | --- |
+| Ollama (local) | `ollama` | `http://localhost:11434` | — | Default. Any local Ollama tag via `MELO_LLM_MODEL`. |
+| Bundled GGUF (offline) | `llama_cpp` | — | — | Zero setup: uses the Qwen2.5-1.5B Q4 GGUF from `make models`. |
+| **Groq (free tier)** | `openai` | `https://api.groq.com/openai/v1` | your key | Fastest free option; `llama-3.3-70b-versatile` is a solid `MELO_LLM_MODEL`. |
+| OpenRouter | `openai` | `https://openrouter.ai/api/v1` | your key | Includes free-tier models. |
+| OpenAI | `openai` | `https://api.openai.com/v1` | your key | |
+| LM Studio (local) | `openai` | `http://localhost:1234/v1` | — | Local server, keyless. |
+| llama.cpp server (local) | `openai` | `http://localhost:8080/v1` | — | Keyless `--host` mode. |
+
+---
+
+## Deployment
+
+### Docker (local)
+
+```bash
+docker compose up --build
+```
+Open **`http://localhost:8000`**. The `./data` directory is mounted, so books, uploads, and the database survive rebuilds; model weights are fetched into the volume on first run.
+
+### Azure Container Apps (free-tier demo link)
+
+Deploys a public, scale-to-zero URL from the repo:
+
+```bash
+azd auth login
+azd up
+```
+
+`azd` builds the Docker image, provisions the resources in [`infra/`](infra/main.bicep), and prints the public `APP_URL`. What it creates:
+
+- **Container Apps environment (Consumption plan)** with the app at 2 vCPU / 4 GiB, **min replicas 0** — idle cost is exactly $0.
+- **Free monthly grant:** 180,000 vCPU-seconds + 360,000 GiB-seconds + 2M requests ≈ **25 hours** of 2 vCPU/4 GiB runtime per month, which comfortably covers a demo link. Set `maxReplicas: 1` keeps it from scaling out and burning the grant.
+- **Log Analytics** capped at 7-day retention / 5 GB-month ingest (stays inside its free allowance).
+- **Azure Container Registry (Basic)** is the one resource the grant doesn't cover (~$5/month — covered by Azure free-account credits, and the only cost if the app stays scaled down). For a fully $0 pipeline on a public GitHub repo, publish the image from GitHub Actions to GHCR instead and point the container at it.
+
+Notes for demos:
+
+- **Cold start:** after idling to zero, the first hit pays an image pull + model load (~1–3 min). Warm it before presenting: `curl <APP_URL>/api/health` until `"ready": true`.
+- **LLM:** the default is the bundled Qwen2.5-1.5B GGUF (offline). For a snappier demo, plug in Groq's free API:
+  ```bash
+  azd env set ECHOREAD_LLM_PROVIDER openai
+  azd env set ECHOREAD_LLM_ENDPOINT https://api.groq.com/openai/v1
+  azd env set ECHOREAD_LLM_API_KEY gsk_...
+  azd provision   # or re-run azd up
+  ```
+- **Storage is ephemeral** while scaled to zero: uploaded books and the DB reset on cold start. The two demo books are baked into the image, so the demo always works; persistent storage (e.g. an Azure Files mount) is the upgrade path if you outgrow the demo.
 
 ---
 
 ## Privacy & Open Source
 
-- **100% On-Device / Self-Hosted:** Speech recognition, embeddings, vector search, and audio synthesis run directly on your machine.
-- **Zero Third-Party APIs:** No commercial cloud LLM APIs, telemetry, or user tracking.
+- **100% On-Device / Self-Hosted by default:** Speech recognition, embeddings, vector search, and audio synthesis run directly on your machine.
+- **No cloud LLM unless you opt in:** There are no built-in third-party APIs — if you want a hosted reasoner, you wire in your own provider and API key (see [Bring Your Own LLM](#bring-your-own-llm)). No telemetry, no user tracking.
 - **License:** Released under the [Apache License 2.0](LICENSE). Demo assets sourced from Project Gutenberg and public research papers.

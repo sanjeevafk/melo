@@ -1,0 +1,15 @@
+# Azure Developer CLI (azd) project definition.
+# Deploy the public demo with:  azd up
+# See README "Deployment" for the free-tier cost picture.
+name: echoread
+metadata:
+  template: echoread@0.1.0
+
+services:
+  web:
+    project: .
+    language: python
+    host: containerapp
+    docker:
+      path: ./Dockerfile
+      context: .

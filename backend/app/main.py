@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from backend.app.config import settings
+from backend.app.config import REPO_ROOT, settings
 from backend.app.db import init_db
 from backend.app.errors import ApiError
 from backend.app.routers import books, health, query, tts, upload, voice
@@ -63,6 +63,13 @@ def create_app() -> FastAPI:
         StaticFiles(directory=str(settings.books_dir)),
         name="media",
     )
+    dist_dir = REPO_ROOT / "web" / "dist"
+    if dist_dir.exists():
+        application.mount(
+            "/",
+            StaticFiles(directory=str(dist_dir), html=True),
+            name="spa",
+        )
     return application
 
 

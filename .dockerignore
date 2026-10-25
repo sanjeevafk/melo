@@ -1,0 +1,36 @@
+# Keep the build context small and secret-free.
+.git
+.zcode
+.env
+.env.*
+!.env.example
+.venv
+**/__pycache__
+.pytest_cache
+.ruff_cache
+.mypy_cache
+.coverage
+htmlcov
+
+# Rebuilt inside the image
+web/node_modules
+web/dist
+web/.vite
+web/playwright-report
+web/test-results
+web/blob-report
+
+# Fetched/produced during the image build (never ship local copies)
+data/models
+data/demo_cache
+data/*.db
+
+# Only the committed demo books may enter the image — exclude personal books
+data/books/*
+!data/books/styles-ch2
+!data/books/attention
+
+# Not needed at runtime
+demo
+docs
+*.log
