@@ -98,7 +98,7 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("LLM_PROVIDER", "MELO_LLM_PROVIDER", "ECHOREAD_LLM_PROVIDER"),
     )
     llm_endpoint: str = Field(
-        default="http://100.127.242.86:11434",
+        default="http://localhost:11434",
         validation_alias=AliasChoices(
             "LLM_ENDPOINT",
             "MELO_LLM_ENDPOINT",
@@ -106,6 +106,10 @@ class Settings(BaseSettings):
             "OLLAMA_HOST",
             "OLLAMA_BASE_URL",
         ),
+    )
+    llm_api_key: str = Field(
+        default="",
+        validation_alias=AliasChoices("LLM_API_KEY", "MELO_LLM_API_KEY", "ECHOREAD_LLM_API_KEY"),
     )
     llm_model: str = Field(
         default="gemma4:e2b",

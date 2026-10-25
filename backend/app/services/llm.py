@@ -227,10 +227,12 @@ class OpenAILLM:
         endpoint: str,
         model: str,
         timeout: float = 60.0,
+        api_key: str = "",
     ) -> None:
         self.endpoint = endpoint.rstrip("/")
         self.model = model
         self.timeout = timeout
+        self.api_key = api_key
 
     def count_tokens(self, text: str) -> int:
         return max(1, len(text.encode("utf-8")) // 4)
@@ -242,6 +244,11 @@ class OpenAILLM:
         if self.endpoint.endswith("/v1"):
             return f"{self.endpoint}/chat/completions"
         return f"{self.endpoint}/v1/chat/completions"
+
+    def _headers(self) -> dict[str, str] | None:
+        if not self.api_key:
+            return None
+        return {"Authorization": f"Bearer {self.api_key}"}
 
     def complete(self, messages: list[dict[str, str]]) -> str:
         fitted = self.fit_prompt(messages)
@@ -255,7 +262,7 @@ class OpenAILLM:
         }
         try:
             with httpx.Client(timeout=self.timeout) as client:
-                response = client.post(self._chat_url(), json=payload)
+                response = client.post(self._chat_url(), json=payload, headers=self._headers())
                 response.raise_for_status()
                 data = response.json()
                 content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
@@ -278,7 +285,9 @@ class OpenAILLM:
             try:
                 with (
                     httpx.Client(timeout=self.timeout) as client,
-                    client.stream("POST", self._chat_url(), json=payload) as response,
+                    client.stream(
+                        "POST", self._chat_url(), json=payload, headers=self._headers()
+                    ) as response,
                 ):
                     response.raise_for_status()
                     for line in response.iter_lines():
@@ -370,25 +379,28 @@ class LlamaLLM:
 LLM = LlamaLLM
 
 
-def check_remote_llm(endpoint: str, timeout: float = 2.0) -> bool:
+def check_remote_llm(endpoint: str, timeout: float = 2.0, api_key: str = "") -> bool:
+    headers = {"Authorization": f"Bearer {api_key}"} if api_key else None
     try:
         base = endpoint.rstrip("/")
         with httpx.Client(timeout=timeout) as client:
             try:
-                resp = client.get(f"{base}/api/tags")
+                resp = client.get(f"{base}/api/tags", headers=headers)
                 if resp.status_code == 200:
                     return True
             except Exception:
                 pass
-            resp = client.get(f"{base}/v1/models")
+            resp = client.get(f"{base}/v1/models", headers=headers)
             return resp.status_code == 200
     except Exception:
         return False
 
 
 def llm_ready() -> bool:
-    if settings.llm_provider in ("ollama", "openai"):
+    if settings.llm_provider == "ollama":
         return check_remote_llm(settings.llm_endpoint)
+    if settings.llm_provider == "openai":
+        return check_remote_llm(settings.llm_endpoint, api_key=settings.llm_api_key)
     return settings.llm_model_path.exists()
 
 
@@ -417,6 +429,7 @@ def get_llm() -> Any:
             endpoint=settings.llm_endpoint,
             model=settings.llm_model,
             timeout=settings.llm_timeout_seconds,
+            api_key=settings.llm_api_key,
         )
     elif provider == "llama_cpp":
         if not settings.llm_model_path.exists():
