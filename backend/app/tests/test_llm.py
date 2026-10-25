@@ -169,12 +169,8 @@ def test_check_remote_llm_sends_api_key():
     with patch("httpx.Client.get", side_effect=[tags_miss, models_hit]) as mock_get:
         assert check_remote_llm("https://api.groq.com/openai/v1", api_key="gsk_test") is True
         # Both the Ollama probe and the OpenAI-compatible probe carry the key.
-        assert mock_get.call_args_list[0].kwargs["headers"] == {
-            "Authorization": "Bearer gsk_test"
-        }
-        assert mock_get.call_args_list[1].kwargs["headers"] == {
-            "Authorization": "Bearer gsk_test"
-        }
+        assert mock_get.call_args_list[0].kwargs["headers"] == {"Authorization": "Bearer gsk_test"}
+        assert mock_get.call_args_list[1].kwargs["headers"] == {"Authorization": "Bearer gsk_test"}
 
 
 def test_check_remote_llm_no_header_without_key():
@@ -195,6 +191,4 @@ def test_llm_ready_openai_uses_configured_key():
     ):
         mock_get.return_value.status_code = 200
         assert llm_module.llm_ready() is True
-        assert mock_get.call_args_list[-1].kwargs["headers"] == {
-            "Authorization": "Bearer gsk_test"
-        }
+        assert mock_get.call_args_list[-1].kwargs["headers"] == {"Authorization": "Bearer gsk_test"}
