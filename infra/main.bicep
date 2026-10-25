@@ -39,7 +39,9 @@ resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
     }
     retentionInDays: 7
     workspaceCapping: {
-      dailyQuotaGb: 0.167
+      // json() wrapper: Bicep < 0.49 (incl. the one azd bundles) has no float
+      // literals and lexes 0.167 as int 0 + property access.
+      dailyQuotaGb: json('0.167')
     }
   }
 }
