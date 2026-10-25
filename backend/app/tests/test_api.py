@@ -441,3 +441,20 @@ def test_voice_query_passes_book_hotwords(
         list(response.iter_lines())
 
     assert captured["hotwords"] == ["Poirot", "Cavendish"]
+
+
+def test_health_endpoints(client: TestClient) -> None:
+    for path in ("/api/health", "/health"):
+        response = client.get(path)
+        assert response.status_code == 200
+        payload = response.json()
+        assert "ready" in payload
+        assert "models" in payload
+        assert "db" in payload
+
+
+def test_keep_alive_endpoints(client: TestClient) -> None:
+    for path in ("/api/keep-alive", "/keep-alive", "/ping"):
+        response = client.get(path)
+        assert response.status_code == 200
+        assert response.json() == {"status": "ok", "app": "echoread"}

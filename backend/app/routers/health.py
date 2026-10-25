@@ -27,6 +27,7 @@ def model_statuses() -> dict[str, ModelStatus]:
 
 
 @router.get("/api/health", response_model=HealthResponse)
+@router.get("/health", response_model=HealthResponse)
 def health() -> HealthResponse:
     models = model_statuses()
     database_ready = db_health()
@@ -37,3 +38,10 @@ def health() -> HealthResponse:
         models=models,
         db="ready" if database_ready else "error",
     )
+
+
+@router.get("/api/keep-alive")
+@router.get("/keep-alive")
+@router.get("/ping")
+def keep_alive() -> dict[str, str]:
+    return {"status": "ok", "app": "echoread"}
