@@ -252,7 +252,7 @@ class OpenAILLM:
 
     def complete(self, messages: list[dict[str, str]]) -> str:
         fitted = self.fit_prompt(messages)
-        payload = {
+        payload: dict[str, Any] = {
             "model": self.model,
             "messages": fitted,
             "stream": False,
@@ -260,6 +260,8 @@ class OpenAILLM:
             "top_p": 0.9,
             "max_tokens": MAX_ANSWER_TOKENS,
         }
+        if not settings.llm_think:
+            payload["chat_template_kwargs"] = {"enable_thinking": False}
         try:
             with httpx.Client(timeout=self.timeout) as client:
                 response = client.post(self._chat_url(), json=payload, headers=self._headers())
@@ -272,7 +274,7 @@ class OpenAILLM:
 
     def stream(self, messages: list[dict[str, str]]) -> Iterator[str]:
         fitted = self.fit_prompt(messages)
-        payload = {
+        payload: dict[str, Any] = {
             "model": self.model,
             "messages": fitted,
             "stream": True,
@@ -280,6 +282,8 @@ class OpenAILLM:
             "top_p": 0.9,
             "max_tokens": MAX_ANSWER_TOKENS,
         }
+        if not settings.llm_think:
+            payload["chat_template_kwargs"] = {"enable_thinking": False}
 
         def _raw_stream() -> Iterator[str]:
             try:
@@ -383,6 +387,8 @@ def check_remote_llm(endpoint: str, timeout: float = 2.0, api_key: str = "") -> 
     headers = {"Authorization": f"Bearer {api_key}"} if api_key else None
     try:
         base = endpoint.rstrip("/")
+        if base.endswith("/v1"):
+            base = base[:-3]
         with httpx.Client(timeout=timeout) as client:
             try:
                 resp = client.get(f"{base}/api/tags", headers=headers)

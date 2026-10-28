@@ -204,7 +204,8 @@ def validate_voice_clip(
     max_bytes: int,
     max_ms: int,
 ) -> AudioInfo:
-    if content_type not in VOICE_TYPES:
+    clean_type = content_type.split(";")[0].strip().lower() if content_type else None
+    if clean_type not in VOICE_TYPES:
         raise AudioValidationError(
             "unsupported_format",
             "Use a WAV, WebM, or Ogg voice clip",

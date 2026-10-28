@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import logging
+import subprocess
+import tempfile
 import threading
 from dataclasses import dataclass
 from functools import lru_cache
@@ -93,41 +95,62 @@ class PhononSTT(BaseSTT):
         hotwords: list[str] | None = None,
         word_timestamps: bool = True,
     ) -> tuple[str, list[TranscriptWord]]:
-        with self._lock:
-            if word_timestamps:
-                detailed = self._speech.transcribe_detailed(
-                    str(audio_path),
-                    hotwords=hotwords or [],
-                )
-                text = (detailed.text or "").strip()
-                words: list[TranscriptWord] = []
-                for w in detailed.words or []:
-                    word_str = (
-                        w.get("text", "").strip()
-                        if isinstance(w, dict)
-                        else getattr(w, "text", "").strip()
+        target_path = audio_path
+        tmp_wav = None
+        if audio_path.suffix.lower() in {".webm", ".m4a", ".ogg"}:
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+                tmp_name = tmp.name
+            subprocess.run(
+                ["ffmpeg", "-y", "-i", str(audio_path), "-ar", "16000", "-ac", "1", tmp_name],
+                check=True,
+                capture_output=True,
+            )
+            target_path = Path(tmp_name)
+            tmp_wav = target_path
+
+        try:
+            with self._lock:
+                if word_timestamps:
+                    detailed = self._speech.transcribe_detailed(
+                        str(target_path),
+                        hotwords=hotwords or [],
                     )
-                    if word_str:
-                        start_val = (
-                            w.get("start", 0.0) if isinstance(w, dict) else getattr(w, "start", 0.0)
+                    text = (detailed.text or "").strip()
+                    words: list[TranscriptWord] = []
+                    for w in detailed.words or []:
+                        word_str = (
+                            w.get("text", "").strip()
+                            if isinstance(w, dict)
+                            else getattr(w, "text", "").strip()
                         )
-                        end_val = (
-                            w.get("end", 0.0) if isinstance(w, dict) else getattr(w, "end", 0.0)
-                        )
-                        words.append(
-                            TranscriptWord(
-                                word=word_str,
-                                start_ms=int(round(start_val * 1000)),
-                                end_ms=int(round(end_val * 1000)),
+                        if word_str:
+                            start_val = (
+                                w.get("start", 0.0)
+                                if isinstance(w, dict)
+                                else getattr(w, "start", 0.0)
                             )
-                        )
-                return text, words
-            else:
-                text, _, _ = self._speech.transcribe(
-                    str(audio_path),
-                    hotwords=hotwords or [],
-                )
-                return (text or "").strip(), []
+                            end_val = (
+                                w.get("end", 0.0)
+                                if isinstance(w, dict)
+                                else getattr(w, "end", 0.0)
+                            )
+                            words.append(
+                                TranscriptWord(
+                                    word=word_str,
+                                    start_ms=int(round(start_val * 1000)),
+                                    end_ms=int(round(end_val * 1000)),
+                                )
+                            )
+                    return text, words
+                else:
+                    text, _, _ = self._speech.transcribe(
+                        str(target_path),
+                        hotwords=hotwords or [],
+                    )
+                    return (text or "").strip(), []
+        finally:
+            if tmp_wav:
+                tmp_wav.unlink(missing_ok=True)
 
 
 class STT(BaseSTT):

@@ -26,9 +26,9 @@ export interface HandsFreeController {
 
 const VAD_OPTIONS = {
   calibrationMs: 500,
-  minSpeechMs: 350,
+  minSpeechMs: 250,
   refractoryMs: 1500,
-  floorMultiplier: 2.5,
+  floorMultiplier: 2.0,
   minThreshold: 0.004,
 } as const;
 

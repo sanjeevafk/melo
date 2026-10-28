@@ -26,7 +26,11 @@ from backend.app.prompts import (
     take_first_tts_chunk,
 )
 from backend.app.schemas import HistoryTurn, Mode
-from backend.app.services.audio import AudioValidationError, validate_voice_clip
+from backend.app.services.audio import (
+    VOICE_TYPES,
+    AudioValidationError,
+    validate_voice_clip,
+)
 from backend.app.services.embeddings import EmbeddingUnavailable
 from backend.app.services.llm import LLMUnavailable, get_llm
 from backend.app.services.retrieval import build_context
@@ -316,8 +320,13 @@ def voice_query(
         raise ApiError(400, "invalid_t_ms", "t_ms must be non-negative")
     turns = _parse_history(history)
 
-    suffix = Path(audio.filename or "clip.wav").suffix or ".wav"
-    if audio.content_type == "audio/wav" and suffix.lower() != ".wav":
+    clean_type = (
+        audio.content_type.split(";")[0].strip().lower() if audio.content_type else ""
+    )
+    suffix = Path(audio.filename or "").suffix
+    if clean_type in VOICE_TYPES:
+        suffix = VOICE_TYPES[clean_type]
+    elif not suffix:
         suffix = ".wav"
     descriptor, name = tempfile.mkstemp(prefix="melo-voice-", suffix=suffix)
     path = Path(name)
