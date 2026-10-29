@@ -1,16 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
-import {
-  Mic,
-  MicOff,
-  Pause,
-  Play,
-  RotateCcw,
-  RotateCw,
-  Volume2,
-  VolumeX,
-} from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { Mic, MicOff, Pause, Play, RotateCcw, RotateCw, Volume2, VolumeX } from "./ui/icons";
 
 import type { BookManifest } from "../api/types";
 import { formatDuration } from "../lib/time";
@@ -104,14 +94,7 @@ export function Dock({
   const micDisabled = !book;
 
   return (
-    <motion.div
-      initial={{ y: 40, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-      className="dock"
-      role="toolbar"
-      aria-label="Playback and voice controls"
-    >
+    <div className="dock" role="toolbar" aria-label="Playback and voice controls">
       {/* Transport */}
       <button
         type="button"
@@ -124,32 +107,21 @@ export function Dock({
         <RotateCcw size={16} aria-hidden="true" />
       </button>
 
-      <motion.button
+      <button
         type="button"
         onClick={onToggle}
         disabled={!book}
-        whileHover={{ scale: 1.04 }}
-        whileTap={{ scale: 0.94 }}
-        className="dock-play"
+        className="dock-play hover:scale-105 active:scale-95 transition-transform"
         aria-label={playing ? "Pause narration" : "Play narration"}
       >
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.span
-            key={playing ? "pause" : "play"}
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.5, opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            className="grid place-items-center"
-          >
-            {playing ? (
-              <Pause size={20} fill="currentColor" aria-hidden="true" />
-            ) : (
-              <Play className="translate-x-0.5" size={20} fill="currentColor" aria-hidden="true" />
-            )}
-          </motion.span>
-        </AnimatePresence>
-      </motion.button>
+        <span className="grid place-items-center">
+          {playing ? (
+            <Pause size={20} fill="currentColor" aria-hidden="true" />
+          ) : (
+            <Play className="translate-x-0.5" size={20} fill="currentColor" aria-hidden="true" />
+          )}
+        </span>
+      </button>
 
       <button
         type="button"
@@ -180,14 +152,16 @@ export function Dock({
             onClick={(event) => {
               if (!canSkip) return;
               const bounds = event.currentTarget.getBoundingClientRect();
-              const fraction = Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width));
+              const fraction = Math.max(
+                0,
+                Math.min(1, (event.clientX - bounds.left) / bounds.width),
+              );
               onSeek(fraction * durationMs);
             }}
           >
-            <motion.div
-              className="dock-progress-fill"
-              animate={{ width: `${progress * 100}%` }}
-              transition={{ type: "tween", ease: "linear", duration: 0.2 }}
+            <div
+              className="dock-progress-fill transition-[width] duration-200 ease-linear"
+              style={{ width: `${progress * 100}%` }}
             />
           </div>
           <div className="dock-times">
@@ -210,7 +184,12 @@ export function Dock({
       </div>
 
       {/* Speed chip */}
-      <button type="button" className="dock-btn dock-rate" onClick={nextRate} aria-label={`Playback speed ${rate}x`}>
+      <button
+        type="button"
+        className="dock-btn dock-rate"
+        onClick={nextRate}
+        aria-label={`Playback speed ${rate}x`}
+      >
         {rate}x
       </button>
 
@@ -252,7 +231,11 @@ export function Dock({
           className="dock-btn"
           title={voiceOn ? "Mute demo narration voice" : "Unmute demo narration voice"}
         >
-          {voiceOn ? <Volume2 size={15} aria-hidden="true" /> : <MicOff size={15} aria-hidden="true" />}
+          {voiceOn ? (
+            <Volume2 size={15} aria-hidden="true" />
+          ) : (
+            <MicOff size={15} aria-hidden="true" />
+          )}
         </button>
       )}
 
@@ -271,6 +254,6 @@ export function Dock({
         <span className="dock-mic-ring" aria-hidden="true" />
         <Mic size={18} aria-hidden="true" />
       </button>
-    </motion.div>
+    </div>
   );
 }

@@ -1,8 +1,6 @@
-import { Bookmark, CircleAlert, CloudOff, Gauge, Plus, Radio, BookOpen } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { Bookmark, CircleAlert, CloudOff, Gauge, Plus, Radio, BookOpen } from "./ui/icons";
 
 import type { BookSummary, HealthResponse, Mode } from "../api/types";
-import { riseIn, spring } from "../lib/motion";
 import { ModeToggle } from "./ModeToggle";
 
 interface HeaderProps {
@@ -67,17 +65,12 @@ export function Header({
   const dotClass = { safe: "bg-[#7ea38f]", danger: "bg-[#c96a63]", amber: "bg-[#cba36e]" }[tone];
 
   return (
-    <motion.header
-      variants={riseIn}
-      className="sticky top-3 z-30 flex flex-col gap-4 rounded-2xl border border-white/[0.08] bg-[#0c0d10]/90 px-4 py-3 shadow-[0_12px_32px_-12px_rgba(0,0,0,0.85)] backdrop-blur-xl lg:flex-row lg:items-center lg:justify-between lg:px-6"
-    >
+    <header className="sticky top-3 z-30 flex flex-col gap-4 rounded-2xl border border-white/[0.08] bg-[#0c0d10]/90 px-4 py-3 shadow-[0_12px_32px_-12px_rgba(0,0,0,0.85)] backdrop-blur-xl lg:flex-row lg:items-center lg:justify-between lg:px-6">
       <div className="flex items-center gap-3.5">
         <Logo />
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="font-display text-xl font-medium tracking-tight text-[#f5f0e6]">
-              MELO
-            </h1>
+            <h1 className="font-display text-xl font-medium tracking-tight text-[#f5f0e6]">MELO</h1>
             <span className="rounded-full border border-white/10 bg-white/[0.03] px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.16em] text-white/40">
               v0.1
             </span>
@@ -90,14 +83,14 @@ export function Header({
 
       <div className="flex flex-wrap items-center gap-2.5">
         {/* Status Pill */}
-        <motion.div
-          layout
-          transition={spring}
+        <div
           className={`flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium ${toneClass}`}
           title={healthError ?? undefined}
         >
           <span className="relative flex size-1.5">
-            <span className={`absolute inline-flex size-full animate-ping rounded-full opacity-60 ${dotClass}`} />
+            <span
+              className={`absolute inline-flex size-full animate-ping rounded-full opacity-60 ${dotClass}`}
+            />
             <span className={`relative inline-flex size-1.5 rounded-full ${dotClass}`} />
           </span>
           {healthError ? (
@@ -107,18 +100,8 @@ export function Header({
           ) : (
             <CircleAlert size={13} aria-hidden="true" />
           )}
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.span
-              key={label}
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.15 }}
-            >
-              {label}
-            </motion.span>
-          </AnimatePresence>
-        </motion.div>
+          <span>{label}</span>
+        </div>
 
         {/* Book Selector Dropdown */}
         <label className="sr-only" htmlFor="book-select">
@@ -147,40 +130,29 @@ export function Header({
 
         {/* Lore Log Drawer Trigger */}
         {onOpenLore && (
-          <motion.button
+          <button
             type="button"
             onClick={onOpenLore}
-            whileTap={{ scale: 0.95 }}
-            className="inline-flex h-8 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3 text-xs font-medium text-white/70 transition-colors hover:border-[#cba36e]/40 hover:text-[#cba36e]"
+            className="inline-flex h-8 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3 text-xs font-medium text-white/70 transition-all hover:border-[#cba36e]/40 hover:text-[#cba36e] active:scale-95"
             title="Open Lore Log (Voice Bookmarks)"
           >
             <Bookmark size={13} aria-hidden="true" />
             <span>Lore Log</span>
-            <AnimatePresence>
-              {typeof loreCount === "number" && loreCount > 0 && (
-                <motion.span
-                  key={loreCount}
-                  initial={{ scale: 0.4, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.4, opacity: 0 }}
-                  transition={spring}
-                  className="rounded-full bg-[#cba36e]/20 px-1.5 py-0.2 font-mono text-[10px] text-[#cba36e]"
-                >
-                  {loreCount}
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </motion.button>
+            {typeof loreCount === "number" && loreCount > 0 && (
+              <span className="rounded-full bg-[#cba36e]/20 px-1.5 py-0.2 font-mono text-[10px] text-[#cba36e]">
+                {loreCount}
+              </span>
+            )}
+          </button>
         )}
 
         {/* Latency Toggle */}
-        <motion.button
+        <button
           type="button"
           onClick={onToggleTimings}
-          whileTap={{ scale: 0.95 }}
           aria-pressed={showTimings}
           title="Show local latency measurements"
-          className={`hidden h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-colors sm:inline-flex ${
+          className={`hidden h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-all active:scale-95 sm:inline-flex ${
             showTimings
               ? "border-[#cba36e]/40 bg-[#cba36e]/10 text-[#cba36e]"
               : "border-white/10 bg-white/[0.02] text-white/50 hover:text-white/80"
@@ -188,20 +160,18 @@ export function Header({
         >
           <Gauge size={13} aria-hidden="true" />
           Latency
-        </motion.button>
+        </button>
 
         {/* Add Content Modal Trigger */}
-        <motion.button
+        <button
           type="button"
           onClick={onAddBook}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.96 }}
-          className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[#cba36e]/30 bg-gradient-to-r from-[#cba36e]/20 to-[#cba36e]/10 px-3.5 text-xs font-medium text-[#f5f0e6] shadow-sm transition-colors hover:border-[#cba36e]/60"
+          className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[#cba36e]/30 bg-gradient-to-r from-[#cba36e]/20 to-[#cba36e]/10 px-3.5 text-xs font-medium text-[#f5f0e6] shadow-sm transition-all hover:border-[#cba36e]/60 hover:scale-[1.02] active:scale-95"
         >
           <Plus size={13} aria-hidden="true" />
           Add content
-        </motion.button>
+        </button>
       </div>
-    </motion.header>
+    </header>
   );
 }

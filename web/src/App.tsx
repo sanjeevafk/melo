@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
-import { AudioLines, TriangleAlert } from "lucide-react";
-import { AnimatePresence, MotionConfig, motion } from "motion/react";
+import { AudioLines, TriangleAlert } from "./components/ui/icons";
 
 import type { BookManifest, BookSummary, Mode } from "./api/types";
 import { ContextPanel } from "./components/ContextPanel";
@@ -15,7 +14,6 @@ import { Transcript } from "./components/Transcript";
 import { UploadDialog } from "./components/UploadDialog";
 import { VoiceDock } from "./components/VoiceDock";
 import { AmbientBackground } from "./components/ui/AmbientBackground";
-import { revealText, riseIn, staggerContainer } from "./lib/motion";
 import { getBookAccent } from "./lib/demoData";
 import { useAudioPlayer } from "./hooks/useAudioPlayer";
 import { useBookManifest } from "./hooks/useBookManifest";
@@ -116,18 +114,12 @@ export default function App() {
   const serviceError = booksError ?? manifestError;
 
   return (
-    <MotionConfig reducedMotion="user">
     <div
       className="relative min-h-screen overflow-x-hidden bg-ink-950 text-white/80"
       style={{ "--book-accent": accent } as CSSProperties}
     >
       <AmbientBackground accent={accent} />
-      <motion.div
-        variants={staggerContainer}
-        initial="hidden"
-        animate="show"
-        className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col px-5 py-6 lg:px-8"
-      >
+      <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col px-5 py-6 lg:px-8">
         <Header
           health={health}
           healthError={healthError}
@@ -144,16 +136,16 @@ export default function App() {
         />
 
         <main className="grid flex-1 gap-6 pb-40 pt-8 lg:grid-cols-[1.35fr_0.9fr]">
-          <motion.div variants={staggerContainer} className="grid content-start gap-6">
-            <motion.div variants={riseIn}>
+          <div className="grid content-start gap-6">
+            <div>
               <BookShowcase
                 book={manifest}
                 playing={player.playing}
                 currentMs={player.currentMs}
                 mode={mode}
               />
-            </motion.div>
-            <motion.div variants={riseIn}>
+            </div>
+            <div>
               <Player
                 book={manifest}
                 currentMs={player.currentMs}
@@ -163,26 +155,21 @@ export default function App() {
                 mode={mode}
                 onSeek={player.seek}
               />
-            </motion.div>
-            <motion.div variants={riseIn}>
-            <Transcript
-              words={manifest?.words ?? []}
-              currentMs={player.currentMs}
-              mode={mode}
-              onSeek={player.seek}
-            />
-            </motion.div>
-          </motion.div>
+            </div>
+            <div>
+              <Transcript
+                words={manifest?.words ?? []}
+                currentMs={player.currentMs}
+                mode={mode}
+                onSeek={player.seek}
+              />
+            </div>
+          </div>
 
-          <motion.div variants={staggerContainer} className="grid content-start gap-6">
-            <AnimatePresence mode="popLayout">
+          <div className="grid content-start gap-6">
             {serviceError ? (
-              <motion.div
+              <div
                 key="service-error"
-                variants={revealText}
-                initial="hidden"
-                animate="show"
-                exit="exit"
                 className="card border-danger/25 bg-danger/[0.06] p-5 text-sm text-danger"
               >
                 <p className="flex items-center gap-2 font-medium">
@@ -193,14 +180,10 @@ export default function App() {
                   Start it with <code className="font-mono text-[11px]">make dev</code> and reload.
                   {serviceError ? ` ${serviceError}` : ""}
                 </p>
-              </motion.div>
+              </div>
             ) : missingModels.length > 0 ? (
-              <motion.div
+              <div
                 key="models-missing"
-                variants={revealText}
-                initial="hidden"
-                animate="show"
-                exit="exit"
                 className="card border-amber/20 bg-amber/[0.05] p-5 text-sm text-white/60"
               >
                 <p className="flex items-center gap-2 font-medium text-amber">
@@ -208,56 +191,52 @@ export default function App() {
                   Local models are not ready
                 </p>
                 <p className="mt-2">Fetch them with `make setup && make models`, then reload.</p>
-              </motion.div>
+              </div>
             ) : null}
-            </AnimatePresence>
 
-            <motion.div variants={riseIn}>
-            <ContextPanel
-              mode={mode}
-              context={context}
-              error={contextError}
-              durationMs={player.durationMs}
-            />
-            </motion.div>
+            <div>
+              <ContextPanel
+                mode={mode}
+                context={context}
+                error={contextError}
+                durationMs={player.durationMs}
+              />
+            </div>
 
-            <motion.div variants={riseIn}>
-            <VoiceDock
-              key={selectedBookId ?? "no-book"}
-              book={manifest}
-              currentMs={player.currentMs}
-              mode={mode}
-              ready={health?.ready ?? false}
-              showTimings={showTimings}
-              playing={player.playing}
-              simulated={player.simulated}
-              onPause={player.fadeOutAndPause}
-              onResumeAt={(tMs) => {
-                player.seek(tMs);
-                void player.play();
-              }}
-              onAnswered={lore.refresh}
-              onSwitchMode={setMode}
-            />
-            </motion.div>
+            <div>
+              <VoiceDock
+                key={selectedBookId ?? "no-book"}
+                book={manifest}
+                currentMs={player.currentMs}
+                mode={mode}
+                ready={health?.ready ?? false}
+                showTimings={showTimings}
+                playing={player.playing}
+                simulated={player.simulated}
+                onPause={player.fadeOutAndPause}
+                onResumeAt={(tMs) => {
+                  player.seek(tMs);
+                  void player.play();
+                }}
+                onAnswered={lore.refresh}
+                onSwitchMode={setMode}
+              />
+            </div>
 
-            <motion.div variants={riseIn}>
-            <TextQuery
-              key={`${selectedBookId ?? "no-book"}-${mode}`}
-              bookId={selectedBookId}
-              tMs={player.currentMs}
-              mode={mode}
-              showTimings={showTimings}
-              onAnswered={lore.refresh}
-            />
-            </motion.div>
-          </motion.div>
+            <div>
+              <TextQuery
+                key={`${selectedBookId ?? "no-book"}-${mode}`}
+                bookId={selectedBookId}
+                tMs={player.currentMs}
+                mode={mode}
+                showTimings={showTimings}
+                onAnswered={lore.refresh}
+              />
+            </div>
+          </div>
         </main>
 
-        <motion.footer
-          variants={riseIn}
-          className="flex flex-col gap-2 border-t border-white/[0.07] py-5 text-[11px] text-white/30 sm:flex-row sm:items-center sm:justify-between"
-        >
+        <footer className="flex flex-col gap-2 border-t border-white/[0.07] py-5 text-[11px] text-white/30 sm:flex-row sm:items-center sm:justify-between">
           <span className="inline-flex items-center gap-2">
             <span className="relative flex size-1.5">
               <span className="absolute inline-flex size-full animate-ping rounded-full bg-safe/60" />
@@ -265,9 +244,11 @@ export default function App() {
             </span>
             Audio, transcripts, and answers stay on this machine.
           </span>
-          <span className="font-mono uppercase tracking-[0.14em]">Local temporal RAG · No telemetry</span>
-        </motion.footer>
-      </motion.div>
+          <span className="font-mono uppercase tracking-[0.14em]">
+            Local temporal RAG · No telemetry
+          </span>
+        </footer>
+      </div>
 
       <UploadDialog
         open={uploadOpen}
@@ -303,6 +284,5 @@ export default function App() {
         onVolumeChange={setVolume}
       />
     </div>
-    </MotionConfig>
   );
 }

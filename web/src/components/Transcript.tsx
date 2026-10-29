@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { LockKeyhole, Unlock } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { LockKeyhole, Unlock } from "./ui/icons";
 
 import type { Mode, WordTiming } from "../api/types";
 import { formatDuration } from "../lib/time";
@@ -20,7 +19,7 @@ export function Transcript({ words, currentMs, mode, onSeek }: TranscriptProps) 
   const [awayFromPlayhead, setAwayFromPlayhead] = useState(false);
   const activeIndex = useMemo(() => activeWordIndex(words, currentMs), [currentMs, words]);
 
-  const activeChunkId = activeIndex >= 0 ? words[activeIndex]?.chunk_id ?? null : null;
+  const activeChunkId = activeIndex >= 0 ? (words[activeIndex]?.chunk_id ?? null) : null;
   const firstLockedIdx = useMemo(
     () => (mode === "story" ? words.findIndex((w) => w.start_ms > currentMs) : -1),
     [words, currentMs, mode],
@@ -75,34 +74,37 @@ export function Transcript({ words, currentMs, mode, onSeek }: TranscriptProps) 
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="eyebrow">Synchronized transcript</p>
-          <h2 id="transcript-heading" className="mt-2 font-display text-xl font-medium tracking-[-0.02em] text-paper">
+          <h2
+            id="transcript-heading"
+            className="mt-2 font-display text-xl font-medium tracking-[-0.02em] text-paper"
+          >
             Follow the spoken word
           </h2>
         </div>
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.span
-            key={mode}
-            initial={{ opacity: 0, scale: 0.85, y: 4 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.85, y: -4 }}
-            transition={{ duration: 0.2 }}
-            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] ${
-              mode === "story"
-                ? "border-amber/30 bg-amber/10 text-amber"
-                : "border-[#6FB7C9]/30 bg-[#6FB7C9]/10 text-[#6FB7C9]"
-            }`}
-          >
-            {mode === "story" ? <LockKeyhole size={11} aria-hidden="true" /> : <Unlock size={11} aria-hidden="true" />}
-            {mode === "story" ? "Future locked" : "Full text"}
-          </motion.span>
-        </AnimatePresence>
+        <span
+          key={mode}
+          className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] transition-all duration-200 ${
+            mode === "story"
+              ? "border-amber/30 bg-amber/10 text-amber"
+              : "border-[#6FB7C9]/30 bg-[#6FB7C9]/10 text-[#6FB7C9]"
+          }`}
+        >
+          {mode === "story" ? (
+            <LockKeyhole size={11} aria-hidden="true" />
+          ) : (
+            <Unlock size={11} aria-hidden="true" />
+          )}
+          {mode === "story" ? "Future locked" : "Full text"}
+        </span>
       </div>
 
-      <div className="mt-4 h-[3px] w-full overflow-hidden rounded-full bg-white/[0.06]" aria-hidden="true">
-        <motion.div
-          className="h-full rounded-full bg-gradient-to-r from-safe via-amber to-ember"
-          animate={{ width: `${readFraction * 100}%` }}
-          transition={{ type: "tween", ease: "linear", duration: 0.25 }}
+      <div
+        className="mt-4 h-[3px] w-full overflow-hidden rounded-full bg-white/[0.06]"
+        aria-hidden="true"
+      >
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-safe via-amber to-ember transition-[width] duration-250 ease-linear"
+          style={{ width: `${readFraction * 100}%` }}
         />
       </div>
 
@@ -165,22 +167,11 @@ export function Transcript({ words, currentMs, mode, onSeek }: TranscriptProps) 
             })}
           </div>
 
-          <AnimatePresence>
-            {awayFromPlayhead && (
-              <motion.button
-                key="jump"
-                type="button"
-                onClick={jumpToNow}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 8 }}
-                transition={{ duration: 0.2 }}
-                className="tr-jump"
-              >
-                Jump to now
-              </motion.button>
-            )}
-          </AnimatePresence>
+          {awayFromPlayhead && (
+            <button type="button" onClick={jumpToNow} className="tr-jump">
+              Jump to now
+            </button>
+          )}
         </div>
       )}
 

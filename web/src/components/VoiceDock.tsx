@@ -1,13 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AudioLines, Ear, Mic, Quote, ShieldCheck, Square, TriangleAlert } from "lucide-react";
-
-import { AnimatePresence, motion } from "motion/react";
+import { AudioLines, Ear, Mic, Quote, ShieldCheck, Square, TriangleAlert } from "./ui/icons";
 
 import type { BookManifest, Mode } from "../api/types";
 import { useHandsFree } from "../hooks/useHandsFree";
 import { usePushToTalk } from "../hooks/usePushToTalk";
 import { useVoiceAnswer } from "../hooks/useVoiceAnswer";
-import { revealText, spring } from "../lib/motion";
 import { createEndpoint, type SpeechEndpoint } from "../lib/vad";
 import { matchControlCommand } from "../lib/voiceCommands";
 import { formatDuration } from "../lib/time";
@@ -164,7 +161,12 @@ export function VoiceDock({
   }, [book]);
   bargeInRef.current = () => void handleBargeIn();
 
-  const { recording, error: microphoneError, start, stop } = usePushToTalk({
+  const {
+    recording,
+    error: microphoneError,
+    start,
+    stop,
+  } = usePushToTalk({
     disabled: !book || !ready,
     stream: handsFree.stream,
     keyboardControls: !handsFreeOn,
@@ -234,11 +236,10 @@ export function VoiceDock({
 
   const error = microphoneError ?? voice.state.error ?? handsFreeError;
   const timings = voice.state.timings;
-  const firstAudioMs = timings
-    ? timings.llm_first_token_ms + timings.tts_first_sentence_ms
-    : null;
+  const firstAudioMs = timings ? timings.llm_first_token_ms + timings.tts_first_sentence_ms : null;
   const passiveListening =
-    handsFreeOn && handsFree.listening &&
+    handsFreeOn &&
+    handsFree.listening &&
     (voice.state.status === "idle" || voice.state.status === "done");
   const phase = orbPhase(passiveListening, recording, voice.state.status);
   const label = ready
@@ -277,7 +278,8 @@ export function VoiceDock({
   const beyondIdx = answer ? answer.indexOf(BEYOND_MARKER) : -1;
   const groundedAnswer =
     answer === null ? null : beyondIdx >= 0 ? answer.slice(0, beyondIdx).trim() : answer;
-  const beyondAnswer = answer && beyondIdx >= 0 ? answer.slice(beyondIdx + BEYOND_MARKER.length).trim() : null;
+  const beyondAnswer =
+    answer && beyondIdx >= 0 ? answer.slice(beyondIdx + BEYOND_MARKER.length).trim() : null;
   const isRefusal = Boolean(answer && answer.startsWith(REFUSAL_SENTENCE));
 
   return (
@@ -323,24 +325,24 @@ export function VoiceDock({
       <div className="mt-5 flex items-center gap-4 rounded-2xl border border-white/[0.07] bg-black/30 p-3.5">
         {/* Interactive Mic Orb */}
         <div className="relative grid size-16 shrink-0 place-items-center">
-          <AnimatePresence>
-            {(phase === "listening" || phase === "speaking") &&
-              [0, 1].map((ring) => (
-                <motion.span
-                  key={`${phase}-${ring}`}
-                  aria-hidden="true"
-                  className={`absolute inset-1 rounded-full border ${
-                    phase === "listening" ? "border-[#c96a63]/50" : "border-[#7ea38f]/50"
-                  }`}
-                  initial={{ scale: 0.9, opacity: 0.6 }}
-                  animate={{ scale: 1.5, opacity: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 1.6, repeat: Infinity, delay: ring * 0.6, ease: "easeOut" }}
-                />
-              ))}
-          </AnimatePresence>
+          {(phase === "listening" || phase === "speaking") && (
+            <>
+              <span
+                aria-hidden="true"
+                className={`pointer-events-none absolute inset-0 animate-ping rounded-full border opacity-50 ${
+                  phase === "listening" ? "border-[#c96a63]" : "border-[#7ea38f]"
+                }`}
+              />
+              <span
+                aria-hidden="true"
+                className={`pointer-events-none absolute -inset-2 animate-pulse rounded-full border opacity-30 ${
+                  phase === "listening" ? "border-[#c96a63]" : "border-[#7ea38f]"
+                }`}
+              />
+            </>
+          )}
 
-          <motion.button
+          <button
             type="button"
             disabled={!book || !ready}
             onPointerDown={(event) => {
@@ -359,43 +361,22 @@ export function VoiceDock({
             }}
             aria-label={recording ? "Stop recording and ask" : "Hold to ask a question"}
             aria-pressed={recording}
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.92 }}
-            transition={spring}
-            className={`relative grid size-12 place-items-center overflow-hidden rounded-full bg-gradient-to-br text-[#0c0d10] shadow-md transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${ORB_GRADIENT[phase]}`}
+            className={`relative grid size-12 place-items-center overflow-hidden rounded-full bg-gradient-to-br text-[#0c0d10] shadow-md transition-all hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 ${ORB_GRADIENT[phase]}`}
           >
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.span
-                key={recording ? "stop" : "mic"}
-                initial={{ scale: 0.4, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.4, opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                className="relative grid place-items-center"
-              >
-                {recording ? (
-                  <Square size={15} fill="currentColor" aria-hidden="true" />
-                ) : (
-                  <Mic size={18} aria-hidden="true" />
-                )}
-              </motion.span>
-            </AnimatePresence>
-          </motion.button>
+            <span className="relative grid place-items-center">
+              {recording ? (
+                <Square size={15} fill="currentColor" aria-hidden="true" />
+              ) : (
+                <Mic size={18} aria-hidden="true" />
+              )}
+            </span>
+          </button>
         </div>
 
         <div className="min-w-0 flex-1">
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.p
-              key={label}
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.15 }}
-              className="text-xs font-medium text-[#f5f0e6]/90"
-            >
-              {label}
-            </motion.p>
-          </AnimatePresence>
+          <p className="text-xs font-medium text-[#f5f0e6]/90 transition-opacity duration-200">
+            {label}
+          </p>
           {handsFreeOn ? (
             <p className="mt-0.5 text-[11px] text-white/40">
               Just speak — say “stop” or ask a question. Best in Chrome/Edge or with headphones.
@@ -412,221 +393,193 @@ export function VoiceDock({
 
           {/* Equalizer Waveform indicator */}
           <div className="mt-2.5 flex h-3 items-end gap-[2px]" aria-hidden="true">
-            {Array.from({ length: 16 }).map((_, index) => (
-              <motion.span
-                key={index}
-                className={`w-[2px] rounded-full ${
-                  phase === "listening"
-                    ? "bg-[#c96a63]"
-                    : phase === "speaking"
-                      ? "bg-[#7ea38f]"
-                      : busy
-                        ? "bg-[#cba36e]/60"
-                        : "bg-white/10"
-                }`}
-                animate={
-                  phase === "listening" || phase === "speaking"
-                    ? { height: ["15%", `${35 + ((index * 29) % 65)}%`, "20%"] }
-                    : busy
-                      ? { height: ["20%", "70%", "20%"] }
-                      : { height: "15%" }
-                }
-                transition={{
-                  duration: 0.5 + (index % 4) * 0.1,
-                  repeat: phase === "listening" || phase === "speaking" || busy ? Infinity : 0,
-                  ease: "easeInOut",
-                  delay: index * 0.04,
-                }}
-              />
-            ))}
+            {Array.from({ length: 16 }).map((_, index) => {
+              const isLive = phase === "listening" || phase === "speaking";
+              const barHeight = isLive
+                ? `${35 + ((index * 29) % 65)}%`
+                : busy
+                  ? `${20 + ((index * 17) % 55)}%`
+                  : "15%";
+              return (
+                <span
+                  key={index}
+                  className={`w-[2px] rounded-full transition-all duration-300 ${
+                    phase === "listening"
+                      ? "bg-[#c96a63]"
+                      : phase === "speaking"
+                        ? "bg-[#7ea38f]"
+                        : busy
+                          ? "bg-[#cba36e]/60"
+                          : "bg-white/10"
+                  }`}
+                  style={{
+                    height: barHeight,
+                  }}
+                />
+              );
+            })}
           </div>
         </div>
       </div>
 
-      <AnimatePresence>
-        {error ? (
-          <motion.div
-            key="error"
-            variants={revealText}
-            initial="hidden"
-            animate="show"
-            exit="exit"
-            className="mt-3.5 rounded-xl border border-[#c96a63]/30 bg-[#c96a63]/10 p-3 text-xs text-[#c96a63]"
-          >
-            <p className="flex items-center gap-2">
-              <TriangleAlert size={14} aria-hidden="true" />
-              {error}
-            </p>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+      {error ? (
+        <div className="mt-3.5 rounded-xl border border-[#c96a63]/30 bg-[#c96a63]/10 p-3 text-xs text-[#c96a63] transition-opacity duration-200">
+          <p className="flex items-center gap-2">
+            <TriangleAlert size={14} aria-hidden="true" />
+            {error}
+          </p>
+        </div>
+      ) : null}
 
-      <AnimatePresence>
-        {hint ? (
-          <motion.div
-            key="hint"
-            variants={revealText}
-            initial="hidden"
-            animate="show"
-            exit="exit"
-            className="mt-3.5 rounded-xl border border-amber/30 bg-amber/[0.06] p-3 text-xs text-amber"
-          >
-            <p className="flex items-center gap-2">
-              <AudioLines size={14} aria-hidden="true" />
-              {hint}
-            </p>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+      {hint ? (
+        <div className="mt-3.5 rounded-xl border border-amber/30 bg-amber/[0.06] p-3 text-xs text-amber transition-opacity duration-200">
+          <p className="flex items-center gap-2">
+            <AudioLines size={14} aria-hidden="true" />
+            {hint}
+          </p>
+        </div>
+      ) : null}
 
-      <AnimatePresence>
-        {voice.state.transcript ? (
-          <motion.div key="transcript" variants={revealText} initial="hidden" animate="show" exit="exit" className="mt-3.5">
-            <p className="eyebrow text-white/40">You asked</p>
-            <p className="mt-1 rounded-xl border border-white/10 bg-black/20 p-2.5 text-xs text-white/70">
-              {voice.state.transcript}
-            </p>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+      {voice.state.transcript ? (
+        <div className="mt-3.5 transition-opacity duration-200">
+          <p className="eyebrow text-white/40">You asked</p>
+          <p className="mt-1 rounded-xl border border-white/10 bg-black/20 p-2.5 text-xs text-white/70">
+            {voice.state.transcript}
+          </p>
+        </div>
+      ) : null}
 
-      <AnimatePresence>
-        {answer ? (
-          <motion.div key="answer" variants={revealText} initial="hidden" animate="show" exit="exit" className="mt-3.5">
-            {/* Header: mode badge + listener position stamp */}
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="eyebrow text-[#cba36e]">Answer</p>
-              <span
-                className={`rounded-full border px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] ${
-                  mode === "story"
-                    ? "border-amber/40 bg-amber/10 text-amber"
-                    : "border-[#6FB7C9]/40 bg-[#6FB7C9]/10 text-[#6FB7C9]"
-                }`}
-              >
-                {mode}
-              </span>
-              <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-white/35">
-                Answered as of {formatDuration(capturedTMsRef.current)}
-              </span>
+      {answer ? (
+        <div className="mt-3.5 transition-opacity duration-200">
+          {/* Header: mode badge + listener position stamp */}
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="eyebrow text-[#cba36e]">Answer</p>
+            <span
+              className={`rounded-full border px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] ${
+                mode === "story"
+                  ? "border-amber/40 bg-amber/10 text-amber"
+                  : "border-[#6FB7C9]/40 bg-[#6FB7C9]/10 text-[#6FB7C9]"
+              }`}
+            >
+              {mode}
+            </span>
+            <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-white/35">
+              Answered as of {formatDuration(capturedTMsRef.current)}
+            </span>
+          </div>
+
+          {isRefusal ? (
+            /* Refusal state — calm, never styled as an error */
+            <div className="mt-2 rounded-xl border border-amber/40 bg-amber/[0.06] p-4">
+              <p className="flex items-center gap-2 font-display text-sm text-amber">
+                <ShieldCheck size={16} aria-hidden="true" />
+                {REFUSAL_SENTENCE}
+              </p>
+              <p className="mt-1.5 text-xs text-white/50">
+                Keep listening, or switch to Study mode.
+              </p>
+              {onSwitchMode && (
+                <button
+                  type="button"
+                  onClick={() => onSwitchMode("study")}
+                  className="btn-ghost mt-2.5"
+                >
+                  Switch to Study mode
+                </button>
+              )}
             </div>
-
-            {isRefusal ? (
-              /* Refusal state — calm, never styled as an error */
-              <div className="mt-2 rounded-xl border border-amber/40 bg-amber/[0.06] p-4">
-                <p className="flex items-center gap-2 font-display text-sm text-amber">
-                  <ShieldCheck size={16} aria-hidden="true" />
-                  {REFUSAL_SENTENCE}
+          ) : (
+            <>
+              <div className="relative mt-1 select-text rounded-xl border border-[#cba36e]/20 bg-[#cba36e]/[0.04] p-3.5">
+                <p
+                  aria-live="polite"
+                  className="font-display text-[14px] leading-relaxed text-[#f5f0e6]"
+                >
+                  {groundedAnswer}
+                  {phase === "speaking" ? (
+                    <span
+                      aria-hidden="true"
+                      className="ml-1 inline-block h-3.5 w-[2px] translate-y-0.5 animate-caret bg-[#cba36e]"
+                    />
+                  ) : null}
                 </p>
-                <p className="mt-1.5 text-xs text-white/50">Keep listening, or switch to Study mode.</p>
-                {onSwitchMode && (
-                  <button
-                    type="button"
-                    onClick={() => onSwitchMode("study")}
-                    className="btn-ghost mt-2.5"
-                  >
-                    Switch to Study mode
-                  </button>
-                )}
               </div>
-            ) : (
-              <>
-                <div className="relative mt-1 select-text rounded-xl border border-[#cba36e]/20 bg-[#cba36e]/[0.04] p-3.5">
-                  <p aria-live="polite" className="font-display text-[14px] leading-relaxed text-[#f5f0e6]">
-                    {groundedAnswer}
-                    {phase === "speaking" ? (
-                      <span aria-hidden="true" className="ml-1 inline-block h-3.5 w-[2px] translate-y-0.5 animate-caret bg-[#cba36e]" />
-                    ) : null}
+              {beyondAnswer ? (
+                /* Study mode only: clearly separated background knowledge */
+                <div className="mt-2 rounded-xl border border-[#6FB7C9]/25 border-l-4 border-l-[#6FB7C9] bg-[#6FB7C9]/[0.05] p-3.5">
+                  <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-[#6FB7C9]">
+                    {BEYOND_MARKER}
+                  </p>
+                  <p className="mt-1 select-text font-display text-[13px] leading-relaxed text-white/75">
+                    {beyondAnswer}
                   </p>
                 </div>
-                {beyondAnswer ? (
-                  /* Study mode only: clearly separated background knowledge */
-                  <div className="mt-2 rounded-xl border border-[#6FB7C9]/25 border-l-4 border-l-[#6FB7C9] bg-[#6FB7C9]/[0.05] p-3.5">
-                    <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-[#6FB7C9]">
-                      {BEYOND_MARKER}
-                    </p>
-                    <p className="mt-1 select-text font-display text-[13px] leading-relaxed text-white/75">
-                      {beyondAnswer}
-                    </p>
-                  </div>
-                ) : null}
-              </>
-            )}
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+              ) : null}
+            </>
+          )}
+        </div>
+      ) : null}
 
-      <AnimatePresence>
-        {voice.state.context ? (
-          <motion.div
-            key="ctx"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="mt-3"
-          >
-            <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-white/40">
-              {[
-                `cutoff ${formatDuration(voice.state.context.cutoff_ms)}`,
-                `${voice.state.context.blocked_chunks} locked`,
-                `${voice.state.context.retrieved.length} retrieved`,
-              ].map((chip) => (
-                <span
-                  key={chip}
-                  className="rounded-full border border-white/10 bg-white/[0.02] px-2 py-0.5 font-mono"
-                >
-                  {chip}
-                </span>
-              ))}
-            </div>
+      {voice.state.context ? (
+        <div className="mt-3 transition-opacity duration-200">
+          <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-white/40">
+            {[
+              `cutoff ${formatDuration(voice.state.context.cutoff_ms)}`,
+              `${voice.state.context.blocked_chunks} locked`,
+              `${voice.state.context.retrieved.length} retrieved`,
+            ].map((chip) => (
+              <span
+                key={chip}
+                className="rounded-full border border-white/10 bg-white/[0.02] px-2 py-0.5 font-mono"
+              >
+                {chip}
+              </span>
+            ))}
+          </div>
 
-            {/* "Heard so far" source chips — past moments only; click to seek */}
-            {voice.state.context.retrieved.length > 0 ? (
-              <div className="mt-2">
-                <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-white/35">
-                  Heard so far
-                </p>
-                <div className="mt-1.5 flex flex-col gap-1.5">
-                  {voice.state.context.retrieved.slice(0, 3).map((excerpt) => (
-                    <button
-                      key={excerpt.chunk_id}
-                      type="button"
-                      onClick={() => onResumeAt(excerpt.start_ms)}
-                      className="group flex items-start gap-2 rounded-lg border border-white/10 bg-white/[0.02] p-2 text-left transition-colors hover:border-[#cba36e]/40 hover:bg-[#cba36e]/[0.05]"
-                    >
-                      <Quote size={11} aria-hidden="true" className="mt-0.5 shrink-0 text-[#cba36e]/70" />
-                      <span className="min-w-0">
-                        <span className="block truncate text-[11px] text-white/60 group-hover:text-white/80">
-                          {excerpt.text.length > 90 ? `${excerpt.text.slice(0, 90)}…` : excerpt.text}
-                        </span>
-                        <span className="mt-0.5 block font-mono text-[9px] text-white/35">
-                          {formatDuration(excerpt.start_ms)}–{formatDuration(excerpt.end_ms)}
-                        </span>
+          {/* "Heard so far" source chips — past moments only; click to seek */}
+          {voice.state.context.retrieved.length > 0 ? (
+            <div className="mt-2">
+              <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-white/35">
+                Heard so far
+              </p>
+              <div className="mt-1.5 flex flex-col gap-1.5">
+                {voice.state.context.retrieved.slice(0, 3).map((excerpt) => (
+                  <button
+                    key={excerpt.chunk_id}
+                    type="button"
+                    onClick={() => onResumeAt(excerpt.start_ms)}
+                    className="group flex items-start gap-2 rounded-lg border border-white/10 bg-white/[0.02] p-2 text-left transition-colors hover:border-[#cba36e]/40 hover:bg-[#cba36e]/[0.05]"
+                  >
+                    <Quote
+                      size={11}
+                      aria-hidden="true"
+                      className="mt-0.5 shrink-0 text-[#cba36e]/70"
+                    />
+                    <span className="min-w-0">
+                      <span className="block truncate text-[11px] text-white/60 group-hover:text-white/80">
+                        {excerpt.text.length > 90 ? `${excerpt.text.slice(0, 90)}…` : excerpt.text}
                       </span>
-                    </button>
-                  ))}
-                </div>
+                      <span className="mt-0.5 block font-mono text-[9px] text-white/35">
+                        {formatDuration(excerpt.start_ms)}–{formatDuration(excerpt.end_ms)}
+                      </span>
+                    </span>
+                  </button>
+                ))}
               </div>
-            ) : null}
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
 
-      <AnimatePresence>
-        {timings && showTimings ? (
-          <motion.div
-            key="timings"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="mt-3 grid grid-cols-2 gap-1.5 overflow-hidden border-t border-white/[0.07] pt-3 font-mono text-[9px] uppercase tracking-[0.08em] text-white/35 sm:grid-cols-4"
-          >
-            <span>STT {timings.stt_ms} ms</span>
-            <span>Retrieve {timings.retrieval_ms} ms</span>
-            <span>LLM {timings.llm_first_token_ms} ms</span>
-            <span>{firstAudioMs === null ? "" : `TTS ~${firstAudioMs} ms`}</span>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+      {timings && showTimings ? (
+        <div className="mt-3 grid grid-cols-2 gap-1.5 overflow-hidden border-t border-white/[0.07] pt-3 font-mono text-[9px] uppercase tracking-[0.08em] text-white/35 sm:grid-cols-4">
+          <span>STT {timings.stt_ms} ms</span>
+          <span>Retrieve {timings.retrieval_ms} ms</span>
+          <span>LLM {timings.llm_first_token_ms} ms</span>
+          <span>{firstAudioMs === null ? "" : `TTS ~${firstAudioMs} ms`}</span>
+        </div>
+      ) : null}
     </section>
   );
 }
