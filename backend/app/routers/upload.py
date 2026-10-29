@@ -128,10 +128,11 @@ def _process_ingestion(
             else:
                 playable_audio = raw_path
 
+            stt_label = "Qwen3-ASR" if settings.batch_stt_provider == "qwen3_asr" else "Whisper"
             db.update_ingest_job(
                 job_id,
                 status="transcribing",
-                stage="Transcribing audio with Whisper…",
+                stage=f"Transcribing audio with {stt_label}…",
                 progress_pct=30,
             )
 
