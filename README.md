@@ -68,6 +68,7 @@ Melo runs open-weight models on consumer hardware without third-party cloud APIs
 | --- | --- | --- | --- | --- |
 | **Speech-to-Text (Primary)** | Phonon-2.5 | 156 MB (int6) | [`FermionResearch/Phonon-2.5`](https://huggingface.co/FermionResearch/Phonon-2.5) | Fast voice recognition with per-book hotword biasing. |
 | **Speech-to-Text (Fallback)** | faster-whisper (`base.en` / `small.en`) | 142 MB / 466 MB | [`Systran/faster-whisper-base.en`](https://huggingface.co/Systran/faster-whisper-base.en) | Fallback ASR running under CTranslate2. |
+| **Speech-to-Text (Batch / Uploads)** | Qwen3-ASR 1.7B | 1.7B (BF16 / FP8) | [`Qwen/Qwen3-ASR-1.7B`](https://huggingface.co/Qwen/Qwen3-ASR-1.7B) | Pluggable high-throughput batch transcription for long audiobooks. |
 | **Temporal Embeddings** | EmbeddingGemma-2 | 300M (256d MRL) | [`google/embeddinggemma-2`](https://huggingface.co/google/embeddinggemma-2) | Local chunk embeddings for hybrid vector retrieval. |
 | **Companion Reasoning (Default)** | Gemma 4 4.6B (`gemma4:e2b`) | 4.6B (Q4_K_M) | [`google/gemma-4-e2b`](https://huggingface.co/google) | In-the-moment reasoning, refusal enforcement, and token streaming. |
 | **Offline LLM (CPU)** | Qwen2.5-1.5B-Instruct / 3B | 1.5B / 3B GGUF | [`Qwen/Qwen2.5-1.5B-Instruct-GGUF`](https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF) | Fully offline local GGUF running via `llama-cpp-python`. |
@@ -159,8 +160,11 @@ Settings can be configured via environment variables (prefixed with `MELO_` or `
 | `MELO_HOST` | `127.0.0.1` | Backend bind host. |
 | `MELO_PORT` | `8000` | Backend bind port. |
 | `MELO_DATA_DIR` | `./data` | Directory for models, books, and SQLite database (`melo.db`). |
-| `MELO_STT_PROVIDER` | `phonon` | Speech-to-text provider (`phonon` or `whisper`). |
+| `MELO_STT_PROVIDER` | `phonon` | Speech-to-text provider (`phonon` or `whisper`) for voice companion. |
 | `MELO_PHONON_MODEL` | `phonon-2.5` | Profile for `fermion.load_speech`. |
+| `MELO_BATCH_STT_PROVIDER` | `local` | Batch STT engine for audiobook ingestion (`local` faster-whisper or `qwen3_asr`). |
+| `MELO_QWEN3_ASR_ENDPOINT` | `http://localhost:8000/v1` | Self-hosted vLLM or OpenAI-compatible endpoint for Qwen3-ASR batch ingestion. |
+| `MELO_QWEN3_ASR_MODEL` | `Qwen/Qwen3-ASR-1.7B` | Model identifier for the batch ASR endpoint. |
 | `MELO_LLM_PROVIDER` | `ollama` | LLM backend (`ollama`, `llama_cpp`, or `openai`). |
 | `MELO_LLM_ENDPOINT` | `http://localhost:11434` | Endpoint for Ollama or OpenAI-compatible server. |
 | `MELO_LLM_API_KEY` | *(empty)* | Bearer token for `openai`-compatible hosted providers (Groq, OpenRouter, OpenAI, ...). |
@@ -182,6 +186,17 @@ The reasoning model is pluggable. Pick whichever fits your setup:
 | OpenAI | `openai` | `https://api.openai.com/v1` | your key | |
 | LM Studio (local) | `openai` | `http://localhost:1234/v1` | — | Local server, keyless. |
 | llama.cpp server (local) | `openai` | `http://localhost:8080/v1` | — | Keyless `--host` mode. |
+
+### Batch STT with Qwen3-ASR (Fast Audiobook Ingestion)
+
+While interactive push-to-talk voice queries use `Phonon-2.5` for sub-second responses, transcribing long multi-hour audiobooks (`.mp3` / `.m4b`) can become a CPU bottleneck under default local Whisper.
+
+Inspired by [Hasan W. Khan's benchmark report](https://x.com/hasanwkhan04/status/2115549561460572492) demonstrating **>3,000x Real-Time Factor (RTF)** batch transcription using **Qwen3-ASR 1.7B** with native audio decoding (`torchcodec`) and FP8 KV cache, Melo supports a pluggable OpenAI/vLLM-compatible batch STT adapter:
+
+- **Configuration:** Set `MELO_BATCH_STT_PROVIDER=qwen3_asr` and point `MELO_QWEN3_ASR_ENDPOINT` to your vLLM or remote server (e.g. `http://localhost:8000/v1` or Baseten).
+- **Word-Level Timestamp Preservation:** The adapter parses verbose JSON word boundaries (`start_ms`, `end_ms`) directly or interpolates segments gracefully, keeping Melo's **Temporal Spoiler Shield** (`t <= current_ms`) and karaoke highlighting strictly synchronized.
+- **Hardware Caveats:** Serving full `Qwen3-ASR 1.7B` under vLLM requires ~4–5 GB VRAM. On entry-level consumer GPUs (such as 2 GB VRAM cards) or pure CPU environments, run Qwen3-ASR on an external server or keep `MELO_BATCH_STT_PROVIDER=local` (faster-whisper CPU fallback).
+- **Verification & Mock Testing:** Verified end-to-end via an automated mock vLLM server (`mock_asr_server.py`), validating HTTP multipart transmission, word timing extraction, SQLite chunk indexing, and manifest generation across the ingestion pipeline.
 
 ---
 

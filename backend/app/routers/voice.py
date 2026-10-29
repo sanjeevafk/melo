@@ -320,9 +320,7 @@ def voice_query(
         raise ApiError(400, "invalid_t_ms", "t_ms must be non-negative")
     turns = _parse_history(history)
 
-    clean_type = (
-        audio.content_type.split(";")[0].strip().lower() if audio.content_type else ""
-    )
+    clean_type = audio.content_type.split(";")[0].strip().lower() if audio.content_type else ""
     suffix = Path(audio.filename or "").suffix
     if clean_type in VOICE_TYPES:
         suffix = VOICE_TYPES[clean_type]

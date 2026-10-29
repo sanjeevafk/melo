@@ -93,6 +93,55 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("PHONON_MODEL", "MELO_PHONON_MODEL", "ECHOREAD_PHONON_MODEL"),
     )
 
+    batch_stt_provider: Literal["local", "qwen3_asr"] = Field(
+        default="local",
+        validation_alias=AliasChoices(
+            "BATCH_STT_PROVIDER",
+            "MELO_BATCH_STT_PROVIDER",
+            "ECHOREAD_BATCH_STT_PROVIDER",
+        ),
+    )
+    qwen3_asr_endpoint: str = Field(
+        default="http://localhost:8000/v1",
+        validation_alias=AliasChoices(
+            "QWEN3_ASR_ENDPOINT",
+            "MELO_QWEN3_ASR_ENDPOINT",
+            "ECHOREAD_QWEN3_ASR_ENDPOINT",
+            "BATCH_STT_ENDPOINT",
+            "MELO_BATCH_STT_ENDPOINT",
+        ),
+    )
+    qwen3_asr_api_key: str = Field(
+        default="",
+        validation_alias=AliasChoices(
+            "QWEN3_ASR_API_KEY",
+            "MELO_QWEN3_ASR_API_KEY",
+            "ECHOREAD_QWEN3_ASR_API_KEY",
+            "BATCH_STT_API_KEY",
+            "MELO_BATCH_STT_API_KEY",
+        ),
+    )
+    qwen3_asr_model: str = Field(
+        default="Qwen/Qwen3-ASR-1.7B",
+        validation_alias=AliasChoices(
+            "QWEN3_ASR_MODEL",
+            "MELO_QWEN3_ASR_MODEL",
+            "ECHOREAD_QWEN3_ASR_MODEL",
+            "BATCH_STT_MODEL",
+            "MELO_BATCH_STT_MODEL",
+        ),
+    )
+    qwen3_asr_timeout_seconds: float = Field(
+        default=300.0,
+        validation_alias=AliasChoices(
+            "QWEN3_ASR_TIMEOUT",
+            "MELO_QWEN3_ASR_TIMEOUT",
+            "ECHOREAD_QWEN3_ASR_TIMEOUT",
+            "BATCH_STT_TIMEOUT",
+            "MELO_BATCH_STT_TIMEOUT",
+        ),
+    )
+
     llm_provider: Literal["ollama", "openai", "llama_cpp"] = Field(
         default="ollama",
         validation_alias=AliasChoices("LLM_PROVIDER", "MELO_LLM_PROVIDER", "ECHOREAD_LLM_PROVIDER"),

@@ -11,7 +11,7 @@ import numpy as np
 
 from backend.app import db
 from backend.app.services.embeddings import EMBEDDING_DIM, get_embedder
-from backend.app.services.stt import TranscriptWord, get_stt
+from backend.app.services.stt import BaseSTT, TranscriptWord, get_batch_stt
 
 MAX_CHUNK_WORDS = 120
 MAX_CHUNK_MS = 45_000
@@ -82,6 +82,7 @@ def ingest_book(
     chapter: int | None = None,
     chapters: list[Any] | None = None,
     db_path: Path | None = None,
+    stt: BaseSTT | None = None,
 ) -> IngestResult:
     if not audio_path.exists():
         raise FileNotFoundError(f"Audio not found: {audio_path}")
@@ -92,7 +93,8 @@ def ingest_book(
     eff_source_type = "audio_upload" if source_type == "document_tts" else source_type
 
     if words is None:
-        transcript, words = get_stt().transcribe(audio_path, hotwords=hotwords)
+        engine = stt or get_batch_stt()
+        transcript, words = engine.transcribe(audio_path, hotwords=hotwords)
         if not source_text:
             source_text = transcript
 
