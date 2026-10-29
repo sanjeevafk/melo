@@ -1,15 +1,15 @@
-import { GraduationCap, ShieldCheck } from "lucide-react";
-import { motion } from "motion/react";
+import type { ComponentType } from "react";
+import { GraduationCap, ShieldCheck } from "./ui/icons";
+import type { IconProps } from "./ui/icons";
 
 import type { Mode } from "../api/types";
-import { spring } from "../lib/motion";
 
 interface ModeToggleProps {
   mode: Mode;
   onChange: (mode: Mode) => void;
 }
 
-const OPTIONS: { value: Mode; label: string; Icon: typeof ShieldCheck; pill: string }[] = [
+const OPTIONS: { value: Mode; label: string; Icon: ComponentType<IconProps>; pill: string }[] = [
   {
     value: "story",
     label: "Story",
@@ -44,10 +44,8 @@ export function ModeToggle({ mode, onChange }: ModeToggleProps) {
             }`}
           >
             {active && (
-              <motion.span
-                layoutId="mode-pill"
-                transition={spring}
-                className={`absolute inset-0 rounded-full ${pill}`}
+              <span
+                className={`absolute inset-0 rounded-full transition-all duration-200 ${pill}`}
                 aria-hidden="true"
               />
             )}

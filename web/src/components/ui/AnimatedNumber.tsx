@@ -1,19 +1,45 @@
-import { useEffect } from "react";
-import { motion, useSpring, useTransform } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 
 interface AnimatedNumberProps {
   value: number;
   className?: string;
 }
 
-/** Spring-animated integer counter. */
+/** Vanilla animated integer counter using requestAnimationFrame. */
 export function AnimatedNumber({ value, className }: AnimatedNumberProps) {
-  const spring = useSpring(value, { stiffness: 120, damping: 20, mass: 0.6 });
-  const display = useTransform(spring, (current) => Math.round(current).toLocaleString());
+  const [display, setDisplay] = useState(value);
+  const prevRef = useRef(value);
 
   useEffect(() => {
-    spring.set(value);
-  }, [spring, value]);
+    const startVal = prevRef.current;
+    const endVal = value;
+    prevRef.current = endVal;
 
-  return <motion.span className={className}>{display}</motion.span>;
+    if (startVal === endVal) {
+      setDisplay(endVal);
+      return;
+    }
+
+    const duration = 350; // ms
+    const startTime = performance.now();
+    let animId: number;
+
+    const tick = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // easeOutCubic
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const current = Math.round(startVal + (endVal - startVal) * ease);
+      setDisplay(current);
+
+      if (progress < 1) {
+        animId = requestAnimationFrame(tick);
+      }
+    };
+
+    animId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(animId);
+  }, [value]);
+
+  return <span className={className}>{display.toLocaleString()}</span>;
 }

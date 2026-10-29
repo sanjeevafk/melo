@@ -1,4 +1,4 @@
-import { BookOpen } from "lucide-react";
+import { BookOpen } from "../ui/icons";
 
 import type { BookManifest, Mode } from "../../api/types";
 import { AnimatedBook } from "./AnimatedBook";
